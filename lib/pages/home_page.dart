@@ -65,17 +65,21 @@ class HomePage extends StatelessWidget {
                 Container(
                   width: MediaQuery.of(context).size.width,
                   height: MediaQuery.of(context).size.height / 10,
-                  child: Row(
-                    children: [
-                      Icon(Icons.abc),
-                      Text("Note count"),
-                      IconButton(
-                        icon: Icon(Icons.create),
-                        onPressed: () {
-                          Navigation.createRoute(const NotePage(), context);
-                        },
-                      ),
-                    ],
+                  color: Theme.of(context).bottomAppBarColor,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text("Notes: ${state.notes.length}"),
+                        IconButton(
+                          icon: Icon(Icons.create),
+                          onPressed: () {
+                            Navigation.createRoute(const NotePage(), context);
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 )
               ],
