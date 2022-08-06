@@ -23,6 +23,7 @@ dependencies:
   sqflite: 
   equatable: 
   logging_appenders: 
+  flutter_slidable: 
   logging: 
   shared_preferences:
   uuid:

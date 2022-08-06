@@ -1,26 +1,25 @@
 import 'dart:convert';
 
 class Note {
-  final int noteId;
+  final int id;
   final String content;
   final DateTime createDate;
   final DateTime updateDate;
   Note({
-    required this.noteId,
+    required this.id,
     required this.content,
     required this.createDate,
     required this.updateDate,
   });
-  
 
   Note copyWith({
-    int? noteId,
+    int? id,
     String? content,
     DateTime? createDate,
     DateTime? updateDate,
   }) {
     return Note(
-      noteId: noteId ?? this.noteId,
+      id: id ?? this.id,
       content: content ?? this.content,
       createDate: createDate ?? this.createDate,
       updateDate: updateDate ?? this.updateDate,
@@ -29,19 +28,23 @@ class Note {
 
   Map<String, dynamic> toMap() {
     return {
-      'noteId': noteId,
+      'id': id,
       'content': content,
-      'createDate': createDate.millisecondsSinceEpoch,
-      'updateDate': updateDate.millisecondsSinceEpoch,
+      'createDateMillisSinceEpoch': createDate.millisecondsSinceEpoch,
+      'updateDateMillisSinceEpoch': updateDate.millisecondsSinceEpoch,
     };
   }
 
   factory Note.fromMap(Map<String, dynamic> map) {
+    print(map['id']);
+    print(map['content']);
+    print(map['createDateMillisSinceEpoch']);
+    print(map['updateDateMillisSinceEpoch']);
     return Note(
-      noteId: map['noteId']?.toInt() ?? 0,
+      id: map['id']?.toInt() ?? 0,
       content: map['content'] ?? '',
-      createDate: DateTime.fromMillisecondsSinceEpoch(map['createDate']),
-      updateDate: DateTime.fromMillisecondsSinceEpoch(map['updateDate']),
+      createDate: DateTime.fromMillisecondsSinceEpoch(map['createDateMillisSinceEpoch']),
+      updateDate: DateTime.fromMillisecondsSinceEpoch(map['updateDateMillisSinceEpoch']),
     );
   }
 
@@ -51,25 +54,22 @@ class Note {
 
   @override
   String toString() {
-    return 'Note(noteId: $noteId, content: $content, createDate: $createDate, updateDate: $updateDate)';
+    return 'Note(id: $id, content: $content, createDate: $createDate, updateDate: $updateDate)';
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-  
+
     return other is Note &&
-      other.noteId == noteId &&
-      other.content == content &&
-      other.createDate == createDate &&
-      other.updateDate == updateDate;
+        other.id == id &&
+        other.content == content &&
+        other.createDate == createDate &&
+        other.updateDate == updateDate;
   }
 
   @override
   int get hashCode {
-    return noteId.hashCode ^
-      content.hashCode ^
-      createDate.hashCode ^
-      updateDate.hashCode;
+    return id.hashCode ^ content.hashCode ^ createDate.hashCode ^ updateDate.hashCode;
   }
 }
