@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:notime/services/date_service.dart';
 
 class NotePage extends StatefulWidget {
   const NotePage({Key? key}) : super(key: key);
@@ -40,9 +41,9 @@ class _NotePageState extends State<NotePage> {
     });
   }
 
-  void _toggleStopwatch() {
-    stopwatch.isRunning ? stopwatch.stop() : stopwatch.start();
-  }
+  void _toggleStopwatch() => stopwatch.isRunning ? stopwatch.stop() : stopwatch.start();
+
+  void _resetStopwatch() => stopwatch.reset();
 
   String _getTimeString(int time) {
     String str = time.toString();
@@ -87,12 +88,17 @@ class _NotePageState extends State<NotePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          "$_minutesString:$_secondsString:$_centisecondsString",
-          style: const TextStyle(
-            fontFeatures: [
-              FontFeature.tabularFigures(),
-            ],
+        title: TextButton(
+          onPressed: () => _toggleStopwatch(),
+          onLongPress: () => _resetStopwatch(),
+          child: Text(
+            "$_minutesString:$_secondsString:$_centisecondsString",
+            style: const TextStyle(
+              fontSize: 22,
+              fontFeatures: [
+                FontFeature.tabularFigures(),
+              ],
+            ),
           ),
         ),
         actions: [
@@ -112,7 +118,7 @@ class _NotePageState extends State<NotePage> {
         child: Column(
           children: [
             Center(
-              child: Text(createDate.toString()),
+              child: Text(DateService.dateTimeToString(createDate)),
             ),
             Expanded(
               child: TextField(
@@ -122,10 +128,6 @@ class _NotePageState extends State<NotePage> {
                 maxLines: 99999,
               ),
             ),
-            MaterialButton(
-              child: Text("Start the clock"),
-              onPressed: () => _toggleStopwatch(),
-            )
           ],
         ),
       ),

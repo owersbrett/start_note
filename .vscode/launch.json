@@ -7,7 +7,8 @@
         {
             "name": "notime",
             "request": "launch",
-            "type": "dart"
+            "type": "dart",
+            "deviceId": "00008030-001C35E02232402E"
         },
         {
             "name": "notime (profile mode)",

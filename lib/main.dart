@@ -1,67 +1,109 @@
-import 'package:flutter/material.dart';
-import 'package:notime/pages/home_page.dart';
+import 'dart:async';
+import 'dart:io';
 
-void main() {
-  runApp(const MyApp());
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:logging/logging.dart';
+import 'package:notime/bloc/notes.dart';
+import 'package:notime/data/repositories/note_repository.dart';
+
+import 'package:notime/pages/home_page.dart';
+import 'package:notime/services/logging_service.dart';
+import 'package:notime/theme/application_theme.dart';
+
+import 'services/l10n_service.dart';
+import 'services/mock_service.dart';
+
+void main({bool useMocks = false}) async {
+  await LoggingService.initialize();
+  Directory directory =  Directory.systemTemp;
+  final storage = await HydratedStorage.build(storageDirectory: directory);
+
+  HydratedBlocOverrides.runZoned<Future<void>>(
+    () async => runApp(MyApp(useMocks: useMocks)),
+    storage: storage,
+  );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({Key? key, this.useMocks = false}) : super(key: key);
+  final bool useMocks;
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const HomePage(),
+    INoteRepository noteRepository;
+
+    if (useMocks) {
+      MockService mockService = MockService()..initialize();
+      noteRepository = mockService.noteRepository;
+    } else {
+      noteRepository = NoteRepository();
+    }
+
+    return AppWrapper(
+      noteRepository: noteRepository,
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
+class AppWrapper extends StatelessWidget {
+  const AppWrapper({
+    required this.noteRepository,
+  });
+  final INoteRepository noteRepository;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  Widget build(BuildContext context) {
+    return MultiRepositoryProvider(
+      providers: [
+        RepositoryProvider(create: (ctx) => noteRepository),
+      ],
+      child: Notime(
+        noteRepository: noteRepository,
+      ),
+    );
+  }
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class Notime extends StatefulWidget {
+  const Notime({
+    required this.noteRepository,
+  });
+  final INoteRepository noteRepository;
+  @override
+  _NotimeState createState() => _NotimeState();
+}
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+class _NotimeState extends State<Notime> {
+  late NotesBloc notesBloc;
+  @override
+  void initState() {
+    super.initState();
+    notesBloc = NotesBloc();
+  }
+
+  @override
+  void dispose() {
+    notesBloc.close();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => notesBloc),
+      ],
+      child: MaterialApp(
+        localizationsDelegates: L10nService.delegates,
+        supportedLocales: L10nService.locales,
+        locale: L10nService.defaultLocale,
+        debugShowCheckedModeBanner: false,
+        title: 'Flutter Demo',
+        home: const HomePage(),
+        theme: ApplicationTheme.theme,
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
