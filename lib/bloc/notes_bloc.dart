@@ -12,13 +12,43 @@ class NotesBloc extends HydratedBloc<NotesEvent, NotesState> {
   void _onEvent(NotesEvent event, Emitter<NotesState> emit) async {
     if (event is FetchNotes) await _fetchNotes(event, emit);
     if (event is AddNote) await _addNote(event, emit);
+    if (event is DeleteNote) await _deleteNote(event, emit);
+    if (event is UpdateNote) await _updateNote(event, emit);
+  }
+
+  Future<void> _updateNote(UpdateNote event, Emitter<NotesState> emit) async {
+    try {
+      Note note = state.notes.firstWhere((element) => element.id == event.note.id);
+      List<Note> notes = List<Note>.from(state.notes)..remove(note);
+      notes.add(event.note);
+      await noteRepository.update(event.note);
+      emit(NotesLoaded(notes..sort((a, b) => b.createDate.compareTo(a.createDate))));
+    } catch (e) {
+      print(e);
+      emit(NotesError(const []));
+    }
+  }
+
+  Future<void> _deleteNote(DeleteNote event, Emitter<NotesState> emit) async {
+    try {
+      Note note = state.notes.firstWhere((element) => element.id == event.noteId);
+      List<Note> notes = List<Note>.from(state.notes)..remove(note);
+      await noteRepository.delete(note);
+      emit(NotesLoaded(notes));
+    } catch (e) {
+      print(e);
+      emit(NotesError(const []));
+    }
   }
 
   Future<void> _fetchNotes(FetchNotes event, Emitter<NotesState> emit) async {
     try {
       List<Note> notes = await noteRepository.getNotes();
 
-      emit(NotesLoaded(notes..sort((a, b) => b.createDate.compareTo(a.createDate),)));
+      emit(NotesLoaded(notes
+        ..sort(
+          (a, b) => b.createDate.compareTo(a.createDate),
+        )));
     } catch (e) {
       print(e);
       emit(NotesError(const []));

@@ -1,5 +1,6 @@
 import 'package:logging/logging.dart';
 import 'package:notime/data/repositories/_repository.dart';
+import 'package:notime/services/logging_service.dart';
 import 'package:sqflite/sqlite_api.dart';
 
 import '../models/note.dart';
@@ -40,18 +41,28 @@ class NoteRepository<T extends Note> implements INoteRepository<Note> {
 
   @override
   Future<bool> delete(Note t) async {
-    return false;
+    try {
+      await db.rawDelete('DELETE FROM ${INoteRepository.tableName} WHERE id = ?', [t.id.toString()]);
+    } catch (e) {
+      LoggingService.logger.fine(e.toString());
+      return false;
+    }
+
+    return true;
   }
 
   @override
   Future<Note> getById(int id) async {
-    // TODO: implement getById
-    throw UnimplementedError();
+    List<Map> list = await db.rawQuery('SELECT * FROM ${INoteRepository.tableName} WHERE id = ?', [id]);
+    print(list.toString());
+    return list.map((e) => Note.fromMap(Map<String, dynamic>.from(e))).toList().first;
   }
 
   @override
-  Future<bool> update(Note t) {
-    // TODO: implement update
-    throw UnimplementedError();
+  Future<bool> update(Note t) async {
+    int count =
+        await db.rawUpdate('UPDATE ${INoteRepository.tableName} SET content = ?, updateDateMillisSinceEpoch = ? WHERE id = ?', [t.content, t.updateDate.millisecondsSinceEpoch, t.id]);
+    print('updated: $count');
+    return true;
   }
 }

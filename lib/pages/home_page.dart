@@ -13,13 +13,33 @@ class HomePage extends StatelessWidget {
 
   Widget _buildNotes(BuildContext context, Note note) {
     return Slidable(
+      key: ValueKey(note.id),
+      endActionPane: ActionPane(
+        motion: const ScrollMotion(),
+        children: [
+          SlidableAction(
+            onPressed: (ctx) {
+              BlocProvider.of<NotesBloc>(context).add(DeleteNote(note.id));
+            },
+            backgroundColor: const Color(0xFFFE4A49),
+            foregroundColor: Colors.white,
+            icon: Icons.delete,
+            label: 'Delete',
+          ),
+        ],
+      ),
       child: ListTile(
-        title: Text(Display.substring(note.content, 0, 42), maxLines: 2,),
-        subtitle: Text(DateService.dateTimeToString(note.createDate), maxLines: 1,),
-    
+        title: Text(
+          Display.substring(note.content, 0, 42),
+          maxLines: 2,
+        ),
+        subtitle: Text(
+          DateService.dateTimeToString(note.createDate),
+          maxLines: 1,
+        ),
         onTap: () {
           // createRoute
-          Navigation.createRoute( NotePage(note: note), context);
+          Navigation.createRoute(NotePage(note: note), context);
         },
       ),
     );
