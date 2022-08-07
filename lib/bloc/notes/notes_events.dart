@@ -1,4 +1,6 @@
-import '../data/models/note.dart';
+
+
+import '../../data/models/note.dart';
 
 abstract class NotesEvent {
   const NotesEvent();
@@ -7,8 +9,8 @@ abstract class NotesEvent {
 class FetchNotes extends NotesEvent {}
 
 class AddNote extends NotesEvent {
-  AddNote(this.content);
-  final String  content;
+  AddNote(this.note);
+  final Note  note;
 }
 
 class DeleteNote extends NotesEvent {

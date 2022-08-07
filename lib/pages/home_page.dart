@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:notime/pages/note_page.dart';
 import 'package:notime/services/date_service.dart';
-import '../bloc/notes.dart';
+import '../bloc/notes/notes.dart';
 import '../data/models/note.dart';
 import '../navigation/navigation.dart';
-import '../util/display.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 class HomePage extends StatelessWidget {
@@ -30,8 +29,9 @@ class HomePage extends StatelessWidget {
       ),
       child: ListTile(
         title: Text(
-          Display.substring(note.content, 0, 42),
-          maxLines: 2,
+          note.content,
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
         ),
         subtitle: Text(
           DateService.dateTimeToString(note.createDate),
@@ -75,7 +75,17 @@ class HomePage extends StatelessWidget {
                         IconButton(
                           icon: Icon(Icons.create),
                           onPressed: () {
-                            Navigation.createRoute(const NotePage(), context);
+                            Note note = Note(
+                                id: state.newNoteId,
+                                content: "",
+                                createDate: DateTime.now(),
+                                updateDate: DateTime.now());
+                            BlocProvider.of<NotesBloc>(context).add(AddNote(note));
+                            Navigation.createRoute(
+                                NotePage(
+                                  note: note,
+                                ),
+                                context);
                           },
                         ),
                       ],

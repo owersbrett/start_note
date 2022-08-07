@@ -4,17 +4,13 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
-import 'package:logging/logging.dart';
 import 'package:sqflite/sqflite.dart';
-
-import 'package:notime/bloc/notes.dart';
 import 'package:notime/data/repositories/note_repository.dart';
 import 'package:notime/pages/home_page.dart';
 import 'package:notime/services/logging_service.dart';
 import 'package:notime/theme/application_theme.dart';
-
+import 'bloc/notes/notes.dart';
 import 'services/l10n_service.dart';
-import 'services/mock_service.dart';
 
 void main({bool useMocks = false}) async {
   WidgetsFlutterBinding.ensureInitialized();

@@ -1,7 +1,6 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:notime/data/repositories/note_repository.dart';
-import '../data/models/note.dart';
+import '../../data/models/note.dart';
 import 'notes.dart';
 
 class NotesBloc extends HydratedBloc<NotesEvent, NotesState> {
@@ -44,11 +43,16 @@ class NotesBloc extends HydratedBloc<NotesEvent, NotesState> {
   Future<void> _fetchNotes(FetchNotes event, Emitter<NotesState> emit) async {
     try {
       List<Note> notes = await noteRepository.getNotes();
-
-      emit(NotesLoaded(notes
-        ..sort(
-          (a, b) => b.createDate.compareTo(a.createDate),
-        )));
+      Note? noteToDelete;
+      for (var element in notes) {
+        if (element.content.isEmpty) {
+          noteToDelete = element;
+        }
+      }
+      emit(NotesLoaded(notes..sort((a, b) => b.createDate.compareTo(a.createDate))));
+      if (noteToDelete != null) {
+        add(DeleteNote(noteToDelete.id));
+      }
     } catch (e) {
       print(e);
       emit(NotesError(const []));
@@ -57,10 +61,8 @@ class NotesBloc extends HydratedBloc<NotesEvent, NotesState> {
 
   Future<void> _addNote(AddNote event, Emitter<NotesState> emit) async {
     try {
-      List<Note> currentNotes = state.notes..sort((a, b) => b.createDate.compareTo(a.createDate));
-      int nextNoteId = currentNotes.isNotEmpty ? currentNotes[0].id + 1 : 0;
-      noteRepository
-          .create(Note(content: event.content, id: nextNoteId, createDate: DateTime.now(), updateDate: DateTime.now()));
+      noteRepository.create(event.note);
+      emit(state.copyWith(List<Note>.from(state.notes)..add(event.note)));
     } catch (e) {
       emit(state);
     }

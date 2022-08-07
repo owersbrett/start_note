@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-import '../data/models/note.dart';
+import '../../data/models/note.dart';
 
 abstract class NotesState extends Equatable {
   List<Note> get notes;
@@ -13,6 +13,10 @@ abstract class NotesState extends Equatable {
     return {"notes": notes.map((e) => e.toMap()).toList()};
   }
 
+  int get newNoteId {
+    List<Note> currentNotes = List<Note>.from(notes)..sort((a, b) => b.createDate.compareTo(a.createDate));
+    return currentNotes.isNotEmpty ? currentNotes[0].id + 1 : 0;
+  }
 }
 
 class NotesInitial extends NotesState {
