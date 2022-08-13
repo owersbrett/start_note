@@ -1,6 +1,6 @@
 import 'package:editable/editable.dart';
 import 'package:flutter/material.dart';
-import 'package:notime/data/models/note_table.dart';
+import 'package:start_note/data/models/note_table.dart';
 
 class NoteTableDisplay extends StatefulWidget {
   const NoteTableDisplay({Key? key, required this.noteTable}) : super(key: key);
@@ -19,7 +19,6 @@ class _NoteTableDisplayState extends State<NoteTableDisplay> {
     super.initState();
     tableTitleController = TextEditingController(text: widget.noteTable.title);
   }
-
 
   @override
   Widget build(BuildContext context) {

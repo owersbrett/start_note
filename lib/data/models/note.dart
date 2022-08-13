@@ -1,6 +1,16 @@
 import 'dart:convert';
 
 class Note {
+  static const String tableName = "Note";
+
+  static const List<String> columnDeclarations = [
+    "id INTEGER PRIMARY KEY AUTOINCREMENT",
+    "content TEXT",
+    "createDateMillisecondsSinceEpoch INTEGER",
+    "updateDateMillisecondsSinceEpoch INTEGER",
+
+  ];
+
   final int id;
   final String content;
   final DateTime createDate;
@@ -36,10 +46,6 @@ class Note {
   }
 
   factory Note.fromMap(Map<String, dynamic> map) {
-    print(map['id']);
-    print(map['content']);
-    print(map['createDateMillisSinceEpoch']);
-    print(map['updateDateMillisSinceEpoch']);
     return Note(
       id: map['id']?.toInt() ?? 0,
       content: map['content'] ?? '',

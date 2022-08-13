@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:notime/pages/note_page.dart';
-import 'package:notime/services/date_service.dart';
+import 'package:start_note/data/entities/note_entity.dart';
+import 'package:start_note/pages/note_page.dart';
+import 'package:start_note/services/date_service.dart';
 import '../bloc/notes/notes.dart';
 import '../data/models/note.dart';
 import '../navigation/navigation.dart';
@@ -39,7 +40,7 @@ class HomePage extends StatelessWidget {
         ),
         onTap: () {
           // createRoute
-          Navigation.createRoute(NotePage(note: note), context);
+          Navigation.createRoute(NotePage(note: NoteEntity.fromNote(note)), context);
         },
       ),
     );
@@ -49,7 +50,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Notime"),
+        title: const Text("Start Note"),
       ),
       body: BlocBuilder<NotesBloc, NotesState>(
         builder: (context, state) {
@@ -79,13 +80,9 @@ class HomePage extends StatelessWidget {
                                 id: state.newNoteId,
                                 content: "",
                                 createDate: DateTime.now(),
-                                updateDate: DateTime.now());
+                                updateDate: DateTime.now(),);
                             BlocProvider.of<NotesBloc>(context).add(AddNote(note));
-                            Navigation.createRoute(
-                                NotePage(
-                                  note: note,
-                                ),
-                                context);
+                            Navigation.createRoute(NotePage(note: NoteEntity.fromNote(note)), context);
                           },
                         ),
                       ],

@@ -1,5 +1,5 @@
 import 'package:hydrated_bloc/hydrated_bloc.dart';
-import 'package:notime/data/repositories/note_repository.dart';
+import 'package:start_note/data/repositories/note_repository.dart';
 import '../../data/models/note.dart';
 import 'notes.dart';
 
@@ -23,7 +23,6 @@ class NotesBloc extends HydratedBloc<NotesEvent, NotesState> {
       await noteRepository.update(event.note);
       emit(NotesLoaded(notes..sort((a, b) => b.createDate.compareTo(a.createDate))));
     } catch (e) {
-      print(e);
       emit(NotesError(const []));
     }
   }
@@ -35,7 +34,6 @@ class NotesBloc extends HydratedBloc<NotesEvent, NotesState> {
       await noteRepository.delete(note);
       emit(NotesLoaded(notes));
     } catch (e) {
-      print(e);
       emit(NotesError(const []));
     }
   }
@@ -43,19 +41,23 @@ class NotesBloc extends HydratedBloc<NotesEvent, NotesState> {
   Future<void> _fetchNotes(FetchNotes event, Emitter<NotesState> emit) async {
     try {
       List<Note> notes = await noteRepository.getNotes();
-      Note? noteToDelete;
-      for (var element in notes) {
-        if (element.content.isEmpty) {
-          noteToDelete = element;
-        }
-      }
+
       emit(NotesLoaded(notes..sort((a, b) => b.createDate.compareTo(a.createDate))));
-      if (noteToDelete != null) {
-        add(DeleteNote(noteToDelete.id));
-      }
+      _deleteEmptyNotes(notes);
     } catch (e) {
-      print(e);
       emit(NotesError(const []));
+    }
+  }
+
+  void _deleteEmptyNotes(List<Note> notes) {
+    Note? noteToDelete;
+    for (var element in notes) {
+      if (element.content.isEmpty) {
+        noteToDelete = element;
+      }
+    }
+    if (noteToDelete != null) {
+      add(DeleteNote(noteToDelete.id));
     }
   }
 

@@ -1,14 +1,31 @@
 import 'dart:convert';
 
+import 'note.dart';
+import 'note_table.dart';
+
 class NoteTableCell {
+      static const String tableName = "NoteTableCell";
+  static const List<String> columnDeclarations = [
+    "id INTEGER",
+    "noteTableId INTEGER",
+    "noteId INTEGER",
+    "row INTEGER",
+    "column INTEGER",
+    "content TEXT",
+    "PRIMARY KEY (id noteId noteTableId)",
+    "FOREIGN KEY (noteTableId) REFERENCES ${NoteTable.tableName}(id) ON DELETE CASCADE ON UPDATE NO ACTION",
+    "FOREIGN KEY (noteId) REFERENCES ${Note.tableName}(id) ON DELETE CASCADE ON UPDATE NO ACTION"
+  ];
   final int id;
-  final int tableId;
+  final int noteTableId;
+  final int noteId;
   final String content;
   final int row;
   final int column;
   NoteTableCell({
     required this.id,
-    required this.tableId,
+    required this.noteId,
+    required this.noteTableId,
     required this.content,
     required this.row,
     required this.column,
@@ -16,14 +33,16 @@ class NoteTableCell {
 
   NoteTableCell copyWith({
     int? id,
-    int? tableId,
+    int? noteId,
+    int? noteTableId,
     String? content,
     int? row,
     int? column,
   }) {
     return NoteTableCell(
       id: id ?? this.id,
-      tableId: tableId ?? this.tableId,
+      noteId: noteId ?? this.noteId,
+      noteTableId: noteTableId ?? this.noteTableId,
       content: content ?? this.content,
       row: row ?? this.row,
       column: column ?? this.column,
@@ -33,7 +52,8 @@ class NoteTableCell {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'tableId': tableId,
+      'noteId': noteId,
+      'noteTableId': noteTableId,
       'content': content,
       'row': row,
       'column': column,
@@ -43,7 +63,8 @@ class NoteTableCell {
   factory NoteTableCell.fromMap(Map<String, dynamic> map) {
     return NoteTableCell(
       id: map['id']?.toInt() ?? 0,
-      tableId: map['tableId']?.toInt() ?? 0,
+      noteId: map['noteId']?.toInt() ?? 0,
+      noteTableId: map['noteTableId']?.toInt() ?? 0,
       content: map['content'] ?? '',
       row: map['row']?.toInt() ?? 0,
       column: map['column']?.toInt() ?? 0,
@@ -56,7 +77,7 @@ class NoteTableCell {
 
   @override
   String toString() {
-    return 'NoteTableCell(id: $id, tableId: $tableId, content: $content, row: $row, column: $column)';
+    return 'NoteTableCell(id: $id, noteId: $noteId, noteTableId: $noteTableId, content: $content, row: $row, column: $column)';
   }
 
   @override
@@ -65,7 +86,8 @@ class NoteTableCell {
   
     return other is NoteTableCell &&
       other.id == id &&
-      other.tableId == tableId &&
+      other.noteId == noteId &&
+      other.noteTableId == noteTableId &&
       other.content == content &&
       other.row == row &&
       other.column == column;
@@ -74,7 +96,8 @@ class NoteTableCell {
   @override
   int get hashCode {
     return id.hashCode ^
-      tableId.hashCode ^
+      noteId.hashCode ^
+      noteTableId.hashCode ^
       content.hashCode ^
       row.hashCode ^
       column.hashCode;

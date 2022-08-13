@@ -1,15 +1,11 @@
 import 'package:logging/logging.dart';
-import 'package:notime/data/models/note_table.dart';
-import 'package:notime/data/repositories/_repository.dart';
-import 'package:notime/services/logging_service.dart';
+import 'package:start_note/data/models/note_table.dart';
+import 'package:start_note/data/repositories/_repository.dart';
+import 'package:start_note/services/logging_service.dart';
 import 'package:sqflite/sqlite_api.dart';
 
-import '../models/note.dart';
-
 abstract class INoteTableRepository<T extends NoteTable> extends Repository<NoteTable> {
-  static const String tableName = "NoteTable";
-  static String createNoteTableNoteTableString =
-      'CREATE TABLE $tableName (id INTEGER PRIMARY KEY, noteId INTEGER FOREIGN KEY, rowCount INTEGER, columnCount INTEGER, title TEXT, createDateMillisSinceEpoch INTEGER, updateDateMillisSinceEpoch INTEGER)';
+
 
   Future<List<NoteTable>> getNoteTablesFromNoteId(int noteId);
 }
@@ -17,7 +13,7 @@ abstract class INoteTableRepository<T extends NoteTable> extends Repository<Note
 class NoteTableRepository<T extends NoteTable> implements INoteTableRepository<NoteTable> {
   Database db;
   NoteTableRepository(this.db);
-  String get tableName => INoteTableRepository.tableName;
+  String get tableName => NoteTable.tableName;
 
   @override
   Future<List<NoteTable>> getNoteTablesFromNoteId(int noteId) async {
@@ -38,12 +34,11 @@ class NoteTableRepository<T extends NoteTable> implements INoteTableRepository<N
       String createDateMillisSinceEpoch = t.createDate.millisecondsSinceEpoch.toString();
       String updateDateMillisSinceEpoch = t.updateDate.millisecondsSinceEpoch.toString();
       int id1 = await txn.rawInsert(
-          'INSERT or IGNORE INTO $tableName(id, noteId, rowCount, columnCount, title, createDateMillisSinceEpoch, updateDateMillisSinceEpoch) VALUES($id, $noteId, $rowCount, $columnCount, $title, $createDateMillisSinceEpoch, $updateDateMillisSinceEpoch)');
+          'INSERT or IGNORE INTO $tableName(id, noteId, rowCount, columnCount, title, createDateMillisSinceEpoch, updateDateMillisSinceEpoch) VALUES($id, $noteId, $rowCount, $columnCount, "$title", $createDateMillisSinceEpoch, $updateDateMillisSinceEpoch)');
       Logger.root.info('inserted1: $id1');
     });
     return t;
   }
-
   @override
   Future<bool> delete(NoteTable t) async {
     try {

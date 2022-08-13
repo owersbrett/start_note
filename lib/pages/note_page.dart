@@ -2,18 +2,20 @@ import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:start_note/data/entities/note_entity.dart';
+import 'package:start_note/data/repositories/note_table_repository.dart';
 
-import 'package:notime/pages/note_page/table_display.dart';
-import 'package:notime/services/date_service.dart';
+import 'package:start_note/pages/note_page/table_display.dart';
+import 'package:start_note/services/date_service.dart';
 
 import '../bloc/note_page/note_page.dart';
 import '../bloc/notes/notes.dart';
-import '../data/models/note.dart';
 import '../data/models/note_table.dart';
+import '../data/repositories/note_repository.dart';
 
 class NotePage extends StatefulWidget {
   const NotePage({Key? key, required this.note}) : super(key: key);
-  final Note note;
+  final NoteEntity note;
 
   @override
   State<NotePage> createState() => _NotePageState();
@@ -29,11 +31,15 @@ class _NotePageState extends State<NotePage> {
   @override
   void initState() {
     super.initState();
-    notePageBloc = NotePageBloc();
+    notePageBloc = NotePageBloc(
+      widget.note,
+      RepositoryProvider.of<INoteRepository>(context),
+      RepositoryProvider.of<INoteTableRepository>(context),
+    )..add(FetchNotePage());
     millisecondCount = 0;
     noteController = TextEditingController(text: widget.note.content);
     noteFocusNode = FocusNode();
-    widget.note == null ? noteFocusNode.requestFocus() : null;
+    noteFocusNode.requestFocus();
     stopwatch = Stopwatch();
     timer = Timer.periodic(const Duration(milliseconds: 10), _updateDisplay);
   }
@@ -42,6 +48,7 @@ class _NotePageState extends State<NotePage> {
   void dispose() {
     timer.cancel();
     stopwatch.stop();
+    notePageBloc.close();
     super.dispose();
   }
 
@@ -106,6 +113,10 @@ class _NotePageState extends State<NotePage> {
     );
   }
 
+  Widget _tableBuilder(NoteTable noteTable) {
+    return NoteTableDisplay(noteTable: noteTable);
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -113,93 +124,115 @@ class _NotePageState extends State<NotePage> {
         BlocProvider.of<NotesBloc>(context).add(FetchNotes());
         return true;
       },
-      child: Scaffold(
-        appBar: AppBar(
-          title: TextButton(
-            onPressed: () => _toggleStopwatch(),
-            onLongPress: () => _resetStopwatch(),
-            child: Text(
-              _stopwatchString,
-              style: const TextStyle(
-                fontSize: 22,
-                fontFeatures: [
-                  FontFeature.tabularFigures(),
-                ],
-              ),
-            ),
-          ),
-          actions: [
-            noteFocusNode.hasFocus
-                ? TextButton(
-                    child: const Text("Done", style: TextStyle(color: Colors.white)),
-                    onPressed: () {
-                      onDone();
-                    },
-                  )
-                : Container(),
-          ],
-        ),
-        body: BlocBuilder<NotePageBloc, NotePageState>(
-          bloc: notePageBloc,
-          builder: (context, state) {
-            // if (state is NotePageLoaded) {
-            if (true) {
-              return Padding(
-                padding: const EdgeInsets.only(top: 8.0, left: 16, right: 16),
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(4.0),
-                      child: Center(
-                        child: Text(
-                          DateService.dateTimeToWeekDay(widget.note.createDate),
-                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Center(
-                        child: Text(
-                          DateService.dateTimeToString(widget.note.createDate),
-                          style: const TextStyle(fontSize: 14),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: TextField(
-                        controller: noteController,
-                        focusNode: noteFocusNode,
-                        decoration: null,
-                        maxLines: 99999,
-                      ),
-                    ),
-                    // Expanded(
-                    //   child: ListView(
-                    //     scrollDirection: Axis.horizontal,
-                    //     children: [
-                    //       NoteTableDisplay(
-                    //         noteTable: NoteTable(
-                    //           id: 0,
-                    //           updateDate: DateTime.now(),
-                    //           createDate: DateTime.now(),
-                    //           columnCount: 2,
-                    //           rowCount: 2,
-                    //           title: "",
-                    //           noteId: widget.note.id,
-                    //         ),
-                    //       ),
-                    //     ],
-                    //   ),
-                    // ),
+      child: DefaultTabController(
+        length: 2,
+        child: Scaffold(
+          appBar: AppBar(
+            title: TextButton(
+              onPressed: () => _toggleStopwatch(),
+              onLongPress: () => _resetStopwatch(),
+              child: Text(
+                _stopwatchString,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontFeatures: [
+                    FontFeature.tabularFigures(),
                   ],
                 ),
-              );
-            }
-            return Container(
-              child: Text("Loading"),
-            );
-          },
+              ),
+            ),
+            actions: [
+              noteFocusNode.hasFocus
+                  ? TextButton(
+                      child: const Text("Done", style: TextStyle(color: Colors.white)),
+                      onPressed: () {
+                        onDone();
+                      },
+                    )
+                  : Container(),
+            ],
+          ),
+          body: BlocBuilder<NotePageBloc, NotePageState>(
+            bloc: notePageBloc,
+            builder: (context, state) {
+              // if (state is NotePageLoaded) {
+              if (state is NotePageLoaded) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TabBar(
+                      tabs: [
+                        Tab(
+                          text: "Notes",
+                        ),
+                        Tab(
+                          text: "Tables",
+                        ),
+                      ],
+                    ),
+                    Expanded(
+                      child: TabBarView(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8.0, left: 16, right: 16),
+                            child: Column(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: noteController,
+                                    focusNode: noteFocusNode,
+                                    decoration: null,
+                                    maxLines: 99999,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8.0, left: 16, right: 16),
+                            child: Column(
+                              children: [
+                                Expanded(
+                                  child: ListView.builder(
+                                    itemCount: state.note.noteTables.length,
+                                    itemBuilder: ((context, index) =>
+                                        _tableBuilder(state.initialNote.noteTables[index])),
+                                  ),
+                                ),
+                                MaterialButton(
+                                  child: Text("Insert Table"),
+                                  onPressed: () {
+                                    notePageBloc.add(AddTable());
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0, left: 8),
+                          child: Center(
+                            child: Text(
+                              DateService.dateTimeToWeekDay(widget.note.createDate) +
+                                  ", " +
+                                  DateService.dateTimeToString(widget.note.createDate),
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                );
+              } else {
+                return CircularProgressIndicator();
+              }
+            },
+          ),
         ),
       ),
     );

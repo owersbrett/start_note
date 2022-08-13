@@ -1,6 +1,22 @@
 import 'dart:convert';
+import '../entities/note_entity.dart';
+import 'note.dart';
+
 
 class NoteTable {
+  static const String tableName = "NoteTable";
+  static const List<String> columnDeclarations = [
+    "id INTEGER",
+    "noteId INTEGER",
+    "rowCount INTEGER",
+    "columnCount INTEGER",
+    "title TEXT",
+    "createDateMillisecondsSinceEpoch INTEGER",
+    "updateDateMillisecondsSinceEpoch INTEGER",
+    "PRIMARY KEY (id noteId)",
+    "FOREIGN KEY (noteId) REFERENCES ${Note.tableName}(id) ON DELETE CASCADE ON UPDATE NO ACTION"
+  ];
+
   final int id;
   final int noteId;
   final int rowCount;
@@ -17,6 +33,18 @@ class NoteTable {
     required this.createDate,
     required this.updateDate,
   });
+
+  static NoteTable fromNoteEntity(NoteEntity note) {
+    return NoteTable(
+      id: note.noteTables.length + 1,
+      noteId: note.id,
+      rowCount: 1,
+      columnCount: 2,
+      title: "Enter Title",
+      createDate: DateTime.now(),
+      updateDate: DateTime.now(),
+    );
+  }
 
   NoteTable copyWith({
     int? id,
@@ -45,8 +73,8 @@ class NoteTable {
       'rowCount': rowCount,
       'columnCount': columnCount,
       'title': title,
-      'createDate': createDate.millisecondsSinceEpoch,
-      'updateDate': updateDate.millisecondsSinceEpoch,
+      'createDateMillisSinceEpoch': createDate.millisecondsSinceEpoch,
+      'updateDateMillisSinceEpoch': updateDate.millisecondsSinceEpoch,
     };
   }
 
@@ -57,8 +85,8 @@ class NoteTable {
       rowCount: map['rowCount']?.toInt() ?? 0,
       columnCount: map['columnCount']?.toInt() ?? 0,
       title: map['title'] ?? '',
-      createDate: DateTime.fromMillisecondsSinceEpoch(map['createDate']),
-      updateDate: DateTime.fromMillisecondsSinceEpoch(map['updateDate']),
+      createDate: DateTime.fromMillisecondsSinceEpoch(map['createDateMillisSinceEpoch']),
+      updateDate: DateTime.fromMillisecondsSinceEpoch(map['updateDateMillisSinceEpoch']),
     );
   }
 
@@ -74,25 +102,25 @@ class NoteTable {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-  
+
     return other is NoteTable &&
-      other.id == id &&
-      other.noteId == noteId &&
-      other.rowCount == rowCount &&
-      other.columnCount == columnCount &&
-      other.title == title &&
-      other.createDate == createDate &&
-      other.updateDate == updateDate;
+        other.id == id &&
+        other.noteId == noteId &&
+        other.rowCount == rowCount &&
+        other.columnCount == columnCount &&
+        other.title == title &&
+        other.createDate == createDate &&
+        other.updateDate == updateDate;
   }
 
   @override
   int get hashCode {
     return id.hashCode ^
-      noteId.hashCode ^
-      rowCount.hashCode ^
-      columnCount.hashCode ^
-      title.hashCode ^
-      createDate.hashCode ^
-      updateDate.hashCode;
+        noteId.hashCode ^
+        rowCount.hashCode ^
+        columnCount.hashCode ^
+        title.hashCode ^
+        createDate.hashCode ^
+        updateDate.hashCode;
   }
 }

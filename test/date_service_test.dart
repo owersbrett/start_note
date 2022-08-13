@@ -1,4 +1,4 @@
-import 'package:notime/services/date_service.dart';
+import 'package:start_note/services/date_service.dart';
 import 'package:test/scaffolding.dart';
 
 void main() {
