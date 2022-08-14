@@ -53,23 +53,6 @@ class _NotePageState extends State<NotePage> {
     BlocProvider.of<NotesBloc>(context).add(UpdateNote(noteController.text, id!));
   }
 
-  Widget _tableBuilder(NoteTableEntity noteTable) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text('Title'),
-        Flexible(
-          fit: FlexFit.loose,
-          child: Editable(
-            columnRatio: 1 / (noteTable.columnCount + 1),
-            columnCount: noteTable.columnCount,
-            rowCount: noteTable.rowCount,
-          ),
-        ),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -84,7 +67,10 @@ class _NotePageState extends State<NotePage> {
           builder: (context, state) {
             return Scaffold(
               appBar: StopwatchAppBar(
-                  onDone: () => onDone(state.note.id), key: ValueKey(state.note.id), focusNode: focusNode),
+                onDone: () => onDone(state.note.id),
+                key: ValueKey(state.note.id),
+                focusNode: focusNode,
+              ),
               body: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -122,7 +108,8 @@ class _NotePageState extends State<NotePage> {
                                 fit: FlexFit.loose,
                                 child: ListView.builder(
                                   itemCount: state.note.noteTables.length,
-                                  itemBuilder: ((context, index) => _tableBuilder(state.note.noteTables[index])),
+                                  itemBuilder: ((context, index) => TableDisplay(
+                                      noteTable: state.note.noteTables[index], notePageBloc: notePageBloc)),
                                 ),
                               ),
                               MaterialButton(

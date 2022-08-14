@@ -4,6 +4,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import 'package:start_note/data/models/note_table_cell.dart';
 
 import 'body.dart';
 import 'header.dart';
@@ -15,7 +16,8 @@ class Editable extends StatefulWidget {
       this.columns,
       this.rows,
       this.columnRatio = 0.20,
-      this.onSubmitted,
+      required this.onSubmitted,
+      required this.noteTableCells,
       this.onRowSaved,
       this.columnCount = 0,
       this.rowCount = 0,
@@ -97,6 +99,9 @@ class Editable extends StatefulWidget {
   /// each objects DO NOT have to be positioned in same order as its column
 
   final List? rows;
+
+  /// Used to prepopulate cells
+  final List<NoteTableCell> noteTableCells;
 
   /// Interger value of number of rows to be generated:
   ///
@@ -229,7 +234,7 @@ class Editable extends StatefulWidget {
 
   ///[onSubmitted] callback is triggered when the enter button is pressed on a table data cell
   /// it returns a value of the cell data
-  final ValueChanged<String>? onSubmitted;
+  final Function(String, int, int) onSubmitted;
 
   /// [onRowSaved] callback is triggered when a [saveButton] is pressed.
   /// returns only values if row is edited, otherwise returns a string ['no edit']
@@ -241,6 +246,7 @@ class Editable extends StatefulWidget {
 }
 
 class EditableState extends State<Editable> {
+  late Map<int, Map<int, FocusNode>> focusNodes;
   List? rows, columns;
   int? columnCount;
   int? rowCount;
@@ -251,6 +257,31 @@ class EditableState extends State<Editable> {
   ///Create a row after the last row
   createRow() => addOneRow(columns, rows);
   EditableState({this.rows, this.columns, this.columnCount, this.rowCount});
+  @override
+  void initState() {
+    initializeFocusNodes();
+    super.initState();
+  }
+
+  void initializeFocusNodes() {
+    focusNodes = {};
+    List<NoteTableCell> cells = widget.noteTableCells;
+    cells.forEach((cell) {
+      focusNodes[cell.row] == null ? focusNodes[cell.row] = {} : null;
+      focusNodes[cell.row]![cell.column] = FocusNode();
+    });
+  }
+
+  @override
+  void dispose() {
+    focusNodes.forEach((key, cell) {
+      cell[key]?.dispose();
+    });
+    // focusNodes.forEach((element) {
+    //   element.dispose();
+    //  });
+    super.dispose();
+  }
 
   /// Temporarily holds all edited rows
   List _editedRows = [];
@@ -263,53 +294,10 @@ class EditableState extends State<Editable> {
     columns = columns ?? columnBlueprint(columnCount, columns);
     rows = rows ?? rowBlueprint(rowCount!, columns, rows);
 
-    /// Builds saveIcon widget
-    Widget _saveIcon(index) {
-      return Flexible(
-        fit: FlexFit.loose,
-        child: Visibility(
-          visible: widget.showSaveIcon,
-          child: IconButton(
-            padding: EdgeInsets.only(right: widget.tdPaddingRight),
-            hoverColor: Colors.transparent,
-            icon: Icon(
-              widget.saveIcon,
-              color: widget.saveIconColor,
-              size: widget.saveIconSize,
-            ),
-            onPressed: () {
-              int rowIndex = editedRows.indexWhere((element) => element['row'] == index ? true : false);
-              if (rowIndex != -1) {
-                widget.onRowSaved!(editedRows[rowIndex]);
-              } else {
-                widget.onRowSaved!('no edit');
-              }
-            },
-          ),
-        ),
-      );
-    }
-
-    /// Generates table columns
-    List<Widget> _tableHeaders() {
-      return List<Widget>.generate(columnCount! + 1, (index) {
-        return columnCount! + 1 == (index + 1)
-            ? iconColumn(widget.showSaveIcon, widget.thPaddingTop, widget.thPaddingBottom)
-            : THeader(
-                widthRatio: columns![index]['widthFactor'] != null
-                    ? columns![index]['widthFactor'].toDouble()
-                    : widget.columnRatio,
-                thAlignment: widget.thAlignment,
-                thStyle: widget.thStyle,
-                thPaddingLeft: widget.thPaddingLeft,
-                thPaddingTop: widget.thPaddingTop,
-                thPaddingBottom: widget.thPaddingBottom,
-                thPaddingRight: widget.thPaddingRight,
-                headers: columns,
-                thWeight: widget.thWeight,
-                thSize: widget.thSize,
-                index: index);
-      });
+    String _getInitialValue(int rowIndex, int columnIndex) {
+      NoteTableCell cell =
+          widget.noteTableCells.where((element) => element.row == rowIndex && element.column == columnIndex).first;
+      return cell.content;
     }
 
     /// Generates table rows
@@ -318,7 +306,7 @@ class EditableState extends State<Editable> {
         return Row(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: List.generate(columnCount! + 1, (rowIndex) {
+          children: List.generate(columnCount!, (rowIndex) {
             var ckeys = [];
             var cwidths = [];
             var ceditable = <bool>[];
@@ -328,77 +316,88 @@ class EditableState extends State<Editable> {
               ceditable.add(e['editable'] ?? true);
             });
             var list = rows![index];
-            return columnCount! + 1 == (rowIndex + 1)
-                ? _saveIcon(index)
-                : RowBuilder(
-                    index: index,
-                    col: ckeys[rowIndex],
-                    trHeight: widget.trHeight,
-                    borderColor: widget.borderColor,
-                    borderWidth: widget.borderWidth,
-                    cellData: list[ckeys[rowIndex]],
-                    tdPaddingLeft: widget.tdPaddingLeft,
-                    tdPaddingTop: widget.tdPaddingTop,
-                    tdPaddingBottom: widget.tdPaddingBottom,
-                    tdPaddingRight: widget.tdPaddingRight,
-                    tdAlignment: widget.tdAlignment,
-                    tdStyle: widget.tdStyle,
-                    tdEditableMaxLines: widget.tdEditableMaxLines,
-                    onSubmitted: widget.onSubmitted,
-                    widthRatio: cwidths[rowIndex].toDouble(),
-                    isEditable: ceditable[rowIndex],
-                    zebraStripe: widget.zebraStripe,
-                    focusedBorder: widget.focusedBorder,
-                    stripeColor1: widget.stripeColor1,
-                    stripeColor2: widget.stripeColor2,
-                    onChanged: (value) {
-                      ///checks if row has been edited previously
-                      var result = editedRows.indexWhere((element) {
-                        return element['row'] != index ? false : true;
-                      });
+            return RowBuilder(
+              row: index + 1,
+              column: rowIndex + 1,
+              initialValue: _getInitialValue(index + 1, rowIndex + 1),
+              index: index,
+              col: ckeys[rowIndex],
+              trHeight: widget.trHeight,
+              borderColor: widget.borderColor,
+              borderWidth: widget.borderWidth,
+              cellData: list[ckeys[rowIndex]],
+              tdPaddingLeft: widget.tdPaddingLeft,
+              tdPaddingTop: widget.tdPaddingTop,
+              tdPaddingBottom: widget.tdPaddingBottom,
+              tdPaddingRight: widget.tdPaddingRight,
+              tdAlignment: widget.tdAlignment,
+              tdStyle: widget.tdStyle,
+              tdEditableMaxLines: widget.tdEditableMaxLines,
+              onSubmitted: widget.onSubmitted,
+              widthRatio: cwidths[rowIndex].toDouble(),
+              isEditable: ceditable[rowIndex],
+              zebraStripe: widget.zebraStripe,
+              focusedBorder: widget.focusedBorder,
+              stripeColor1: widget.stripeColor1,
+              stripeColor2: widget.stripeColor2,
+              onChanged: (value) {
+                ///checks if row has been edited previously
+                var result = editedRows.indexWhere((element) {
+                  return element['row'] != index ? false : true;
+                });
 
-                      ///adds a new edited data to a temporary holder
-                      if (result != -1) {
-                        editedRows[result][ckeys[rowIndex]] = value;
-                      } else {
-                        var temp = {};
-                        temp['row'] = index;
-                        temp[ckeys[rowIndex]] = value;
-                        editedRows.add(temp);
-                      }
-                    },
-                  );
+                ///adds a new edited data to a temporary holder
+                if (result != -1) {
+                  editedRows[result][ckeys[rowIndex]] = value;
+                } else {
+                  var temp = {};
+                  temp['row'] = index;
+                  temp[ckeys[rowIndex]] = value;
+                  editedRows.add(temp);
+                }
+              },
+              focusNode: focusNodes[index + 1]![rowIndex + 1]!,
+              onCellEditingComplete: (int row, int column) {
+                bool nextColumnExists = focusNodes[row]![column + 1] != null;
+                nextColumnExists ? focusNodes[row]![column + 1]!.requestFocus() : null;
+                if (!nextColumnExists) {
+                  bool nextRowExists = focusNodes[row + 1] != null;
+                  nextRowExists ? focusNodes[row + 1]![1]!.requestFocus() : null;
+                  if (!nextRowExists) {
+                    focusNodes[row]?[column]?.unfocus();
+                  }
+                }
+              },
+              onCellTap: (int row, int column) {
+                print("tapped cell " + row.toString() + ", " + column.toString());
+              },
+            );
           }),
         );
       });
     }
-  
+
     return Material(
       color: Colors.transparent,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: widget.createButtonAlign, children: [
-          //Table Header
-          createButton(),
-          Container(
-            padding: EdgeInsets.only(bottom: widget.thPaddingBottom),
-            decoration:
-                BoxDecoration(border: Border(bottom: BorderSide(color: widget.borderColor, width: widget.borderWidth))),
-            child: Row(
-                crossAxisAlignment: widget.thVertAlignment, mainAxisSize: MainAxisSize.min, children: _tableHeaders()),
-          ),
+      child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: widget.createButtonAlign, children: [
+        //Table Header
+        // createButton(),
+        // Container(
+        //   padding: EdgeInsets.only(bottom: widget.thPaddingBottom),
+        //   decoration:
+        //       BoxDecoration(border: Border(bottom: BorderSide(color: widget.borderColor, width: widget.borderWidth))),
+        //   child: Row(
+        //       crossAxisAlignment: widget.thVertAlignment, mainAxisSize: MainAxisSize.min, children: _tableHeaders()),
+        // ),
 
-          Flexible(
-            fit: FlexFit.loose,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: _tableRows(),
-            ),
-          )
-        ]),
-      ),
+        Flexible(
+          fit: FlexFit.loose,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: _tableRows(),
+          ),
+        )
+      ]),
     );
   }
 

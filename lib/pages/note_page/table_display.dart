@@ -1,58 +1,65 @@
-
 import 'package:flutter/material.dart';
+import 'package:start_note/common/note_table_display.dart';
 import 'package:start_note/data/entities/note_table_entity.dart';
-import 'package:start_note/data/models/note_table.dart';
-import 'package:start_note/pages/note_page/cell_display.dart';
 
-import '../../data/models/note_table_cell.dart';
+import '../../bloc/note_page/note_page.dart';
 
-class NoteTableDisplay extends StatefulWidget {
-  const NoteTableDisplay({Key? key, required this.noteTable}) : super(key: key);
+class TableDisplay extends StatefulWidget {
+  const TableDisplay({Key? key, required this.noteTable, required this.notePageBloc}) : super(key: key);
+  final NotePageBloc notePageBloc;
   final NoteTableEntity noteTable;
+
   @override
-  State<NoteTableDisplay> createState() => _NoteTableDisplayState();
+  State<TableDisplay> createState() => _TableDisplayState();
 }
 
-class _NoteTableDisplayState extends State<NoteTableDisplay> {
-  late TextEditingController tableTitleController;
-  late FocusNode tableTitleFocusNode;
-
+class _TableDisplayState extends State<TableDisplay> {
+  late TextEditingController titleController;
   @override
   void initState() {
     super.initState();
-    tableTitleController = TextEditingController(text: widget.noteTable.title);
+    titleController = TextEditingController();
   }
 
-  List<Widget> _buildRows() {
-    int rowCount = 1;
-    List<Widget> rows = [];
-    
-    while (rowCount < widget.noteTable.rowCount) {
-      rows.add(_buildRow(widget.noteTable.cells.where((element) => element.row == rowCount).toList()));
-      rowCount++;
-    }
-    return rows;
-  }
-
-Widget _buildRow(List<NoteTableCell> cells) {
-    List<Widget> children = [];
-    cells.forEach((element) {
-      children.add(_buildCell(element.content, element.row, element.column));
-    });
-    return Row(children: children, mainAxisSize: MainAxisSize.min);
-  }
-
-  CellDisplay _buildCell(String value, int rowIndex, int columnIndex) {
-    return CellDisplay(
-      row: rowIndex,
-      column: columnIndex,
-      totalColumns: widget.noteTable.columnCount,
-      initialText: value,
-    );
+  @override
+  void dispose() {
+    titleController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Row(children: _buildRows(), mainAxisSize: MainAxisSize.min,);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 24.0, right: 24, bottom: 12, top: 12),
+          child: TextField(
+            controller: titleController,
+            decoration: InputDecoration.collapsed(hintText: "Title"),
+            textCapitalization: TextCapitalization.sentences,
+            textAlign: TextAlign.center,
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+          ),
+        ),
+        Flexible(
+          fit: FlexFit.loose,
+          child: GestureDetector(
+            onTap: () {
+              print('felt that');
+            },
+            child: Editable(
+              columnRatio: 1 / (widget.noteTable.columnCount),
+              columnCount: widget.noteTable.columnCount,
+              noteTableCells: widget.noteTable.cells,
+              rowCount: widget.noteTable.rowCount,
+              onSubmitted: (value, row, column) {
+                widget.notePageBloc.add(SaveNoteDataCell(row, column, widget.noteTable.id!, value));
+              },
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }

@@ -9,7 +9,7 @@ abstract class NotePageState extends Equatable {
   NoteEntity get initialNote;
   NoteEntity get note;
   @override
-  List<Object> get props => [...note.noteTables.map((e) => e)];
+  List<Object> get props => [...note.noteTables.map((e) => e), ...note.noteTables.map((e) => e.cells.map((e) => e))];
 }
 
 class NotePageInitial extends NotePageState {

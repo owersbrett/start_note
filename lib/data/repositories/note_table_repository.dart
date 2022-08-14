@@ -10,6 +10,7 @@ import '../models/note_table_cell.dart';
 abstract class INoteTableRepository<T extends NoteTable> extends Repository<NoteTable> {
   Future<List<NoteTableEntity>> getNoteTablesFromNoteId(int noteId);
   Future<NoteTableEntity> createNoteTableEntity(NoteTable t);
+  Future<NoteTableCell> updateNoteTableCell(NoteTableCell noteTableCell);
 }
 
 class NoteTableRepository<T extends NoteTable> implements INoteTableRepository<NoteTable> {
@@ -97,6 +98,12 @@ class NoteTableRepository<T extends NoteTable> implements INoteTableRepository<N
   @override
   Future<NoteTableEntity> createNoteTableEntity(NoteTable t) {
     return create(t);
+  }
+
+  @override
+  Future<NoteTableCell> updateNoteTableCell(NoteTableCell noteTableCell) async {
+    await db.rawUpdate('UPDATE ${NoteTableCell.tableName} SET content = ? WHERE row = ? AND column = ? AND noteTableId = ?', [noteTableCell.content, noteTableCell.row, noteTableCell.column, noteTableCell.noteTableId]);
+    return noteTableCell;
   }
 }
   // 'CREATE TABLE $tableName (id INTEGER PRIMARY KEY, noteId INTEGER FOREIGN KEY, rowCount INTEGER, columnCount INTEGER, title TEXT, createDateMillisSinceEpoch INTEGER, updateDateMillisSinceEpoch INTEGER)';

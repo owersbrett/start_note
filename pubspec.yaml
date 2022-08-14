@@ -27,6 +27,7 @@ dependencies:
   logging: 
   shared_preferences:
   uuid:
+
    
   flutter:
     sdk: flutter

@@ -5,6 +5,8 @@ class RowBuilder extends StatefulWidget {
   /// its properties are not nullable
   const RowBuilder({
     Key? key,
+    required this.row,
+    required this.column,
     required this.tdAlignment,
     required this.tdStyle,
     required double trHeight,
@@ -20,13 +22,17 @@ class RowBuilder extends StatefulWidget {
     required this.tdEditableMaxLines,
     required this.onSubmitted,
     required this.onChanged,
+    required this.initialValue,
     required this.widthRatio,
     required this.isEditable,
     required this.stripeColor1,
     required this.stripeColor2,
     required this.zebraStripe,
     required this.focusedBorder,
-  })   : _trHeight = trHeight,
+    required this.onCellTap,
+    required this.onCellEditingComplete,
+    required this.focusNode,
+  })  : _trHeight = trHeight,
         _borderColor = borderColor,
         _borderWidth = borderWidth,
         super(key: key);
@@ -34,10 +40,14 @@ class RowBuilder extends StatefulWidget {
   /// Table row height
   final double _trHeight;
   final Color _borderColor;
+  final int row;
+  final int column;
   final double _borderWidth;
   final cellData;
+  final String initialValue;
   final double? widthRatio;
   final bool isEditable;
+  final FocusNode focusNode;
   final TextAlign tdAlignment;
   final TextStyle? tdStyle;
   final int index;
@@ -48,10 +58,13 @@ class RowBuilder extends StatefulWidget {
   final double tdPaddingRight;
   final int tdEditableMaxLines;
   final Color stripeColor1;
+
   final Color stripeColor2;
   final bool zebraStripe;
   final InputBorder? focusedBorder;
-  final ValueChanged<String>? onSubmitted;
+  final Function(String, int, int) onSubmitted;
+  final Function(int, int) onCellTap;
+  final Function(int, int) onCellEditingComplete;
   final ValueChanged<String> onChanged;
 
   @override
@@ -69,27 +82,31 @@ class _RowBuilderState extends State<RowBuilder> {
         height: widget._trHeight < 40 ? 40 : widget._trHeight,
         width: width * widget.widthRatio!,
         decoration: BoxDecoration(
-            color: !widget.zebraStripe
-                ? null
-                : (widget.index % 2 == 1.0
-                    ? widget.stripeColor2
-                    : widget.stripeColor1),
-            border: Border.all(
-                color: widget._borderColor, width: widget._borderWidth)),
+            color: !widget.zebraStripe ? null : (widget.index % 2 == 1.0 ? widget.stripeColor2 : widget.stripeColor1),
+            border: Border.all(color: widget._borderColor, width: widget._borderWidth)),
         child: widget.isEditable
             ? TextFormField(
                 textAlign: widget.tdAlignment,
                 style: widget.tdStyle,
-                initialValue: widget.cellData.toString(),
-                onFieldSubmitted: widget.onSubmitted,
-                onChanged: widget.onChanged,
+                initialValue: widget.initialValue,
+                // onFieldSubmitted: (String value) {
+                //   widget.onSubmitted(value, widget.row, widget.column);
+                // },
+                focusNode: widget.focusNode,
+                onTap: () {
+                  widget.onCellTap(widget.row, widget.column);
+                },
+                onEditingComplete: () {
+                  widget.onCellEditingComplete(widget.row, widget.column);
+                },
+                onChanged: (String value) {
+                  widget.onSubmitted(value, widget.row, widget.column);
+                },
                 textAlignVertical: TextAlignVertical.center,
                 maxLines: widget.tdEditableMaxLines,
                 decoration: InputDecoration(
                   filled: widget.zebraStripe,
-                  fillColor: widget.index % 2 == 1.0
-                      ? widget.stripeColor2
-                      : widget.stripeColor1,
+                  fillColor: widget.index % 2 == 1.0 ? widget.stripeColor2 : widget.stripeColor1,
                   contentPadding: EdgeInsets.only(
                       left: widget.tdPaddingLeft,
                       right: widget.tdPaddingRight,
@@ -110,9 +127,7 @@ class _RowBuilderState extends State<RowBuilder> {
                 decoration: BoxDecoration(
                   color: !widget.zebraStripe
                       ? null
-                      : (widget.index % 2 == 1.0
-                          ? widget.stripeColor2
-                          : widget.stripeColor1),
+                      : (widget.index % 2 == 1.0 ? widget.stripeColor2 : widget.stripeColor1),
                 ),
                 child: Text(
                   widget.cellData.toString(),
