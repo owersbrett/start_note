@@ -17,10 +17,11 @@ class NotesBloc extends HydratedBloc<NotesEvent, NotesState> {
 
   Future<void> _updateNote(UpdateNote event, Emitter<NotesState> emit) async {
     try {
-      Note note = state.notes.firstWhere((element) => element.id == event.note.id);
+      Note note = state.notes.firstWhere((element) => element.id == event.noteId);
       List<Note> notes = List<Note>.from(state.notes)..remove(note);
-      notes.add(event.note);
-      await noteRepository.update(event.note);
+      note = note.copyWith(content: event.text);
+      notes.add(note);
+      await noteRepository.update(note);
       emit(NotesLoaded(notes..sort((a, b) => b.createDate.compareTo(a.createDate))));
     } catch (e) {
       emit(NotesError(const []));
@@ -57,14 +58,15 @@ class NotesBloc extends HydratedBloc<NotesEvent, NotesState> {
       }
     }
     if (noteToDelete != null) {
-      add(DeleteNote(noteToDelete.id));
+      add(DeleteNote(noteToDelete.id!));
     }
   }
 
   Future<void> _addNote(AddNote event, Emitter<NotesState> emit) async {
     try {
-      noteRepository.create(event.note);
-      emit(state.copyWith(List<Note>.from(state.notes)..add(event.note)));
+      emit(AddingNote(state.notes));
+      Note note = await noteRepository.create(Note.create());
+      emit(state.copyWith(List<Note>.from(state.notes)..add(note)));
     } catch (e) {
       emit(state);
     }

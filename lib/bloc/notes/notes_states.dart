@@ -13,10 +13,6 @@ abstract class NotesState extends Equatable {
     return {"notes": notes.map((e) => e.toMap()).toList()};
   }
 
-  int get newNoteId {
-    List<Note> currentNotes = List<Note>.from(notes)..sort((a, b) => b.createDate.compareTo(a.createDate));
-    return currentNotes.isNotEmpty ? currentNotes[0].id + 1 : 0;
-  }
 }
 
 class NotesInitial extends NotesState {
@@ -60,6 +56,15 @@ class NotesLoaded extends NotesState {
   final List<Note> _notes;
   @override
   NotesLoaded copyWith(List<Note> updatedNotes) => NotesLoaded(updatedNotes);
+
+  @override
+  List<Note> get notes => _notes;
+}
+class AddingNote extends NotesState {
+  AddingNote(this._notes);
+  final List<Note> _notes;
+  @override
+  AddingNote copyWith(List<Note> updatedNotes) => AddingNote(updatedNotes);
 
   @override
   List<Note> get notes => _notes;

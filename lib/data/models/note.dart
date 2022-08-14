@@ -4,23 +4,29 @@ class Note {
   static const String tableName = "Note";
 
   static const List<String> columnDeclarations = [
-    "id INTEGER PRIMARY KEY AUTOINCREMENT",
+    "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL",
     "content TEXT",
     "createDateMillisecondsSinceEpoch INTEGER",
     "updateDateMillisecondsSinceEpoch INTEGER",
-
   ];
 
-  final int id;
+  final int? id;
   final String content;
   final DateTime createDate;
   final DateTime updateDate;
   Note({
-    required this.id,
+    this.id,
     required this.content,
     required this.createDate,
     required this.updateDate,
   });
+  static Note create() {
+    return Note(
+      content: "",
+      createDate: DateTime.now(),
+      updateDate: DateTime.now(),
+    );
+  }
 
   Note copyWith({
     int? id,
@@ -37,20 +43,23 @@ class Note {
   }
 
   Map<String, dynamic> toMap() {
-    return {
-      'id': id,
+    Map<String, dynamic> map = {
       'content': content,
-      'createDateMillisSinceEpoch': createDate.millisecondsSinceEpoch,
-      'updateDateMillisSinceEpoch': updateDate.millisecondsSinceEpoch,
+      'createDateMillisecondsSinceEpoch': createDate.millisecondsSinceEpoch,
+      'updateDateMillisecondsSinceEpoch': updateDate.millisecondsSinceEpoch,
     };
+    if (this.id != null) {
+      map["id"] = this.id;
+    }
+    return map;
   }
 
   factory Note.fromMap(Map<String, dynamic> map) {
     return Note(
       id: map['id']?.toInt() ?? 0,
       content: map['content'] ?? '',
-      createDate: DateTime.fromMillisecondsSinceEpoch(map['createDateMillisSinceEpoch']),
-      updateDate: DateTime.fromMillisecondsSinceEpoch(map['updateDateMillisSinceEpoch']),
+      createDate: DateTime.fromMillisecondsSinceEpoch(map['createDateMillisecondsSinceEpoch']),
+      updateDate: DateTime.fromMillisecondsSinceEpoch(map['updateDateMillisecondsSinceEpoch']),
     );
   }
 

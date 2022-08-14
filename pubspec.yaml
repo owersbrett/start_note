@@ -22,7 +22,6 @@ dependencies:
   hydrated_bloc: 
   sqflite: 
   equatable: 
-  editable:
   logging_appenders: 
   flutter_slidable: 
   logging: 

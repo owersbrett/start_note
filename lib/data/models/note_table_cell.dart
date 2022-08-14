@@ -4,32 +4,41 @@ import 'note.dart';
 import 'note_table.dart';
 
 class NoteTableCell {
-      static const String tableName = "NoteTableCell";
+  static const String tableName = "NoteTableCell";
   static const List<String> columnDeclarations = [
-    "id INTEGER",
+    "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL",
     "noteTableId INTEGER",
     "noteId INTEGER",
     "row INTEGER",
     "column INTEGER",
     "content TEXT",
-    "PRIMARY KEY (id noteId noteTableId)",
     "FOREIGN KEY (noteTableId) REFERENCES ${NoteTable.tableName}(id) ON DELETE CASCADE ON UPDATE NO ACTION",
     "FOREIGN KEY (noteId) REFERENCES ${Note.tableName}(id) ON DELETE CASCADE ON UPDATE NO ACTION"
   ];
-  final int id;
+  final int? id;
   final int noteTableId;
   final int noteId;
   final String content;
   final int row;
   final int column;
   NoteTableCell({
-    required this.id,
+    this.id,
     required this.noteId,
     required this.noteTableId,
     required this.content,
     required this.row,
     required this.column,
   });
+
+  static NoteTableCell create(int noteId, int noteTableId, int row, int column) {
+    return NoteTableCell(
+      noteId: noteId,
+      noteTableId: noteTableId,
+      content: "",
+      row: row,
+      column: column,
+    );
+  }
 
   NoteTableCell copyWith({
     int? id,
@@ -50,14 +59,17 @@ class NoteTableCell {
   }
 
   Map<String, dynamic> toMap() {
-    return {
-      'id': id,
+    Map<String, dynamic> map = {
       'noteId': noteId,
       'noteTableId': noteTableId,
       'content': content,
       'row': row,
       'column': column,
     };
+    if (id != null) {
+      map['id'] = id;
+    }
+    return map;
   }
 
   factory NoteTableCell.fromMap(Map<String, dynamic> map) {
@@ -83,23 +95,18 @@ class NoteTableCell {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-  
+
     return other is NoteTableCell &&
-      other.id == id &&
-      other.noteId == noteId &&
-      other.noteTableId == noteTableId &&
-      other.content == content &&
-      other.row == row &&
-      other.column == column;
+        other.id == id &&
+        other.noteId == noteId &&
+        other.noteTableId == noteTableId &&
+        other.content == content &&
+        other.row == row &&
+        other.column == column;
   }
 
   @override
   int get hashCode {
-    return id.hashCode ^
-      noteId.hashCode ^
-      noteTableId.hashCode ^
-      content.hashCode ^
-      row.hashCode ^
-      column.hashCode;
+    return id.hashCode ^ noteId.hashCode ^ noteTableId.hashCode ^ content.hashCode ^ row.hashCode ^ column.hashCode;
   }
 }

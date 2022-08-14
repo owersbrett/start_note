@@ -1,5 +1,3 @@
-
-
 import '../../data/models/note.dart';
 
 abstract class NotesEvent {
@@ -8,10 +6,7 @@ abstract class NotesEvent {
 
 class FetchNotes extends NotesEvent {}
 
-class AddNote extends NotesEvent {
-  AddNote(this.note);
-  final Note  note;
-}
+class AddNote extends NotesEvent {}
 
 class DeleteNote extends NotesEvent {
   DeleteNote(this.noteId);
@@ -19,6 +14,7 @@ class DeleteNote extends NotesEvent {
 }
 
 class UpdateNote extends NotesEvent {
-  UpdateNote(this.note);
-  final Note note;
+  UpdateNote(this.text, this.noteId);
+  final String text;
+  final int noteId;
 }

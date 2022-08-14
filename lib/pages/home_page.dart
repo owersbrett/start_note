@@ -19,7 +19,7 @@ class HomePage extends StatelessWidget {
         children: [
           SlidableAction(
             onPressed: (ctx) {
-              BlocProvider.of<NotesBloc>(context).add(DeleteNote(note.id));
+              BlocProvider.of<NotesBloc>(context).add(DeleteNote(note.id!));
             },
             backgroundColor: const Color(0xFFFE4A49),
             foregroundColor: Colors.white,
@@ -53,6 +53,7 @@ class HomePage extends StatelessWidget {
         title: const Text("Start Note"),
       ),
       body: BlocBuilder<NotesBloc, NotesState>(
+    
         builder: (context, state) {
           if (state is NotesLoaded) {
             return Column(
@@ -76,13 +77,8 @@ class HomePage extends StatelessWidget {
                         IconButton(
                           icon: Icon(Icons.create),
                           onPressed: () {
-                            Note note = Note(
-                                id: state.newNoteId,
-                                content: "",
-                                createDate: DateTime.now(),
-                                updateDate: DateTime.now(),);
-                            BlocProvider.of<NotesBloc>(context).add(AddNote(note));
-                            Navigation.createRoute(NotePage(note: NoteEntity.fromNote(note)), context);
+                            BlocProvider.of<NotesBloc>(context).add(AddNote());
+                            Navigation.createRoute(NotePage(note: NoteEntity.fromNote(Note.create())), context);
                           },
                         ),
                       ],

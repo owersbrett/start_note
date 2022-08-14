@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:start_note/data/entities/note_entity.dart';
+import 'package:start_note/data/entities/note_table_entity.dart';
 
 import '../../data/models/note_table.dart';
 
@@ -8,7 +9,7 @@ abstract class NotePageState extends Equatable {
   NoteEntity get initialNote;
   NoteEntity get note;
   @override
-  List<Object> get props => [];
+  List<Object> get props => [...note.noteTables.map((e) => e)];
 }
 
 class NotePageInitial extends NotePageState {
@@ -59,7 +60,7 @@ class NotePageLoaded extends NotePageState {
   final NoteEntity _note;
   NotePageLoaded copyWith({
     NoteEntity? noteEntity,
-    List<NoteTable>? noteTables,
+    List<NoteTableEntity>? noteTables,
   }) {
     return NotePageLoaded(
       _noteEntity.copyEntityWith(),

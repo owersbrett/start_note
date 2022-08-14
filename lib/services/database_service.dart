@@ -8,7 +8,7 @@ import '../data/models/note_table_cell.dart';
 
 class DatabaseService {
   static final DatabaseService _singleton = DatabaseService._internal();
-  static final version = 4;
+  static final version = 1;
 
   factory DatabaseService() {
     return _singleton;
@@ -18,8 +18,14 @@ class DatabaseService {
 
   static Future<Database> initialize() async {
     String path = await getPath();
-    return openDatabase(path,
-        version: version, onConfigure: onConfigure, onCreate: onCreate, onUpgrade: onUpgrade, onDowngrade: onDowngrade);
+    return openDatabase(
+      path,
+      version: version,
+      onConfigure: onConfigure,
+      onCreate: onCreate,
+      onUpgrade: onUpgrade,
+      onDowngrade: onDowngrade,
+    );
   }
 
   static Future<String> getPath() async {
@@ -29,6 +35,8 @@ class DatabaseService {
 
   static FutureOr<void> onConfigure(Database db) async {
     await db.execute("PRAGMA foreign_keys = ON;");
+    // dropTables(db);
+    // createTables(db);
   }
 
   static FutureOr<void> onCreate(Database db, int version) async {
@@ -36,22 +44,22 @@ class DatabaseService {
   }
 
   static FutureOr<void> onUpgrade(Database db, int oldVersion, int newVersion) async {
-    await createTables(db);
+    // await createTables(db);
   }
 
   static FutureOr<void> onDowngrade(Database db, int oldVersion, int newVersion) async {
-    await dropTables(db);
-    await createTables(db);
+    // await dropTables(db);
+    // await createTables(db);
   }
 
   static FutureOr<void> dropTables(Database db) async {
     String dropNoteTableSql = getDropTableString(Note.tableName);
-    String dropNoteTableTableSql = getDropTableString(Note.tableName);
-    String dropNoteTableCellTableSql = getDropTableString(Note.tableName);
+    String dropNoteTableTableSql = getDropTableString(NoteTable.tableName);
+    String dropNoteTableCellTableSql = getDropTableString(NoteTableCell.tableName);
 
-    await db.execute(dropNoteTableCellTableSql);
-    await db.execute(dropNoteTableTableSql);
-    await db.execute(dropNoteTableSql);
+    sqlTry(db, dropNoteTableCellTableSql);
+    sqlTry(db, dropNoteTableTableSql);
+    sqlTry(db, dropNoteTableSql);
   }
 
   static FutureOr<void> createTables(Database db) async {
@@ -60,9 +68,17 @@ class DatabaseService {
     String createNoteTableCellTableSql =
         getCreateTableString(NoteTableCell.columnDeclarations, NoteTableCell.tableName);
 
-    await db.execute(createNoteTableSql);
-    await db.execute(createNoteTableTableSql);
-    await db.execute(createNoteTableCellTableSql);
+    sqlTry(db, createNoteTableSql);
+    sqlTry(db, createNoteTableTableSql);
+    sqlTry(db, createNoteTableCellTableSql);
+  }
+
+  static FutureOr<void> sqlTry(Database db, String sql) async {
+    try {
+      await db.execute(sql);
+    } catch (e) {
+      print(e.toString());
+    }
   }
 
   static String getDropTableString(String tableName) => "DROP TABLE $tableName;";

@@ -10,6 +10,7 @@ import '../models/note.dart';
 abstract class INoteRepository<T extends Note> extends Repository<Note> {
   Future<List<Note>> getNotes();
   Future<NoteEntity> getEntityById(int id, INoteTableRepository noteTableRepository);
+  Future<NoteEntity> getNewNote();
 }
 
 class NoteRepository<T extends Note> implements INoteRepository<Note> {
@@ -24,18 +25,25 @@ class NoteRepository<T extends Note> implements INoteRepository<Note> {
   }
 
   @override
+  Future<NoteEntity> getNewNote() async {
+    var notes = await getNotes();
+    notes.sort((a, b) => a.id!.compareTo(b.id!));
+    return NoteEntity.fromNote(notes.last);
+  }
+
+  @override
   Future<Note> create(Note t) async {
-    await db.insert(tableName, t.toMap());
-    await db.transaction((txn) async {
-      String id = t.id.toString();
-      String content = t.content.toString();
-      String createDateMillisSinceEpoch = t.createDate.millisecondsSinceEpoch.toString();
-      String updateDateMillisSinceEpoch = t.updateDate.millisecondsSinceEpoch.toString();
-      int id1 = await txn.rawInsert(
-          'INSERT or IGNORE INTO $tableName(id, content, createDateMillisSinceEpoch, updateDateMillisSinceEpoch) VALUES($id, "$content", $createDateMillisSinceEpoch, $updateDateMillisSinceEpoch)');
-      Logger.root.info('inserted1: $id1');
-    });
-    return t;
+    int noteId = await db.insert(tableName, t.toMap());
+    return t.copyWith(id: noteId);
+    // return await db.transaction<Note>((txn) async {
+    //   String content = t.content.toString();
+    //   String createDateMillisSinceEpoch = t.createDate.millisecondsSinceEpoch.toString();
+    //   String updateDateMillisSinceEpoch = t.updateDate.millisecondsSinceEpoch.toString();
+    //   int id1 = await txn.rawInsert(
+    //       'INSERT or IGNORE INTO $tableName(content, createDateMillisecondsSinceEpoch, updateDateMillisecondsSinceEpoch) VALUES("$content", $createDateMillisSinceEpoch, $updateDateMillisSinceEpoch)');
+    //   Logger.root.info('inserted1: $id1');
+    //   return t.copyWith(id: id1);
+    // });
   }
 
   @override
@@ -59,7 +67,8 @@ class NoteRepository<T extends Note> implements INoteRepository<Note> {
 
   @override
   Future<bool> update(Note t) async {
-    int count = await db.rawUpdate('UPDATE $tableName SET content = ?, updateDateMillisSinceEpoch = ? WHERE id = ?',
+    int count = await db.rawUpdate(
+        'UPDATE $tableName SET content = ?, updateDateMillisecondsSinceEpoch = ? WHERE id = ?',
         [t.content, t.updateDate.millisecondsSinceEpoch, t.id]);
     print('updated: $count');
     return true;
@@ -67,10 +76,15 @@ class NoteRepository<T extends Note> implements INoteRepository<Note> {
 
   @override
   Future<NoteEntity> getEntityById(int id, INoteTableRepository noteTableRepository) async {
-    List<Map> list = await db.rawQuery('SELECT * FROM $tableName WHERE id = ?', [id]);
-    Note note = list.map((e) => Note.fromMap(Map<String, dynamic>.from(e))).toList().first;
-    NoteEntity entity = NoteEntity.fromNote(note);
-    entity.noteTables = await noteTableRepository.getNoteTablesFromNoteId(note.id);
-    return entity;
+    try {
+      List<Map> list = await db.rawQuery('SELECT * FROM $tableName WHERE id = ?', [id]);
+      Note note = list.map((e) => Note.fromMap(Map<String, dynamic>.from(e))).toList().first;
+      NoteEntity entity = NoteEntity.fromNote(note);
+      entity.noteTables = await noteTableRepository.getNoteTablesFromNoteId(note.id!);
+      return entity;
+    } catch (e) {
+      print(e);
+      throw Exception();
+    }
   }
 }
