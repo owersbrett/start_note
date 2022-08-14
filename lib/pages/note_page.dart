@@ -48,8 +48,7 @@ class _NotePageState extends State<NotePage> {
     super.dispose();
   }
 
-  void onDone(int? id) {
-    focusNode.unfocus();
+  void onChanged(int? id) {
     BlocProvider.of<NotesBloc>(context).add(UpdateNote(noteController.text, id!));
   }
 
@@ -66,7 +65,7 @@ class _NotePageState extends State<NotePage> {
           bloc: notePageBloc,
           builder: (context, state) {
             return Scaffold(
-              appBar: StopwatchAppBar(onDone: () => onDone(state.note.id), key: ValueKey(state.note.id)),
+              appBar: StopwatchAppBar(key: ValueKey(state.note.id)),
               body: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -80,20 +79,38 @@ class _NotePageState extends State<NotePage> {
                     fit: FlexFit.loose,
                     child: TabBarView(
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0, left: 16, right: 16),
-                          child: Column(
-                            children: [
-                              Flexible(
+                        Column(
+                          children: [
+                            Flexible(
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 8.0, left: 16, right: 16),
                                 child: TextField(
                                   controller: noteController,
                                   focusNode: focusNode,
                                   decoration: null,
+                                  onChanged: (value) {
+                                    onChanged(state.note.id);
+                                  },
                                   maxLines: 99999,
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                            Row(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 8.0, left: 8),
+                                  child: Center(
+                                    child: Text(
+                                      DateService.dateTimeToWeekDay(widget.note.createDate) +
+                                          ", " +
+                                          DateService.dateTimeToString(widget.note.createDate),
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                         Padding(
                           padding: const EdgeInsets.only(top: 8.0, left: 16, right: 16),
@@ -119,21 +136,6 @@ class _NotePageState extends State<NotePage> {
                         ),
                       ],
                     ),
-                  ),
-                  Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0, left: 8),
-                        child: Center(
-                          child: Text(
-                            DateService.dateTimeToWeekDay(widget.note.createDate) +
-                                ", " +
-                                DateService.dateTimeToString(widget.note.createDate),
-                            style: const TextStyle(fontSize: 14),
-                          ),
-                        ),
-                      ),
-                    ],
                   ),
                 ],
               ),

@@ -3,6 +3,7 @@ import 'package:start_note/common/note_table_display.dart';
 import 'package:start_note/data/entities/note_table_entity.dart';
 
 import '../../bloc/note_page/note_page.dart';
+import '../../data/models/note_table_cell.dart';
 
 class TableDisplay extends StatefulWidget {
   const TableDisplay({Key? key, required this.noteTable, required this.notePageBloc}) : super(key: key);
@@ -15,16 +16,31 @@ class TableDisplay extends StatefulWidget {
 
 class _TableDisplayState extends State<TableDisplay> {
   late TextEditingController titleController;
+  late Map<int, Map<int, FocusNode>> focusNodes;
+
   @override
   void initState() {
     super.initState();
-    titleController = TextEditingController();
+    initializeFocusNodes();
+    titleController = TextEditingController(text: widget.noteTable.title);
   }
 
   @override
   void dispose() {
     titleController.dispose();
+    focusNodes.forEach((key, cell) {
+      cell[key]?.dispose();
+    });
     super.dispose();
+  }
+
+  void initializeFocusNodes() {
+    focusNodes = {};
+    List<NoteTableCell> cells = widget.noteTable.cells;
+    cells.forEach((cell) {
+      focusNodes[cell.row] == null ? focusNodes[cell.row] = {} : null;
+      focusNodes[cell.row]![cell.column] = FocusNode();
+    });
   }
 
   @override
@@ -39,6 +55,12 @@ class _TableDisplayState extends State<TableDisplay> {
             decoration: InputDecoration.collapsed(hintText: "Title"),
             textCapitalization: TextCapitalization.sentences,
             textAlign: TextAlign.center,
+            onChanged: (value) {
+              widget.notePageBloc.add(SaveNoteTableTitle(widget.noteTable.id!, value));
+            },
+            onEditingComplete: () {
+              focusNodes[1]?[1]?.requestFocus();
+            },
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
           ),
         ),
@@ -53,7 +75,9 @@ class _TableDisplayState extends State<TableDisplay> {
               columnCount: widget.noteTable.columnCount,
               noteTableCells: widget.noteTable.cells,
               rowCount: widget.noteTable.rowCount,
-              onSubmitted: (value, row, column) {
+              noteTable: widget.noteTable,
+              focusNodeMap: focusNodes,
+              onChanged: (value, row, column) {
                 widget.notePageBloc.add(SaveNoteDataCell(row, column, widget.noteTable.id!, value));
               },
             ),

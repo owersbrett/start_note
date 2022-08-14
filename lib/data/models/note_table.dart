@@ -32,7 +32,7 @@ class NoteTable {
   static NoteTable createFromNoteEntity(NoteEntity note) {
     return NoteTable(
       noteId: note.id!,
-      title: "Enter Title",
+      title: "",
       createDate: DateTime.now(),
       updateDate: DateTime.now(),
     );

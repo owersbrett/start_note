@@ -19,6 +19,38 @@ class NotePageBloc extends Bloc<NotePageEvent, NotePageState> {
     if (event is FetchNotePage) await _fetchNotePage(event, emit);
     if (event is AddTable) await _addTable(event, emit);
     if (event is SaveNoteDataCell) await _saveNoteDataCell(event, emit);
+    if (event is SaveNoteTableTitle) await _saveNoteTableTitle(event, emit);
+  }
+
+  Future<void> _saveNoteTableTitle(SaveNoteTableTitle event, Emitter<NotePageState> emit) async {
+    try {
+      if (state is NotePageLoaded) {
+        NotePageLoaded loadedState = state as NotePageLoaded;
+        List<NoteTableEntity> noteTables = List<NoteTableEntity>.from(loadedState.note.noteTables);
+        NoteTableEntity entity = noteTables.where((element) => element.id == event.noteTableId).first;
+        int index = noteTables.indexOf(entity);
+        entity = NoteTableEntity.fromNoteTableAndCells(
+          entity.copyWith(title: event.titleText, updateDate: DateTime.now()),
+          entity.cells,
+        );
+
+        await noteTableRepository.update(entity);
+
+        noteTables[index] = entity;
+
+        loadedState.note.copyEntityWith(noteTables: noteTables);
+      }
+      NoteEntity note = NoteEntity.create();
+      if (initialNote.id != null || state.note.id != null) {
+        int id = initialNote.id ?? state.note.id!;
+        note = await noteRepository.getEntityById(id, noteTableRepository);
+      } else {
+        note = await noteRepository.getNewNote();
+      }
+      emit(NotePageLoaded(initialNote, note));
+    } catch (e) {
+      emit(NotePageError(initialNote, initialNote));
+    }
   }
 
   Future<void> _saveNoteDataCell(SaveNoteDataCell event, Emitter<NotePageState> emit) async {

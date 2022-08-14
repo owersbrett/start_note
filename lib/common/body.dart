@@ -20,7 +20,6 @@ class RowBuilder extends StatefulWidget {
     required this.tdPaddingBottom,
     required this.tdPaddingRight,
     required this.tdEditableMaxLines,
-    required this.onSubmitted,
     required this.onChanged,
     required this.initialValue,
     required this.widthRatio,
@@ -62,10 +61,9 @@ class RowBuilder extends StatefulWidget {
   final Color stripeColor2;
   final bool zebraStripe;
   final InputBorder? focusedBorder;
-  final Function(String, int, int) onSubmitted;
+  final Function(String, int, int) onChanged;
   final Function(int, int) onCellTap;
   final Function(int, int) onCellEditingComplete;
-  final ValueChanged<String> onChanged;
 
   @override
   _RowBuilderState createState() => _RowBuilderState();
@@ -100,7 +98,7 @@ class _RowBuilderState extends State<RowBuilder> {
                   widget.onCellEditingComplete(widget.row, widget.column);
                 },
                 onChanged: (String value) {
-                  widget.onSubmitted(value, widget.row, widget.column);
+                  widget.onChanged(value, widget.row, widget.column);
                 },
                 textAlignVertical: TextAlignVertical.center,
                 maxLines: widget.tdEditableMaxLines,

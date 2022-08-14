@@ -90,7 +90,7 @@ class NoteTableRepository<T extends NoteTable> implements INoteTableRepository<N
   Future<bool> update(NoteTable t) async {
     int count = await db.rawUpdate(
         'UPDATE $tableName SET title = ?, createDateMillisecondsSinceEpoch = ?, updateDateMillisecondsSinceEpoch = ? WHERE id = ?',
-        [t.title, t.createDate.millisecondsSinceEpoch, t.updateDate.millisecondsSinceEpoch]);
+        [t.title, t.createDate.millisecondsSinceEpoch, t.updateDate.millisecondsSinceEpoch, t.id]);
     print('updated: $count');
     return true;
   }

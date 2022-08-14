@@ -4,8 +4,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class StopwatchAppBar extends StatelessWidget implements PreferredSize {
-  const StopwatchAppBar({Key? key, required this.onDone}) : super(key: key);
-  final Function onDone;
+  const StopwatchAppBar({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -13,15 +12,14 @@ class StopwatchAppBar extends StatelessWidget implements PreferredSize {
   }
 
   @override
-  Widget get child => StopwatchBar(onDone: onDone);
+  Widget get child => StopwatchBar();
 
   @override
   Size get preferredSize => Size.fromHeight(kToolbarHeight);
 }
 
 class StopwatchBar extends StatefulWidget {
-  const StopwatchBar({Key? key, required this.onDone}) : super(key: key);
-  final Function onDone;
+  const StopwatchBar({Key? key}) : super(key: key);
 
   @override
   State<StopwatchBar> createState() => _StopwatchBarState();

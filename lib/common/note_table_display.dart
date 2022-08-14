@@ -4,20 +4,25 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:start_note/bloc/note_page/note_page_bloc.dart';
+import 'package:start_note/data/entities/note_table_entity.dart';
 import 'package:start_note/data/models/note_table_cell.dart';
 
+import '../data/models/note_table.dart';
 import 'body.dart';
-import 'header.dart';
 import 'helpers.dart';
 
 class Editable extends StatefulWidget {
   Editable(
       {Key? key,
       this.columns,
+      required this.focusNodeMap,
       this.rows,
       this.columnRatio = 0.20,
-      required this.onSubmitted,
+      required this.onChanged,
       required this.noteTableCells,
+      required this.noteTable,
       this.onRowSaved,
       this.columnCount = 0,
       this.rowCount = 0,
@@ -55,6 +60,8 @@ class Editable extends StatefulWidget {
       this.zebraStripe = false,
       this.focusedBorder})
       : super(key: key);
+
+  final NoteTableEntity noteTable;
 
   /// A data set to create headers
   ///
@@ -102,6 +109,8 @@ class Editable extends StatefulWidget {
 
   /// Used to prepopulate cells
   final List<NoteTableCell> noteTableCells;
+
+  final Map<int, Map<int, FocusNode>> focusNodeMap;
 
   /// Interger value of number of rows to be generated:
   ///
@@ -232,9 +241,9 @@ class Editable extends StatefulWidget {
 
   final InputBorder? focusedBorder;
 
-  ///[onSubmitted] callback is triggered when the enter button is pressed on a table data cell
+  ///[onChanged] callback is triggered when the enter button is pressed on a table data cell
   /// it returns a value of the cell data
-  final Function(String, int, int) onSubmitted;
+  final Function(String, int, int) onChanged;
 
   /// [onRowSaved] callback is triggered when a [saveButton] is pressed.
   /// returns only values if row is edited, otherwise returns a string ['no edit']
@@ -246,7 +255,6 @@ class Editable extends StatefulWidget {
 }
 
 class EditableState extends State<Editable> {
-  late Map<int, Map<int, FocusNode>> focusNodes;
   List? rows, columns;
   int? columnCount;
   int? rowCount;
@@ -257,31 +265,6 @@ class EditableState extends State<Editable> {
   ///Create a row after the last row
   createRow() => addOneRow(columns, rows);
   EditableState({this.rows, this.columns, this.columnCount, this.rowCount});
-  @override
-  void initState() {
-    initializeFocusNodes();
-    super.initState();
-  }
-
-  void initializeFocusNodes() {
-    focusNodes = {};
-    List<NoteTableCell> cells = widget.noteTableCells;
-    cells.forEach((cell) {
-      focusNodes[cell.row] == null ? focusNodes[cell.row] = {} : null;
-      focusNodes[cell.row]![cell.column] = FocusNode();
-    });
-  }
-
-  @override
-  void dispose() {
-    focusNodes.forEach((key, cell) {
-      cell[key]?.dispose();
-    });
-    // focusNodes.forEach((element) {
-    //   element.dispose();
-    //  });
-    super.dispose();
-  }
 
   /// Temporarily holds all edited rows
   List _editedRows = [];
@@ -333,39 +316,29 @@ class EditableState extends State<Editable> {
               tdAlignment: widget.tdAlignment,
               tdStyle: widget.tdStyle,
               tdEditableMaxLines: widget.tdEditableMaxLines,
-              onSubmitted: widget.onSubmitted,
               widthRatio: cwidths[rowIndex].toDouble(),
               isEditable: ceditable[rowIndex],
               zebraStripe: widget.zebraStripe,
               focusedBorder: widget.focusedBorder,
               stripeColor1: widget.stripeColor1,
               stripeColor2: widget.stripeColor2,
-              onChanged: (value) {
-                ///checks if row has been edited previously
-                var result = editedRows.indexWhere((element) {
-                  return element['row'] != index ? false : true;
-                });
-
-                ///adds a new edited data to a temporary holder
-                if (result != -1) {
-                  editedRows[result][ckeys[rowIndex]] = value;
-                } else {
-                  var temp = {};
-                  temp['row'] = index;
-                  temp[ckeys[rowIndex]] = value;
-                  editedRows.add(temp);
-                }
-              },
-              focusNode: focusNodes[index + 1]![rowIndex + 1]!,
+              onChanged: widget.onChanged,
+              focusNode: widget.focusNodeMap[index + 1]![rowIndex + 1]!,
               onCellEditingComplete: (int row, int column) {
-                bool nextColumnExists = focusNodes[row]![column + 1] != null;
-                nextColumnExists ? focusNodes[row]![column + 1]!.requestFocus() : null;
+                if (widget.noteTable.rowColumnTableMap[row]![column]!.isEmpty) {
+                  FocusScope.of(context).unfocus();
+                } else {
+
+                bool nextColumnExists = widget.focusNodeMap[row]![column + 1] != null;
+                nextColumnExists ? widget.focusNodeMap[row]![column + 1]!.requestFocus() : null;
                 if (!nextColumnExists) {
-                  bool nextRowExists = focusNodes[row + 1] != null;
-                  nextRowExists ? focusNodes[row + 1]![1]!.requestFocus() : null;
+                  bool nextRowExists = widget.focusNodeMap[row + 1] != null;
+                  nextRowExists ? widget.focusNodeMap[row + 1]![1]!.requestFocus() : null;
                   if (!nextRowExists) {
-                    focusNodes[row]?[column]?.unfocus();
+                    widget.focusNodeMap[row]?[column]?.unfocus();
+                    // BlocProvider.of<NotePageBloc>(context).add(AddRow);
                   }
+                }
                 }
               },
               onCellTap: (int row, int column) {
@@ -380,16 +353,6 @@ class EditableState extends State<Editable> {
     return Material(
       color: Colors.transparent,
       child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: widget.createButtonAlign, children: [
-        //Table Header
-        // createButton(),
-        // Container(
-        //   padding: EdgeInsets.only(bottom: widget.thPaddingBottom),
-        //   decoration:
-        //       BoxDecoration(border: Border(bottom: BorderSide(color: widget.borderColor, width: widget.borderWidth))),
-        //   child: Row(
-        //       crossAxisAlignment: widget.thVertAlignment, mainAxisSize: MainAxisSize.min, children: _tableHeaders()),
-        // ),
-
         Flexible(
           fit: FlexFit.loose,
           child: Column(
@@ -398,33 +361,6 @@ class EditableState extends State<Editable> {
           ),
         )
       ]),
-    );
-  }
-
-  /// Button for creating a new empty row
-  Widget createButton() {
-    return Visibility(
-      visible: widget.showCreateButton,
-      child: Padding(
-        padding: EdgeInsets.only(left: 4.0, bottom: 4),
-        child: InkWell(
-          onTap: () {
-            rows = addOneRow(columns, rows);
-            rowCount = rowCount! + 1;
-            setState(() {});
-          },
-          child: Container(
-            padding: EdgeInsets.all(2),
-            decoration: BoxDecoration(
-              color: widget.createButtonColor ?? Colors.white,
-              boxShadow: [BoxShadow(blurRadius: 2, color: Colors.grey.shade400)],
-              borderRadius: BorderRadius.circular(10),
-              shape: BoxShape.rectangle,
-            ),
-            child: widget.createButtonIcon ?? Icon(Icons.add),
-          ),
-        ),
-      ),
     );
   }
 }
