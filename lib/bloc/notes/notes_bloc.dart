@@ -1,13 +1,16 @@
 import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:start_note/data/entities/note_table_entity.dart';
 import 'package:start_note/data/repositories/note_repository.dart';
+import 'package:start_note/data/repositories/note_table_repository.dart';
 import '../../data/models/note.dart';
 import 'notes.dart';
 
 class NotesBloc extends HydratedBloc<NotesEvent, NotesState> {
-  NotesBloc(this.noteRepository) : super(NotesInitial()) {
+  NotesBloc(this.noteRepository, this.noteTableRepository) : super(NotesInitial()) {
     on(_onEvent);
   }
   final INoteRepository<Note> noteRepository;
+  final INoteTableRepository noteTableRepository;
   void _onEvent(NotesEvent event, Emitter<NotesState> emit) async {
     if (event is FetchNotes) await _fetchNotes(event, emit);
     if (event is AddNote) await _addNote(event, emit);
@@ -44,17 +47,22 @@ class NotesBloc extends HydratedBloc<NotesEvent, NotesState> {
       List<Note> notes = await noteRepository.getNotes();
 
       emit(NotesLoaded(notes..sort((a, b) => b.createDate.compareTo(a.createDate))));
-      _deleteEmptyNotes(notes);
+      await _deleteEmptyNotes(notes);
     } catch (e) {
       emit(NotesError(const []));
     }
   }
 
-  void _deleteEmptyNotes(List<Note> notes) {
+  Future<void> _deleteEmptyNotes(List<Note> notes) async {
     Note? noteToDelete;
-    for (var element in notes) {
-      if (element.content.isEmpty) {
-        noteToDelete = element;
+    for (var note in notes) {
+      if (note.content.isEmpty) {
+        if (note.id != null) {
+          List<NoteTableEntity> noteTables = await noteTableRepository.getNoteTablesFromNoteId(note.id!);
+          if (noteTables.isEmpty) {
+            noteToDelete = note;
+          }
+        }
       }
     }
     if (noteToDelete != null) {

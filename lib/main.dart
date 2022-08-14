@@ -16,10 +16,9 @@ import 'services/l10n_service.dart';
 void main({bool useMocks = false}) async {
   WidgetsFlutterBinding.ensureInitialized();
   await LoggingService.initialize();
-  
+
   HydratedStorage storage = await BlocService.initialize();
   Database database = await DatabaseService.initialize();
-  
 
   HydratedBlocOverrides.runZoned<Future<void>>(
     () async => runApp(MyApp(database, useMocks: useMocks)),
@@ -70,16 +69,16 @@ class AppWrapper extends StatelessWidget {
       ],
       child: StartNote(
         noteRepository: noteRepository,
+        noteTableRepository: noteTableRepository,
       ),
     );
   }
 }
 
 class StartNote extends StatefulWidget {
-  const StartNote({
-    required this.noteRepository,
-  });
+  const StartNote({required this.noteRepository, required this.noteTableRepository});
   final INoteRepository noteRepository;
+  final INoteTableRepository noteTableRepository;
   @override
   StartNoteState createState() => StartNoteState();
 }
@@ -89,7 +88,7 @@ class StartNoteState extends State<StartNote> {
   @override
   void initState() {
     super.initState();
-    notesBloc = NotesBloc(widget.noteRepository)..add(FetchNotes());
+    notesBloc = NotesBloc(widget.noteRepository, widget.noteTableRepository)..add(FetchNotes());
   }
 
   @override
