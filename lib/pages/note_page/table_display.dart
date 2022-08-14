@@ -43,6 +43,33 @@ class _TableDisplayState extends State<TableDisplay> {
     });
   }
 
+  bool get cellsHaveFocus {
+    bool haveFocus = false;
+    focusNodes.forEach((key, value) {
+      value.forEach((key, value) {
+        if (value.hasFocus) {
+          haveFocus = true;
+        }
+      });
+    });
+    return haveFocus;
+  }
+
+  void addColumnOfFocusNodes() {
+    int newColumnCount = widget.noteTable.columnCount + 1;
+    focusNodes.forEach((key, value) {
+      focusNodes[key]![newColumnCount] = FocusNode();
+    });
+  }
+
+  void addRowOfFocusNodes() {
+    int newRowCount = widget.noteTable.rowCount + 1;
+    focusNodes[newRowCount] = {};
+    focusNodes[1]!.forEach((key, value) {
+      focusNodes[newRowCount]![key] = FocusNode();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -66,23 +93,54 @@ class _TableDisplayState extends State<TableDisplay> {
         ),
         Flexible(
           fit: FlexFit.loose,
-          child: GestureDetector(
-            onTap: () {
-              print('felt that');
+          child: Editable(
+            columnRatio: 1 / (widget.noteTable.columnCount),
+            columnCount: widget.noteTable.columnCount,
+            // rows: widget.noteTable.rows,
+            // columns: widget.noteTable.columns,
+            onCellTap: (row, column) {
+              setState(() {});
             },
-            child: Editable(
-              columnRatio: 1 / (widget.noteTable.columnCount),
-              columnCount: widget.noteTable.columnCount,
-              noteTableCells: widget.noteTable.cells,
-              rowCount: widget.noteTable.rowCount,
-              noteTable: widget.noteTable,
-              focusNodeMap: focusNodes,
-              onChanged: (value, row, column) {
-                widget.notePageBloc.add(SaveNoteDataCell(row, column, widget.noteTable.id!, value));
-              },
-            ),
+            noteTableCells: widget.noteTable.cells,
+            rowCount: widget.noteTable.rowCount,
+            noteTable: widget.noteTable,
+            focusNodeMap: focusNodes,
+            onChanged: (value, row, column) {
+              widget.notePageBloc.add(SaveNoteDataCell(row, column, widget.noteTable.id!, value));
+            },
           ),
         ),
+        cellsHaveFocus
+            ? Padding(
+                padding: const EdgeInsets.only(top: 16.0, bottom: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    IconButton(
+                        onPressed: () {
+                          widget.notePageBloc.add(RemoveTableColumn(widget.noteTable.id!));
+                        },
+                        icon: Icon(Icons.view_column_outlined)),
+                    IconButton(
+                        onPressed: () {
+                          addColumnOfFocusNodes();
+                          widget.notePageBloc.add(AddTableColumn(widget.noteTable.id!));
+                        },
+                        icon: Icon(Icons.view_column_sharp)),
+                    IconButton(
+                        onPressed: () {
+                          widget.notePageBloc.add(RemoveTableRow(widget.noteTable.id!));
+                        },
+                        icon: Icon(Icons.table_rows_outlined)),
+                    IconButton(
+                        onPressed: () {
+                          widget.notePageBloc.add(AddTableRow(widget.noteTable.id!));
+                        },
+                        icon: Icon(Icons.table_rows_sharp)),
+                  ],
+                ),
+              )
+            : Container()
       ],
     );
   }

@@ -20,6 +20,44 @@ class NotePageBloc extends Bloc<NotePageEvent, NotePageState> {
     if (event is AddTable) await _addTable(event, emit);
     if (event is SaveNoteDataCell) await _saveNoteDataCell(event, emit);
     if (event is SaveNoteTableTitle) await _saveNoteTableTitle(event, emit);
+    if (event is AddTableColumn) await _addTableColumn(event, emit);
+    if (event is RemoveTableColumn) await _removeTableColumn(event, emit);
+    if (event is AddTableRow) await _addTableRow(event, emit);
+    if (event is RemoveTableRow) await _removeTableRow(event, emit);
+  }
+
+  Future<void> _addTableColumn(AddTableColumn event, Emitter<NotePageState> emit) async {
+    try {
+      if (state is NotePageLoaded) {
+        NotePageLoaded loadedState = state as NotePageLoaded;
+        emit(NotePageLoading(state.note, state.note));
+        List<NoteTableEntity> noteTables = List<NoteTableEntity>.from(loadedState.note.noteTables);
+        NoteTableEntity entity = noteTables.where((element) => element.id == event.noteTableId).first;
+        int index = noteTables.indexOf(entity);
+        entity = NoteTableEntity.fromNoteTableAndCells(entity.copyWith(updateDate: DateTime.now()), entity.cells);
+
+        entity = await noteTableRepository.addColumn(entity);
+
+        noteTables[index] = entity;
+
+        NoteEntity note = loadedState.note.copyEntityWith(noteTables: noteTables);
+        emit(NotePageLoaded(state.initialNote, note));
+      }
+    } catch (e) {
+      emit(NotePageError(initialNote, initialNote));
+    }
+  }
+
+  Future<void> _removeTableColumn(RemoveTableColumn event, Emitter<NotePageState> emit) async {
+    print('removing column');
+  }
+
+  Future<void> _addTableRow(AddTableRow event, Emitter<NotePageState> emit) async {
+    print('adding row');
+  }
+
+  Future<void> _removeTableRow(RemoveTableRow event, Emitter<NotePageState> emit) async {
+    print('removing row');
   }
 
   Future<void> _saveNoteTableTitle(SaveNoteTableTitle event, Emitter<NotePageState> emit) async {
@@ -49,7 +87,7 @@ class NotePageBloc extends Bloc<NotePageEvent, NotePageState> {
       }
       emit(NotePageLoaded(initialNote, note));
     } catch (e) {
-      emit(NotePageError(initialNote, initialNote));
+      emit(NotePageError(initialNote, state.note));
     }
   }
 
@@ -81,7 +119,7 @@ class NotePageBloc extends Bloc<NotePageEvent, NotePageState> {
       }
       emit(NotePageLoaded(initialNote, note));
     } catch (e) {
-      emit(NotePageError(initialNote, initialNote));
+      emit(NotePageError(initialNote, state.note));
     }
   }
 
@@ -95,7 +133,7 @@ class NotePageBloc extends Bloc<NotePageEvent, NotePageState> {
       }
       emit(NotePageLoaded(initialNote, note));
     } catch (e) {
-      emit(NotePageError(initialNote, initialNote));
+      emit(NotePageError(initialNote, state.note));
     }
   }
 
@@ -111,7 +149,7 @@ class NotePageBloc extends Bloc<NotePageEvent, NotePageState> {
         emit(currentState.copyWith(noteTables: noteTables));
       }
     } catch (e) {
-      emit(NotePageError(initialNote, initialNote));
+      emit(NotePageError(initialNote, state.note));
     }
   }
 }

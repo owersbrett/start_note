@@ -4,12 +4,8 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:start_note/bloc/note_page/note_page_bloc.dart';
 import 'package:start_note/data/entities/note_table_entity.dart';
 import 'package:start_note/data/models/note_table_cell.dart';
-
-import '../data/models/note_table.dart';
 import 'body.dart';
 import 'helpers.dart';
 
@@ -23,6 +19,7 @@ class Editable extends StatefulWidget {
       required this.onChanged,
       required this.noteTableCells,
       required this.noteTable,
+      required this.onCellTap,
       this.onRowSaved,
       this.columnCount = 0,
       this.rowCount = 0,
@@ -61,6 +58,7 @@ class Editable extends StatefulWidget {
       this.focusedBorder})
       : super(key: key);
 
+  final Function(int, int) onCellTap;
   final NoteTableEntity noteTable;
 
   /// A data set to create headers
@@ -250,85 +248,52 @@ class Editable extends StatefulWidget {
   final ValueChanged<dynamic>? onRowSaved;
 
   @override
-  EditableState createState() =>
-      EditableState(rows: this.rows, columns: this.columns, rowCount: this.rowCount, columnCount: this.columnCount);
+  EditableState createState() => EditableState();
 }
 
 class EditableState extends State<Editable> {
-  List? rows, columns;
-  int? columnCount;
-  int? rowCount;
 
-  ///Get all edited rows
-  List get editedRows => _editedRows;
-
-  ///Create a row after the last row
-  createRow() => addOneRow(columns, rows);
-  EditableState({this.rows, this.columns, this.columnCount, this.rowCount});
 
   /// Temporarily holds all edited rows
-  List _editedRows = [];
 
-  @override
-  Widget build(BuildContext context) {
-    /// initial Setup of columns and row, sets count of column and row
-    rowCount = rows == null || rows!.isEmpty ? widget.rowCount : rows!.length;
-    columnCount = columns == null || columns!.isEmpty ? columnCount : columns!.length;
-    columns = columns ?? columnBlueprint(columnCount, columns);
-    rows = rows ?? rowBlueprint(rowCount!, columns, rows);
+  String _getInitialValue(int rowIndex, int columnIndex) {
+    NoteTableCell cell =
+        widget.noteTableCells.where((element) => element.row == rowIndex && element.column == columnIndex).first;
+    return cell.content;
+  }
 
-    String _getInitialValue(int rowIndex, int columnIndex) {
-      NoteTableCell cell =
-          widget.noteTableCells.where((element) => element.row == rowIndex && element.column == columnIndex).first;
-      return cell.content;
-    }
-
-    /// Generates table rows
-    List<Widget> _tableRows() {
-      return List<Widget>.generate(rowCount!, (index) {
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: List.generate(columnCount!, (rowIndex) {
-            var ckeys = [];
-            var cwidths = [];
-            var ceditable = <bool>[];
-            columns!.forEach((e) {
-              ckeys.add(e['key']);
-              cwidths.add(e['widthFactor'] ?? widget.columnRatio);
-              ceditable.add(e['editable'] ?? true);
-            });
-            var list = rows![index];
-            return RowBuilder(
-              row: index + 1,
-              column: rowIndex + 1,
-              initialValue: _getInitialValue(index + 1, rowIndex + 1),
-              index: index,
-              col: ckeys[rowIndex],
-              trHeight: widget.trHeight,
-              borderColor: widget.borderColor,
-              borderWidth: widget.borderWidth,
-              cellData: list[ckeys[rowIndex]],
-              tdPaddingLeft: widget.tdPaddingLeft,
-              tdPaddingTop: widget.tdPaddingTop,
-              tdPaddingBottom: widget.tdPaddingBottom,
-              tdPaddingRight: widget.tdPaddingRight,
-              tdAlignment: widget.tdAlignment,
-              tdStyle: widget.tdStyle,
-              tdEditableMaxLines: widget.tdEditableMaxLines,
-              widthRatio: cwidths[rowIndex].toDouble(),
-              isEditable: ceditable[rowIndex],
-              zebraStripe: widget.zebraStripe,
-              focusedBorder: widget.focusedBorder,
-              stripeColor1: widget.stripeColor1,
-              stripeColor2: widget.stripeColor2,
-              onChanged: widget.onChanged,
-              focusNode: widget.focusNodeMap[index + 1]![rowIndex + 1]!,
-              onCellEditingComplete: (int row, int column) {
-                if (widget.noteTable.rowColumnTableMap[row]![column]!.isEmpty) {
-                  FocusScope.of(context).unfocus();
-                } else {
-
+  List<Widget> _tableRows() {
+    return List<Widget>.generate(widget.rowCount, (index) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: List.generate(widget.columnCount, (rowIndex) {
+          return RowBuilder(
+            row: index + 1,
+            column: rowIndex + 1,
+            initialValue: _getInitialValue(index + 1, rowIndex + 1),
+            index: index,
+            trHeight: widget.trHeight,
+            borderColor: widget.borderColor,
+            borderWidth: widget.borderWidth,
+            tdPaddingLeft: widget.tdPaddingLeft,
+            tdPaddingTop: widget.tdPaddingTop,
+            tdPaddingBottom: widget.tdPaddingBottom,
+            tdPaddingRight: widget.tdPaddingRight,
+            tdAlignment: widget.tdAlignment,
+            tdStyle: widget.tdStyle,
+            tdEditableMaxLines: widget.tdEditableMaxLines,
+            widthRatio: widget.columnRatio,
+            zebraStripe: widget.zebraStripe,
+            focusedBorder: widget.focusedBorder,
+            stripeColor1: widget.stripeColor1,
+            stripeColor2: widget.stripeColor2,
+            onChanged: widget.onChanged,
+            focusNode: widget.focusNodeMap[index + 1]![rowIndex + 1]!,
+            onCellEditingComplete: (int row, int column) {
+              if (widget.noteTable.rowColumnTableMap[row]![column]!.isEmpty) {
+                FocusScope.of(context).unfocus();
+              } else {
                 bool nextColumnExists = widget.focusNodeMap[row]![column + 1] != null;
                 nextColumnExists ? widget.focusNodeMap[row]![column + 1]!.requestFocus() : null;
                 if (!nextColumnExists) {
@@ -339,16 +304,25 @@ class EditableState extends State<Editable> {
                     // BlocProvider.of<NotePageBloc>(context).add(AddRow);
                   }
                 }
-                }
-              },
-              onCellTap: (int row, int column) {
-                print("tapped cell " + row.toString() + ", " + column.toString());
-              },
-            );
-          }),
-        );
-      });
-    }
+              }
+            },
+            onCellTap: (int row, int column) {
+              widget.onCellTap(row, column);
+              print("tapped cell " + row.toString() + ", " + column.toString());
+            },
+          );
+        }),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    /// initial Setup of columns and row, sets count of column and row
+    // columns = columns ?? columnBlueprint(columnCount, columns);
+    // rows = rows ?? rowBlueprint(rowCount!, columns, rows);
+
+    /// Generates table rows
 
     return Material(
       color: Colors.transparent,

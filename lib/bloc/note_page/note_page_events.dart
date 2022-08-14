@@ -6,6 +6,24 @@ class FetchNotePage extends NotePageEvent {}
 
 class AddTable extends NotePageEvent {}
 
+class AddTableRow extends NotePageEvent {
+  AddTableRow(this.noteTableId);
+  int noteTableId;
+}
+
+class AddTableColumn extends NotePageEvent {
+  AddTableColumn(this.noteTableId);
+  final int noteTableId;
+}
+class RemoveTableColumn extends NotePageEvent {
+  RemoveTableColumn(this.noteTableId);
+  final int noteTableId;
+}
+class RemoveTableRow extends NotePageEvent {
+  RemoveTableRow(this.noteTableId);
+  final int noteTableId;
+}
+
 class SaveNoteTableTitle extends NotePageEvent {
   SaveNoteTableTitle(this.noteTableId, this.titleText);
   final int noteTableId;

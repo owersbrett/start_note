@@ -16,6 +16,22 @@ class NoteTableEntity extends NoteTable {
     return map;
   }
 
+  List get rows {
+    List _rows = [];
+    rowColumnTableMap.forEach((key, value) {
+      _rows.add(value);
+    });
+    return _rows;
+  }
+
+  List get columns {
+    List _columns = [];
+    rowColumnTableMap[1]!.forEach((key, value) {
+      _columns.add(value);
+    });
+    return _columns;
+  }
+
   int get rowCount {
     Set uniqueRows = {};
     cells.forEach((element) {
@@ -23,6 +39,7 @@ class NoteTableEntity extends NoteTable {
     });
     return uniqueRows.length;
   }
+
   int get columnCount {
     Set uniqueColumns = {};
     cells.forEach((element) {

@@ -11,6 +11,10 @@ abstract class INoteTableRepository<T extends NoteTable> extends Repository<Note
   Future<List<NoteTableEntity>> getNoteTablesFromNoteId(int noteId);
   Future<NoteTableEntity> createNoteTableEntity(NoteTable t);
   Future<NoteTableCell> updateNoteTableCell(NoteTableCell noteTableCell);
+  Future<NoteTableEntity> addRow(NoteTableEntity noteTable);
+  Future<NoteTableEntity> removeRow(NoteTableEntity noteTable);
+  Future<NoteTableEntity> addColumn(NoteTableEntity noteTable);
+  Future<NoteTableEntity> removeColumn(NoteTableEntity noteTable);
 }
 
 class NoteTableRepository<T extends NoteTable> implements INoteTableRepository<NoteTable> {
@@ -102,8 +106,40 @@ class NoteTableRepository<T extends NoteTable> implements INoteTableRepository<N
 
   @override
   Future<NoteTableCell> updateNoteTableCell(NoteTableCell noteTableCell) async {
-    await db.rawUpdate('UPDATE ${NoteTableCell.tableName} SET content = ? WHERE row = ? AND column = ? AND noteTableId = ?', [noteTableCell.content, noteTableCell.row, noteTableCell.column, noteTableCell.noteTableId]);
+    await db.rawUpdate(
+        'UPDATE ${NoteTableCell.tableName} SET content = ? WHERE row = ? AND column = ? AND noteTableId = ?',
+        [noteTableCell.content, noteTableCell.row, noteTableCell.column, noteTableCell.noteTableId]);
     return noteTableCell;
+  }
+
+  @override
+  Future<NoteTableEntity> addColumn(NoteTableEntity noteTable) async {
+    return await db.transaction((txn) async {
+      int newColumnKey = noteTable.rowColumnTableMap[1]!.length + 1;
+      for (var entry in noteTable.rowColumnTableMap.entries) {
+        await insertNoteTableCell(txn, noteTable.noteId, noteTable.id!, entry.key, newColumnKey);
+      }
+      noteTable = noteTable.copyWithCells(await getCellsFromNoteAndTableId(txn, noteTable.noteId, noteTable.id!));
+      return noteTable;
+    });
+  }
+
+  @override
+  Future<NoteTableEntity> addRow(NoteTableEntity noteTable) async {
+    // TODO: implement addRow
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<NoteTableEntity> removeColumn(NoteTableEntity noteTable) async {
+    // TODO: implement removeColumn
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<NoteTableEntity> removeRow(NoteTableEntity noteTable) async {
+    // TODO: implement removeRow
+    throw UnimplementedError();
   }
 }
   // 'CREATE TABLE $tableName (id INTEGER PRIMARY KEY, noteId INTEGER FOREIGN KEY, rowCount INTEGER, columnCount INTEGER, title TEXT, createDateMillisSinceEpoch INTEGER, updateDateMillisSinceEpoch INTEGER)';
