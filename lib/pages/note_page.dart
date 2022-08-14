@@ -66,11 +66,7 @@ class _NotePageState extends State<NotePage> {
           bloc: notePageBloc,
           builder: (context, state) {
             return Scaffold(
-              appBar: StopwatchAppBar(
-                onDone: () => onDone(state.note.id),
-                key: ValueKey(state.note.id),
-                focusNode: focusNode,
-              ),
+              appBar: StopwatchAppBar(onDone: () => onDone(state.note.id), key: ValueKey(state.note.id)),
               body: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [

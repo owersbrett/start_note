@@ -4,9 +4,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class StopwatchAppBar extends StatelessWidget implements PreferredSize {
-  const StopwatchAppBar({Key? key, required this.onDone, required this.focusNode}) : super(key: key);
+  const StopwatchAppBar({Key? key, required this.onDone}) : super(key: key);
   final Function onDone;
-  final FocusNode focusNode;
 
   @override
   Widget build(BuildContext context) {
@@ -14,16 +13,15 @@ class StopwatchAppBar extends StatelessWidget implements PreferredSize {
   }
 
   @override
-  Widget get child => StopwatchBar(onDone: onDone, focusNode: focusNode);
+  Widget get child => StopwatchBar(onDone: onDone);
 
   @override
   Size get preferredSize => Size.fromHeight(kToolbarHeight);
 }
 
 class StopwatchBar extends StatefulWidget {
-  const StopwatchBar({Key? key, required this.onDone, required this.focusNode}) : super(key: key);
+  const StopwatchBar({Key? key, required this.onDone}) : super(key: key);
   final Function onDone;
-  final FocusNode focusNode;
 
   @override
   State<StopwatchBar> createState() => _StopwatchBarState();
@@ -119,11 +117,12 @@ class _StopwatchBarState extends State<StopwatchBar> {
         ),
       ),
       actions: [
-        widget.focusNode.hasFocus
+        FocusScope.of(context).hasFocus
             ? TextButton(
                 child: const Text("Done", style: TextStyle(color: Colors.white)),
                 onPressed: () {
-                  widget.onDone();
+                  FocusScope.of(context).unfocus();
+                  // widget.onDone();
                 },
               )
             : Container(),
