@@ -3,7 +3,6 @@
 // Use of this source code is governed by a MIT license that can be
 // found in the LICENSE file.
 
-
 import 'package:flutter/material.dart';
 
 import 'body.dart';
@@ -11,7 +10,6 @@ import 'header.dart';
 import 'helpers.dart';
 
 class Editable extends StatefulWidget {
-
   Editable(
       {Key? key,
       this.columns,
@@ -238,11 +236,8 @@ class Editable extends StatefulWidget {
   final ValueChanged<dynamic>? onRowSaved;
 
   @override
-  EditableState createState() => EditableState(
-      rows: this.rows,
-      columns: this.columns,
-      rowCount: this.rowCount,
-      columnCount: this.columnCount);
+  EditableState createState() =>
+      EditableState(rows: this.rows, columns: this.columns, rowCount: this.rowCount, columnCount: this.columnCount);
 }
 
 class EditableState extends State<Editable> {
@@ -264,8 +259,7 @@ class EditableState extends State<Editable> {
   Widget build(BuildContext context) {
     /// initial Setup of columns and row, sets count of column and row
     rowCount = rows == null || rows!.isEmpty ? widget.rowCount : rows!.length;
-    columnCount =
-        columns == null || columns!.isEmpty ? columnCount : columns!.length;
+    columnCount = columns == null || columns!.isEmpty ? columnCount : columns!.length;
     columns = columns ?? columnBlueprint(columnCount, columns);
     rows = rows ?? rowBlueprint(rowCount!, columns, rows);
 
@@ -284,8 +278,7 @@ class EditableState extends State<Editable> {
               size: widget.saveIconSize,
             ),
             onPressed: () {
-              int rowIndex = editedRows.indexWhere(
-                  (element) => element['row'] == index ? true : false);
+              int rowIndex = editedRows.indexWhere((element) => element['row'] == index ? true : false);
               if (rowIndex != -1) {
                 widget.onRowSaved!(editedRows[rowIndex]);
               } else {
@@ -301,8 +294,7 @@ class EditableState extends State<Editable> {
     List<Widget> _tableHeaders() {
       return List<Widget>.generate(columnCount! + 1, (index) {
         return columnCount! + 1 == (index + 1)
-            ? iconColumn(widget.showSaveIcon, widget.thPaddingTop,
-                widget.thPaddingBottom)
+            ? iconColumn(widget.showSaveIcon, widget.thPaddingTop, widget.thPaddingBottom)
             : THeader(
                 widthRatio: columns![index]['widthFactor'] != null
                     ? columns![index]['widthFactor'].toDouble()
@@ -380,39 +372,32 @@ class EditableState extends State<Editable> {
         );
       });
     }
-
+  
     return Material(
       color: Colors.transparent,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child:
-              Column(crossAxisAlignment: widget.createButtonAlign, children: [
-            //Table Header
-            createButton(),
-            Container(
-              padding: EdgeInsets.only(bottom: widget.thPaddingBottom),
-              decoration: BoxDecoration(
-                  border: Border(
-                      bottom: BorderSide(
-                          color: widget.borderColor,
-                          width: widget.borderWidth))),
-              child: Row(
-                  crossAxisAlignment: widget.thVertAlignment,
-                  mainAxisSize: MainAxisSize.min,
-                  children: _tableHeaders()),
-            ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: widget.createButtonAlign, children: [
+          //Table Header
+          createButton(),
+          Container(
+            padding: EdgeInsets.only(bottom: widget.thPaddingBottom),
+            decoration:
+                BoxDecoration(border: Border(bottom: BorderSide(color: widget.borderColor, width: widget.borderWidth))),
+            child: Row(
+                crossAxisAlignment: widget.thVertAlignment, mainAxisSize: MainAxisSize.min, children: _tableHeaders()),
+          ),
 
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: _tableRows(),
-                ),
-              ),
-            )
-          ]),
-        ),
+          Flexible(
+            fit: FlexFit.loose,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: _tableRows(),
+            ),
+          )
+        ]),
       ),
     );
   }
@@ -433,9 +418,7 @@ class EditableState extends State<Editable> {
             padding: EdgeInsets.all(2),
             decoration: BoxDecoration(
               color: widget.createButtonColor ?? Colors.white,
-              boxShadow: [
-                BoxShadow(blurRadius: 2, color: Colors.grey.shade400)
-              ],
+              boxShadow: [BoxShadow(blurRadius: 2, color: Colors.grey.shade400)],
               borderRadius: BorderRadius.circular(10),
               shape: BoxShape.rectangle,
             ),

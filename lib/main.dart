@@ -81,10 +81,10 @@ class StartNote extends StatefulWidget {
   });
   final INoteRepository noteRepository;
   @override
-  _start_noteState createState() => _start_noteState();
+  StartNoteState createState() => StartNoteState();
 }
 
-class _start_noteState extends State<StartNote> {
+class StartNoteState extends State<StartNote> {
   late NotesBloc notesBloc;
   @override
   void initState() {

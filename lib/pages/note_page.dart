@@ -58,8 +58,8 @@ class _NotePageState extends State<NotePage> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text('Title'),
-        Container(
-          height: 100,
+        Flexible(
+          fit: FlexFit.loose,
           child: Editable(
             columnRatio: 1 / (noteTable.columnCount + 1),
             columnCount: noteTable.columnCount,
@@ -68,10 +68,6 @@ class _NotePageState extends State<NotePage> {
         ),
       ],
     );
-    return ListTile(
-      title: Text(noteTable.title),
-    );
-    // return NoteTableDisplay(noteTable: noteTable);
   }
 
   @override
@@ -98,14 +94,15 @@ class _NotePageState extends State<NotePage> {
                       Tab(text: "Tables"),
                     ],
                   ),
-                  Expanded(
+                  Flexible(
+                    fit: FlexFit.loose,
                     child: TabBarView(
                       children: [
                         Padding(
                           padding: const EdgeInsets.only(top: 8.0, left: 16, right: 16),
                           child: Column(
                             children: [
-                              Expanded(
+                              Flexible(
                                 child: TextField(
                                   controller: noteController,
                                   focusNode: focusNode,
@@ -119,8 +116,10 @@ class _NotePageState extends State<NotePage> {
                         Padding(
                           padding: const EdgeInsets.only(top: 8.0, left: 16, right: 16),
                           child: Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Expanded(
+                              Flexible(
+                                fit: FlexFit.loose,
                                 child: ListView.builder(
                                   itemCount: state.note.noteTables.length,
                                   itemBuilder: ((context, index) => _tableBuilder(state.note.noteTables[index])),

@@ -1,4 +1,4 @@
-import 'package:editable/editable.dart';
+
 import 'package:flutter/material.dart';
 import 'package:start_note/data/entities/note_table_entity.dart';
 import 'package:start_note/data/models/note_table.dart';
