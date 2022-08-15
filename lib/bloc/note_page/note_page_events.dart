@@ -2,7 +2,10 @@ abstract class NotePageEvent {
   const NotePageEvent();
 }
 
-class FetchNotePage extends NotePageEvent {}
+class FetchNotePage extends NotePageEvent {
+  FetchNotePage({this.noteId});
+  final int? noteId;
+}
 
 class AddTable extends NotePageEvent {}
 

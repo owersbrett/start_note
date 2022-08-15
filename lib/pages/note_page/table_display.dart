@@ -89,7 +89,7 @@ class _TableDisplayState extends State<TableDisplay> {
       for (var columnEntry in rowValue.entries) {
         var columnKey = columnEntry.key;
         var columnValue = columnEntry.value;
-        if (columnKey > column) {
+        if (columnKey >= column) {
           if (columnValue.isEmpty) {
             return focusNodes[rowKey]![columnKey]!;
           }
@@ -104,7 +104,7 @@ class _TableDisplayState extends State<TableDisplay> {
     for (var rowEntry in widget.noteTable.rowColumnTableMap.entries) {
       var rowKey = rowEntry.key;
       var rowValue = rowEntry.value;
-      if (rowKey > row) {
+      if (rowKey >= row) {
         for (var columnEntry in rowValue.entries) {
           var columnKey = columnEntry.key;
           var columnValue = columnEntry.value;
@@ -181,7 +181,7 @@ class _TableDisplayState extends State<TableDisplay> {
         BlocListener<NotePageBloc, NotePageState>(
           bloc: widget.notePageBloc,
           listener: (context, state) {
-            if (!currentCellIsEmpty) focusNodes[1]?[widget.noteTable.columnCount + 1]?.requestFocus();
+            nextEmptyFocusNodeInRow(newFocusRow, newFocusRow);
           },
           listenWhen: (previous, current) {
             return (previous is AddingColumn && current is NotePageLoaded);
@@ -293,6 +293,7 @@ class _TableDisplayState extends State<TableDisplay> {
                             onTap: () {
                               setState(() {
                                 newFocusColumn = widget.noteTable.columnCount + 1;
+                                newFocusRow = 1;
                               });
                               addColumnOfFocusNodes();
                               widget.notePageBloc.add(AddTableColumn(widget.noteTable.id!));

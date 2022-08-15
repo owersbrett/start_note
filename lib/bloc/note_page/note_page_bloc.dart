@@ -31,7 +31,7 @@ class NotePageBloc extends Bloc<NotePageEvent, NotePageState> {
     try {
       if (state is NotePageLoaded) {
         NotePageLoaded loadedState = state as NotePageLoaded;
-
+        bool shouldFetch = false;
         for (var element in loadedState.note.noteTables) {
           bool allAreEmpty = true;
           element.rowColumnTableMap[element.rowCount]!.forEach((key, value) {
@@ -39,12 +39,12 @@ class NotePageBloc extends Bloc<NotePageEvent, NotePageState> {
               allAreEmpty = false;
             }
           });
-          if (allAreEmpty){
+          if (allAreEmpty) {
+            shouldFetch = true;
             await noteTableRepository.deleteLastRow(element);
           }
         }
-
-        add(FetchNotePage());
+        if (shouldFetch) add(FetchNotePage(noteId: loadedState.note.id));
       }
     } catch (e) {
       emit(NotePageError(initialNote, initialNote));
@@ -211,8 +211,8 @@ class NotePageBloc extends Bloc<NotePageEvent, NotePageState> {
   Future<void> _fetchNotePage(FetchNotePage event, Emitter<NotePageState> emit) async {
     try {
       NoteEntity note = NoteEntity.create();
-      if (initialNote.id != null) {
-        note = await noteRepository.getEntityById(initialNote.id!, noteTableRepository);
+      if (initialNote.id != null || event.noteId != null) {
+        note = await noteRepository.getEntityById(initialNote.id ?? event.noteId!, noteTableRepository);
       } else {
         note = await noteRepository.getNewNote();
       }
