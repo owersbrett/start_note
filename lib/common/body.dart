@@ -72,7 +72,7 @@ class _RowBuilderState extends State<RowBuilder> {
       flex: 6,
       child: Container(
         height: widget._trHeight < 40 ? 40 : widget._trHeight,
-        width: width * widget.widthRatio!,
+        width: width * widget.widthRatio,
         decoration: BoxDecoration(
             color: !widget.zebraStripe ? null : (widget.index % 2 == 1.0 ? widget.stripeColor2 : widget.stripeColor1),
             border: Border.all(color: widget._borderColor, width: widget._borderWidth)),

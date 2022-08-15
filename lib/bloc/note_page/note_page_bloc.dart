@@ -30,7 +30,7 @@ class NotePageBloc extends Bloc<NotePageEvent, NotePageState> {
     try {
       if (state is NotePageLoaded) {
         NotePageLoaded loadedState = state as NotePageLoaded;
-        emit(NotePageLoading(state.note, state.note));
+        emit(AddingColumn(state.note, state.note));
         List<NoteTableEntity> noteTables = List<NoteTableEntity>.from(loadedState.note.noteTables);
         NoteTableEntity entity = noteTables.where((element) => element.id == event.noteTableId).first;
         int index = noteTables.indexOf(entity);
@@ -49,15 +49,75 @@ class NotePageBloc extends Bloc<NotePageEvent, NotePageState> {
   }
 
   Future<void> _removeTableColumn(RemoveTableColumn event, Emitter<NotePageState> emit) async {
-    print('removing column');
+    try {
+      if (state is NotePageLoaded) {
+        NotePageLoaded loadedState = state as NotePageLoaded;
+        emit(DeletingColumn(state.note, state.note));
+        List<NoteTableEntity> noteTables = List<NoteTableEntity>.from(loadedState.note.noteTables);
+        NoteTableEntity? entity = noteTables.where((element) => element.id == event.noteTableId).first;
+        int index = noteTables.indexOf(entity);
+        entity = NoteTableEntity.fromNoteTableAndCells(entity.copyWith(updateDate: DateTime.now()), entity.cells);
+
+        entity = await noteTableRepository.removeColumn(entity);
+        if (entity != null) {
+          noteTables[index] = entity;
+        } else {
+          noteTables.removeAt(index);
+        }
+
+        NoteEntity note = loadedState.note.copyEntityWith(noteTables: noteTables);
+        emit(NotePageLoaded(state.initialNote, note));
+      }
+    } catch (e) {
+      emit(NotePageError(initialNote, initialNote));
+    }
   }
 
   Future<void> _addTableRow(AddTableRow event, Emitter<NotePageState> emit) async {
-    print('adding row');
+    try {
+      if (state is NotePageLoaded) {
+        NotePageLoaded loadedState = state as NotePageLoaded;
+        emit(AddingRow(state.note, state.note));
+        List<NoteTableEntity> noteTables = List<NoteTableEntity>.from(loadedState.note.noteTables);
+        NoteTableEntity entity = noteTables.where((element) => element.id == event.noteTableId).first;
+        int index = noteTables.indexOf(entity);
+        entity = NoteTableEntity.fromNoteTableAndCells(entity.copyWith(updateDate: DateTime.now()), entity.cells);
+
+        entity = await noteTableRepository.addRow(entity);
+
+        noteTables[index] = entity;
+
+        NoteEntity note = loadedState.note.copyEntityWith(noteTables: noteTables);
+        emit(NotePageLoaded(state.initialNote, note));
+      }
+    } catch (e) {
+      emit(NotePageError(initialNote, initialNote));
+    }
   }
 
   Future<void> _removeTableRow(RemoveTableRow event, Emitter<NotePageState> emit) async {
-    print('removing row');
+    try {
+      if (state is NotePageLoaded) {
+        NotePageLoaded loadedState = state as NotePageLoaded;
+        emit(DeletingRow(state.note, state.note));
+        List<NoteTableEntity> noteTables = List<NoteTableEntity>.from(loadedState.note.noteTables);
+        NoteTableEntity? entity = noteTables.where((element) => element.id == event.noteTableId).first;
+        int index = noteTables.indexOf(entity);
+        entity = NoteTableEntity.fromNoteTableAndCells(entity.copyWith(updateDate: DateTime.now()), entity.cells);
+
+        entity = await noteTableRepository.removeRow(entity);
+        if (entity != null) {
+          noteTables[index] = entity;
+        } else {
+          noteTables.removeAt(index);
+        }
+
+        NoteEntity note = loadedState.note.copyEntityWith(noteTables: noteTables);
+        emit(NotePageLoaded(state.initialNote, note));
+      }
+    } catch (e) {
+      emit(NotePageError(initialNote, initialNote));
+    }
   }
 
   Future<void> _saveNoteTableTitle(SaveNoteTableTitle event, Emitter<NotePageState> emit) async {

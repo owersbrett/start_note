@@ -30,7 +30,7 @@ class HomePage extends StatelessWidget {
       ),
       child: ListTile(
         title: Text(
-          note.content.isEmpty ? DateService.getDayStringFromDateTime(note.createDate) : note.content,
+          note.content.isEmpty ? DateService.dateTimeToWeekDay(note.createDate) : note.content,
           overflow: TextOverflow.ellipsis,
           maxLines: 1,
         ),

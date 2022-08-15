@@ -26,9 +26,7 @@ class _NotePageState extends State<NotePage> with SingleTickerProviderStateMixin
   late TabController _controller;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    // Create TabController for getting the index of current tab
     notePageBloc = NotePageBloc(
       widget.note,
       RepositoryProvider.of<INoteRepository>(context),

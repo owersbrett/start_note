@@ -16,6 +16,8 @@ class NoteTableEntity extends NoteTable {
     return map;
   }
 
+  
+
   List get rows {
     List _rows = [];
     rowColumnTableMap.forEach((key, value) {

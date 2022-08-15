@@ -42,6 +42,46 @@ class NotePageLoading extends NotePageState {
   @override
   NoteEntity get note => _note;
 }
+class AddingColumn extends NotePageState {
+  AddingColumn(this._noteEntity, this._note);
+  final NoteEntity _noteEntity;
+  final NoteEntity _note;
+  @override
+  NoteEntity get initialNote => _noteEntity;
+
+  @override
+  NoteEntity get note => _note;
+}
+class AddingRow extends NotePageState {
+  AddingRow(this._noteEntity, this._note);
+  final NoteEntity _noteEntity;
+  final NoteEntity _note;
+  @override
+  NoteEntity get initialNote => _noteEntity;
+
+  @override
+  NoteEntity get note => _note;
+}
+class DeletingColumn extends NotePageState {
+  DeletingColumn(this._noteEntity, this._note);
+  final NoteEntity _noteEntity;
+  final NoteEntity _note;
+  @override
+  NoteEntity get initialNote => _noteEntity;
+
+  @override
+  NoteEntity get note => _note;
+}
+class DeletingRow extends NotePageState {
+  DeletingRow(this._noteEntity, this._note);
+  final NoteEntity _noteEntity;
+  final NoteEntity _note;
+  @override
+  NoteEntity get initialNote => _noteEntity;
+
+  @override
+  NoteEntity get note => _note;
+}
 
 class NotePageError extends NotePageState {
   NotePageError(this._noteEntity, this._note);

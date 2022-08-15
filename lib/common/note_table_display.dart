@@ -20,6 +20,7 @@ class Editable extends StatefulWidget {
       required this.noteTableCells,
       required this.noteTable,
       required this.onCellTap,
+      required this.onCellEditingComplete,
       this.onRowSaved,
       this.columnCount = 0,
       this.rowCount = 0,
@@ -59,6 +60,7 @@ class Editable extends StatefulWidget {
       : super(key: key);
 
   final Function(int, int) onCellTap;
+  final Function(int, int) onCellEditingComplete;
   final NoteTableEntity noteTable;
 
   /// A data set to create headers
@@ -252,8 +254,6 @@ class Editable extends StatefulWidget {
 }
 
 class EditableState extends State<Editable> {
-
-
   /// Temporarily holds all edited rows
 
   String _getInitialValue(int rowIndex, int columnIndex) {
@@ -290,22 +290,7 @@ class EditableState extends State<Editable> {
             stripeColor2: widget.stripeColor2,
             onChanged: widget.onChanged,
             focusNode: widget.focusNodeMap[index + 1]![rowIndex + 1]!,
-            onCellEditingComplete: (int row, int column) {
-              if (widget.noteTable.rowColumnTableMap[row]![column]!.isEmpty) {
-                FocusScope.of(context).unfocus();
-              } else {
-                bool nextColumnExists = widget.focusNodeMap[row]![column + 1] != null;
-                nextColumnExists ? widget.focusNodeMap[row]![column + 1]!.requestFocus() : null;
-                if (!nextColumnExists) {
-                  bool nextRowExists = widget.focusNodeMap[row + 1] != null;
-                  nextRowExists ? widget.focusNodeMap[row + 1]![1]!.requestFocus() : null;
-                  if (!nextRowExists) {
-                    widget.focusNodeMap[row]?[column]?.unfocus();
-                    // BlocProvider.of<NotePageBloc>(context).add(AddRow);
-                  }
-                }
-              }
-            },
+            onCellEditingComplete: widget.onCellEditingComplete,
             onCellTap: (int row, int column) {
               widget.onCellTap(row, column);
               print("tapped cell " + row.toString() + ", " + column.toString());

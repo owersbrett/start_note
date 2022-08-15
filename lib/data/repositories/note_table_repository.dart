@@ -12,9 +12,9 @@ abstract class INoteTableRepository<T extends NoteTable> extends Repository<Note
   Future<NoteTableEntity> createNoteTableEntity(NoteTable t);
   Future<NoteTableCell> updateNoteTableCell(NoteTableCell noteTableCell);
   Future<NoteTableEntity> addRow(NoteTableEntity noteTable);
-  Future<NoteTableEntity> removeRow(NoteTableEntity noteTable);
+  Future<NoteTableEntity?> removeRow(NoteTableEntity noteTable);
   Future<NoteTableEntity> addColumn(NoteTableEntity noteTable);
-  Future<NoteTableEntity> removeColumn(NoteTableEntity noteTable);
+  Future<NoteTableEntity?> removeColumn(NoteTableEntity noteTable);
 }
 
 class NoteTableRepository<T extends NoteTable> implements INoteTableRepository<NoteTable> {
@@ -69,6 +69,18 @@ class NoteTableRepository<T extends NoteTable> implements INoteTableRepository<N
     NoteTableCell cell = NoteTableCell.create(noteId, noteTableId, row, column);
     int cellId = await txn.insert(NoteTableCell.tableName, cell.toMap());
     return cell.copyWith(id: cellId);
+  }
+
+  Future<bool> deleteNoteTableColumn(Transaction txn, int noteId, int noteTableId, int column) async {
+    await txn.rawDelete('DELETE FROM ${NoteTableCell.tableName} WHERE noteId = ? AND noteTableId = ? AND column = ?',
+        [noteId, noteTableId, column]);
+    return true;
+  }
+
+  Future<bool> deleteNoteTableRow(Transaction txn, int noteId, int noteTableId, int row) async {
+    await txn.rawDelete('DELETE FROM ${NoteTableCell.tableName} WHERE noteId = ? AND noteTableId = ? AND row = ?',
+        [noteId, noteTableId, row]);
+    return true;
   }
 
   @override
@@ -126,20 +138,44 @@ class NoteTableRepository<T extends NoteTable> implements INoteTableRepository<N
 
   @override
   Future<NoteTableEntity> addRow(NoteTableEntity noteTable) async {
-    // TODO: implement addRow
-    throw UnimplementedError();
+    return await db.transaction((txn) async {
+      int newRowKey = noteTable.rowCount + 1;
+      noteTable.rowColumnTableMap[newRowKey] = {};
+      for (var entry in noteTable.rowColumnTableMap[1]!.entries) {
+        await insertNoteTableCell(txn, noteTable.noteId, noteTable.id!, newRowKey, entry.key);
+      }
+      noteTable = noteTable.copyWithCells(await getCellsFromNoteAndTableId(txn, noteTable.noteId, noteTable.id!));
+      return noteTable;
+    });
   }
 
   @override
-  Future<NoteTableEntity> removeColumn(NoteTableEntity noteTable) async {
-    // TODO: implement removeColumn
-    throw UnimplementedError();
+  Future<NoteTableEntity?> removeColumn(NoteTableEntity noteTable) async {
+    return await db.transaction((txn) async {
+      int columnKeyToDelete = noteTable.columnCount;
+      await deleteNoteTableColumn(txn, noteTable.noteId, noteTable.id!, columnKeyToDelete);
+      List<NoteTableCell> cells = await getCellsFromNoteAndTableId(txn, noteTable.noteId, noteTable.id!);
+      noteTable = noteTable.copyWithCells(cells);
+      if (noteTable.cells.isEmpty) {
+        await txn.rawDelete('DELETE FROM $tableName WHERE id = ?', [noteTable.id.toString()]);
+        return null;
+      }
+      return noteTable;
+    });
   }
 
   @override
-  Future<NoteTableEntity> removeRow(NoteTableEntity noteTable) async {
-    // TODO: implement removeRow
-    throw UnimplementedError();
+  Future<NoteTableEntity?> removeRow(NoteTableEntity noteTable) async {
+    return await db.transaction((txn) async {
+      int rowKeyToDelete = noteTable.rowColumnTableMap.length;
+      await deleteNoteTableRow(txn, noteTable.noteId, noteTable.id!, rowKeyToDelete);
+      noteTable = noteTable.copyWithCells(await getCellsFromNoteAndTableId(txn, noteTable.noteId, noteTable.id!));
+      if (noteTable.cells.isEmpty) {
+        await txn.rawDelete('DELETE FROM $tableName WHERE id = ?', [noteTable.id.toString()]);
+        return null;
+      }
+      return noteTable;
+    });
   }
 }
   // 'CREATE TABLE $tableName (id INTEGER PRIMARY KEY, noteId INTEGER FOREIGN KEY, rowCount INTEGER, columnCount INTEGER, title TEXT, createDateMillisSinceEpoch INTEGER, updateDateMillisSinceEpoch INTEGER)';
