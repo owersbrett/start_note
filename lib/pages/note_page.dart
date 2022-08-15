@@ -73,7 +73,7 @@ class _NotePageState extends State<NotePage> with SingleTickerProviderStateMixin
           bloc: notePageBloc,
           builder: (context, state) {
             return Scaffold(
-              appBar: StopwatchAppBar(key: ValueKey(state.note.id)),
+              appBar: StopwatchAppBar(key: ValueKey(state.note.id), notePageBloc: notePageBloc,),
               body: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [

@@ -18,15 +18,17 @@ class TableDisplay extends StatefulWidget {
 class _TableDisplayState extends State<TableDisplay> {
   late TextEditingController titleController;
   late Map<int, Map<int, FocusNode>> focusNodes;
+
   late int newFocusRow;
   late int newFocusColumn;
 
   @override
   void initState() {
     super.initState();
-    newFocusRow = widget.noteTable.rowCount;
-    newFocusColumn = widget.noteTable.columnCount;
+    newFocusRow = 1;
+    newFocusColumn = 1;
     initializeFocusNodes();
+
     titleController = TextEditingController(text: widget.noteTable.title);
   }
 
@@ -75,50 +77,101 @@ class _TableDisplayState extends State<TableDisplay> {
     });
   }
 
-  bool get currentCellIsEmpty => widget.noteTable.rowColumnTableMap[newFocusRow]?[newFocusColumn]?.isEmpty ?? false;
-
-  void onCellEditingComplete(int row, int column) {
-    if (currentCellIsEmpty) {
-      FocusScope.of(context).unfocus();
-    } else {
-      FocusNode? focusNodeOfCellToTheRightOfCurrentCell = focusNodes[row]![column + 1];
-      bool nextColumnExists = focusNodeOfCellToTheRightOfCurrentCell != null;
-      if (nextColumnExists) {
-        focusNodeOfCellToTheRightOfCurrentCell.requestFocus();
-        setState(() {
-          newFocusColumn = row;
-          newFocusRow = column + 1;
-        });
-      } else {
-        List<FocusNode>? nextRowFocusNodes = focusNodes[row + 1]?.values.toList();
-        List<String>? nextRowValues = widget.noteTable.rowColumnTableMap[row + 1]?.values.toList();
-        bool nextRowExists = nextRowFocusNodes != null && nextRowValues != null;
-
-        if (nextRowExists) {
-          int columnNumber = 1;
-          FocusNode? nodeToRequest;
-          nextRowFocusNodes.forEach((element) {
-            Map<int, String> currentRow = widget.noteTable.rowColumnTableMap[row + 1]!;
-            if (currentRow[columnNumber]!.isNotEmpty && nodeToRequest == null) {
-              setState(() {
-                newFocusRow = row + 1;
-                newFocusColumn = columnNumber;
-              });
-              nodeToRequest = focusNodes[row + 1]?[columnNumber];
-            }
-            columnNumber++;
-          });
-          nodeToRequest?.requestFocus();
-        } else {
-          addRowOfFocusNodes();
-          setState(() {
-            newFocusRow = row + 1;
-            newFocusColumn = 1;
-          });
-          widget.notePageBloc.add(AddTableRow(widget.noteTable.id!));
+  bool get currentCellIsEmpty => widget.noteTable.rowColumnTableMap[newFocusRow]?[newFocusColumn]?.isEmpty ?? true;
+  bool cellIsEmpty(int row, int column) => widget.noteTable.rowColumnTableMap[row]![column]!.isEmpty;
+  bool onLastColumn(int column) => widget.noteTable.columnCount == column;
+  bool onLastRow(int row) => widget.noteTable.rowCount == row;
+  FocusNode nextEmptyFocusNodeInRow(int row, int column) {
+    FocusNode focusNode = focusNodes[row]![column + 1]!;
+    for (var rowEntry in widget.noteTable.rowColumnTableMap.entries) {
+      var rowKey = rowEntry.key;
+      var rowValue = rowEntry.value;
+      for (var columnEntry in rowValue.entries) {
+        var columnKey = columnEntry.key;
+        var columnValue = columnEntry.value;
+        if (columnKey > column) {
+          if (columnValue.isEmpty) {
+            return focusNodes[rowKey]![columnKey]!;
+          }
         }
       }
     }
+    return focusNode;
+  }
+
+  FocusNode firstEmptyFocusNodeInNextColumnOrFirst(int row, int column) {
+    FocusNode focusNode = focusNodes[row + 1]![1]!;
+    for (var rowEntry in widget.noteTable.rowColumnTableMap.entries) {
+      var rowKey = rowEntry.key;
+      var rowValue = rowEntry.value;
+      if (rowKey > row) {
+        for (var columnEntry in rowValue.entries) {
+          var columnKey = columnEntry.key;
+          var columnValue = columnEntry.value;
+          if (columnValue.isEmpty) {
+            return focusNodes[rowKey]![columnKey]!;
+          }
+        }
+      }
+    }
+
+    return focusNode;
+  }
+
+  void onCellEditingComplete(int row, int column) {
+    if (cellIsEmpty(row, column)) {
+      widget.notePageBloc.add(DoneTapped());
+      FocusScope.of(context).unfocus();
+    } else if (!onLastColumn(column)) {
+      nextEmptyFocusNodeInRow(row, column).requestFocus();
+    } else if (!onLastRow(row)) {
+      firstEmptyFocusNodeInNextColumnOrFirst(row, column).requestFocus();
+    } else if (onLastColumn(column) && onLastRow(row)) {
+      bool addRow = widget.noteTable.columnCount == column && widget.noteTable.rowCount == row;
+      if (addRow) {
+        addRowOfFocusNodes();
+        widget.notePageBloc.add(AddTableRow(widget.noteTable.id!));
+      }
+    }
+    // else {
+    //   FocusNode? focusNodeOfCellToTheRightOfCurrentCell = focusNodes[row]![column + 1];
+    //   bool nextColumnExists = focusNodeOfCellToTheRightOfCurrentCell != null;
+    //   if (nextColumnExists) {
+    //     focusNodeOfCellToTheRightOfCurrentCell.requestFocus();
+    //     setState(() {
+    //       newFocusColumn = row;
+    //       newFocusRow = column + 1;
+    //     });
+    //   } else {
+    //     List<FocusNode>? nextRowFocusNodes = focusNodes[row + 1]?.values.toList();
+    //     List<String>? nextRowValues = widget.noteTable.rowColumnTableMap[row + 1]?.values.toList();
+    //     bool nextRowExists = nextRowFocusNodes != null && nextRowValues != null;
+
+    //     if (nextRowExists) {
+    //       int columnNumber = 1;
+    //       FocusNode? nodeToRequest;
+    //       nextRowFocusNodes.forEach((element) {
+    //         Map<int, String> currentRow = widget.noteTable.rowColumnTableMap[row + 1]!;
+    //         if (currentRow[columnNumber]!.isNotEmpty && nodeToRequest == null) {
+    //           setState(() {
+    //             newFocusRow = row + 1;
+    //             newFocusColumn = columnNumber;
+    //           });
+    //           nodeToRequest = focusNodes[row + 1]?[columnNumber];
+    //         }
+    //         columnNumber++;
+    //       });
+    //       nodeToRequest?.requestFocus();
+    //     } else {
+    //       addRowOfFocusNodes();
+    //       setState(() {
+    //         newFocusRow = row + 1;
+    //         newFocusColumn = 1;
+    //       });
+    //       widget.notePageBloc.add(AddTableRow(widget.noteTable.id!));
+    //     }
+    //   }
+    // }
   }
 
   @override
@@ -239,8 +292,7 @@ class _TableDisplayState extends State<TableDisplay> {
                         InkWell(
                             onTap: () {
                               setState(() {
-                                newFocusColumn = widget.noteTable.columnCount;
-                                newFocusRow = widget.noteTable.rowCount - 1;
+                                newFocusColumn = widget.noteTable.columnCount + 1;
                               });
                               addColumnOfFocusNodes();
                               widget.notePageBloc.add(AddTableColumn(widget.noteTable.id!));

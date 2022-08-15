@@ -94,6 +94,7 @@ class _RowBuilderState extends State<RowBuilder> {
             widget.onChanged(value, widget.row, widget.column);
           },
           textAlignVertical: TextAlignVertical.center,
+          textCapitalization: TextCapitalization.words,
           maxLines: widget.tdEditableMaxLines,
           decoration: InputDecoration(
             filled: widget.zebraStripe,

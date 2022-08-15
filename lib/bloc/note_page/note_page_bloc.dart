@@ -24,6 +24,31 @@ class NotePageBloc extends Bloc<NotePageEvent, NotePageState> {
     if (event is RemoveTableColumn) await _removeTableColumn(event, emit);
     if (event is AddTableRow) await _addTableRow(event, emit);
     if (event is RemoveTableRow) await _removeTableRow(event, emit);
+    if (event is DoneTapped) await _doneTapped(event, emit);
+  }
+
+  Future<void> _doneTapped(DoneTapped event, Emitter<NotePageState> emit) async {
+    try {
+      if (state is NotePageLoaded) {
+        NotePageLoaded loadedState = state as NotePageLoaded;
+
+        for (var element in loadedState.note.noteTables) {
+          bool allAreEmpty = true;
+          element.rowColumnTableMap[element.rowCount]!.forEach((key, value) {
+            if (!value.isEmpty) {
+              allAreEmpty = false;
+            }
+          });
+          if (allAreEmpty){
+            await noteTableRepository.deleteLastRow(element);
+          }
+        }
+
+        add(FetchNotePage());
+      }
+    } catch (e) {
+      emit(NotePageError(initialNote, initialNote));
+    }
   }
 
   Future<void> _addTableColumn(AddTableColumn event, Emitter<NotePageState> emit) async {

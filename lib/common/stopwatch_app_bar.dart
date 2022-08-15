@@ -2,9 +2,14 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:start_note/bloc/note_page/note_page_bloc.dart';
+
+import '../bloc/note_page/note_page.dart';
 
 class StopwatchAppBar extends StatelessWidget implements PreferredSize {
-  const StopwatchAppBar({Key? key}) : super(key: key);
+  const StopwatchAppBar({Key? key, required this.notePageBloc}) : super(key: key);
+  final NotePageBloc notePageBloc;
 
   @override
   Widget build(BuildContext context) {
@@ -12,14 +17,15 @@ class StopwatchAppBar extends StatelessWidget implements PreferredSize {
   }
 
   @override
-  Widget get child => StopwatchBar();
+  Widget get child => StopwatchBar(notePageBloc: notePageBloc);
 
   @override
   Size get preferredSize => Size.fromHeight(kToolbarHeight);
 }
 
 class StopwatchBar extends StatefulWidget {
-  const StopwatchBar({Key? key}) : super(key: key);
+  const StopwatchBar({Key? key, required this.notePageBloc}) : super(key: key);
+  final NotePageBloc notePageBloc;
 
   @override
   State<StopwatchBar> createState() => _StopwatchBarState();
@@ -120,6 +126,7 @@ class _StopwatchBarState extends State<StopwatchBar> {
             ? TextButton(
                 child: const Text("Done", style: TextStyle(color: Colors.white)),
                 onPressed: () {
+                  widget.notePageBloc.add(DoneTapped());
                   FocusScope.of(context).unfocus();
                   // widget.onDone();
                 },

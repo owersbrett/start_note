@@ -15,6 +15,7 @@ abstract class INoteTableRepository<T extends NoteTable> extends Repository<Note
   Future<NoteTableEntity?> removeRow(NoteTableEntity noteTable);
   Future<NoteTableEntity> addColumn(NoteTableEntity noteTable);
   Future<NoteTableEntity?> removeColumn(NoteTableEntity noteTable);
+  Future<void> deleteLastRow(NoteTableEntity noteTable);
 }
 
 class NoteTableRepository<T extends NoteTable> implements INoteTableRepository<NoteTable> {
@@ -176,6 +177,11 @@ class NoteTableRepository<T extends NoteTable> implements INoteTableRepository<N
       }
       return noteTable;
     });
+  }
+
+  @override
+  Future<void> deleteLastRow(NoteTableEntity noteTable) async {
+    await removeRow(noteTable);
   }
 }
   // 'CREATE TABLE $tableName (id INTEGER PRIMARY KEY, noteId INTEGER FOREIGN KEY, rowCount INTEGER, columnCount INTEGER, title TEXT, createDateMillisSinceEpoch INTEGER, updateDateMillisSinceEpoch INTEGER)';
