@@ -75,6 +75,52 @@ class _TableDisplayState extends State<TableDisplay> {
     });
   }
 
+  bool get currentCellIsEmpty => widget.noteTable.rowColumnTableMap[newFocusRow]?[newFocusColumn]?.isEmpty ?? false;
+
+  void onCellEditingComplete(int row, int column) {
+    if (currentCellIsEmpty) {
+      FocusScope.of(context).unfocus();
+    } else {
+      FocusNode? focusNodeOfCellToTheRightOfCurrentCell = focusNodes[row]![column + 1];
+      bool nextColumnExists = focusNodeOfCellToTheRightOfCurrentCell != null;
+      if (nextColumnExists) {
+        focusNodeOfCellToTheRightOfCurrentCell.requestFocus();
+        setState(() {
+          newFocusColumn = row;
+          newFocusRow = column + 1;
+        });
+      } else {
+        List<FocusNode>? nextRowFocusNodes = focusNodes[row + 1]?.values.toList();
+        List<String>? nextRowValues = widget.noteTable.rowColumnTableMap[row + 1]?.values.toList();
+        bool nextRowExists = nextRowFocusNodes != null && nextRowValues != null;
+
+        if (nextRowExists) {
+          int columnNumber = 1;
+          FocusNode? nodeToRequest;
+          nextRowFocusNodes.forEach((element) {
+            Map<int, String> currentRow = widget.noteTable.rowColumnTableMap[row + 1]!;
+            if (currentRow[columnNumber]!.isNotEmpty && nodeToRequest == null) {
+              setState(() {
+                newFocusRow = row + 1;
+                newFocusColumn = columnNumber;
+              });
+              nodeToRequest = focusNodes[row + 1]?[columnNumber];
+            }
+            columnNumber++;
+          });
+          nodeToRequest?.requestFocus();
+        } else {
+          addRowOfFocusNodes();
+          setState(() {
+            newFocusRow = row + 1;
+            newFocusColumn = 1;
+          });
+          widget.notePageBloc.add(AddTableRow(widget.noteTable.id!));
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MultiBlocListener(
@@ -82,7 +128,7 @@ class _TableDisplayState extends State<TableDisplay> {
         BlocListener<NotePageBloc, NotePageState>(
           bloc: widget.notePageBloc,
           listener: (context, state) {
-            focusNodes[1]?[widget.noteTable.columnCount + 1]?.requestFocus();
+            if (!currentCellIsEmpty) focusNodes[1]?[widget.noteTable.columnCount + 1]?.requestFocus();
           },
           listenWhen: (previous, current) {
             return (previous is AddingColumn && current is NotePageLoaded);
@@ -91,7 +137,7 @@ class _TableDisplayState extends State<TableDisplay> {
         BlocListener<NotePageBloc, NotePageState>(
           bloc: widget.notePageBloc,
           listener: (context, state) {
-            focusNodes[widget.noteTable.rowCount + 1]?[1]?.requestFocus();
+            if (!currentCellIsEmpty) focusNodes[widget.noteTable.rowCount + 1]?[1]?.requestFocus();
           },
           listenWhen: (previous, current) {
             return (previous is AddingRow && current is NotePageLoaded);
@@ -100,7 +146,7 @@ class _TableDisplayState extends State<TableDisplay> {
         BlocListener<NotePageBloc, NotePageState>(
           bloc: widget.notePageBloc,
           listener: (context, state) {
-            focusNodes[newFocusRow]?[newFocusColumn]?.requestFocus();
+            if (!currentCellIsEmpty) focusNodes[newFocusRow]?[newFocusColumn]?.requestFocus();
           },
           listenWhen: (previous, current) {
             return (previous is DeletingColumn && current is NotePageLoaded);
@@ -109,7 +155,7 @@ class _TableDisplayState extends State<TableDisplay> {
         BlocListener<NotePageBloc, NotePageState>(
           bloc: widget.notePageBloc,
           listener: (context, state) {
-            focusNodes[newFocusRow]?[newFocusColumn]?.requestFocus();
+            if (!currentCellIsEmpty) focusNodes[newFocusRow]?[newFocusColumn]?.requestFocus();
           },
           listenWhen: (previous, current) {
             return (previous is DeletingRow && current is NotePageLoaded);
@@ -124,7 +170,7 @@ class _TableDisplayState extends State<TableDisplay> {
             child: TextField(
               controller: titleController,
               decoration: InputDecoration.collapsed(
-                  hintText: "Title", hintStyle: TextStyle(color: Colors.grey.withOpacity(.5))),
+                  hintText: "Title", hintStyle: TextStyle(color: Colors.black.withOpacity(.3))),
               textCapitalization: TextCapitalization.sentences,
               textAlign: TextAlign.center,
               onChanged: (value) {
@@ -133,87 +179,108 @@ class _TableDisplayState extends State<TableDisplay> {
               onEditingComplete: () {
                 focusNodes[1]?[1]?.requestFocus();
               },
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.black),
             ),
           ),
           Flexible(
             fit: FlexFit.loose,
-            child: Editable(
-              columnRatio: 1 / (widget.noteTable.columnCount),
-              columnCount: widget.noteTable.columnCount,
-              onCellEditingComplete: (row, column) {
-                print('complete');
-                if (
-                  widget.noteTable.rowColumnTableMap[row]![column]!.isEmpty) {
-                  FocusScope.of(context).unfocus();
-                } else {
-                  bool nextColumnExists = focusNodes[row]![column + 1] != null;
-                  nextColumnExists ? focusNodes[row]![column + 1]!.requestFocus() : null;
-                  if (!nextColumnExists) {
-                    bool nextRowExists = focusNodes[row + 1] != null;
-                    nextRowExists ? focusNodes[row + 1]![1]!.requestFocus() : null;
-                    if (!nextRowExists && widget.noteTable.rowColumnTableMap[row]![column]!.isNotEmpty) {
-                      addRowOfFocusNodes();
-                      widget.notePageBloc.add(AddTableRow(widget.noteTable.id!));
-                    } else if (nextRowExists) {
-                      focusNodes[row + 1]![1]?.requestFocus();
-                    } else {
-                      FocusScope.of(context).unfocus();
-                    }
-                  }
-                }
-              },
-              onCellTap: (row, column) {},
-              noteTableCells: widget.noteTable.cells,
-              rowCount: widget.noteTable.rowCount,
-              noteTable: widget.noteTable,
-              focusNodeMap: focusNodes,
-              onChanged: (value, row, column) {
-                widget.notePageBloc.add(SaveNoteDataCell(row, column, widget.noteTable.id!, value));
-              },
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: Theme.of(context).backgroundColor, width: 2),
+              ),
+              child: Editable(
+                tdStyle: TextStyle(color: Colors.black),
+                borderWidth: 2,
+                borderColor: Theme.of(context).backgroundColor,
+                tdAlignment: TextAlign.center,
+                columnRatio: 1 / (widget.noteTable.columnCount),
+                columnCount: widget.noteTable.columnCount,
+                onCellEditingComplete: onCellEditingComplete,
+                onCellTap: (row, column) {
+                  setState(() {
+                    newFocusColumn = column;
+                    newFocusRow = row;
+                  });
+                },
+                noteTableCells: widget.noteTable.cells,
+                rowCount: widget.noteTable.rowCount,
+                noteTable: widget.noteTable,
+                focusNodeMap: focusNodes,
+                onChanged: (value, row, column) {
+                  widget.notePageBloc.add(SaveNoteDataCell(row, column, widget.noteTable.id!, value));
+                },
+              ),
             ),
           ),
           cellsHaveFocus
               ? Padding(
                   padding: const EdgeInsets.only(top: 16.0, bottom: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      IconButton(
-                          color: Colors.red,
-                          onPressed: () {
-                            setState(() {
-                              newFocusColumn = widget.noteTable.columnCount - 1;
-                              newFocusRow = widget.noteTable.rowCount;
-                            });
-                            widget.notePageBloc.add(RemoveTableColumn(widget.noteTable.id!));
-                          },
-                          icon: Icon(Icons.view_column_outlined)),
-                      IconButton(
-                          color: Colors.green,
-                          onPressed: () {
-                            addColumnOfFocusNodes();
-                            widget.notePageBloc.add(AddTableColumn(widget.noteTable.id!));
-                          },
-                          icon: Icon(Icons.view_column_sharp)),
-                      IconButton(
-                          color: Colors.red,
-                          onPressed: () {
-                            setState(() {
-                              newFocusColumn = widget.noteTable.columnCount;
-                              newFocusRow = widget.noteTable.rowCount - 1;
-                            });
-                            widget.notePageBloc.add(RemoveTableRow(widget.noteTable.id!));
-                          },
-                          icon: Icon(Icons.table_rows_outlined)),
-                      IconButton(
-                          color: Colors.green,
-                          onPressed: () {
-                            addRowOfFocusNodes();
-                            widget.notePageBloc.add(AddTableRow(widget.noteTable.id!));
-                          },
-                          icon: Icon(Icons.table_rows_sharp)),
-                    ],
+                  child: Container(
+                    color: Colors.white,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        InkWell(
+                            onTap: () {
+                              setState(() {
+                                newFocusColumn = widget.noteTable.columnCount - 1;
+                                newFocusRow = widget.noteTable.rowCount;
+                              });
+
+                              widget.notePageBloc.add(RemoveTableColumn(widget.noteTable.id!));
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Icon(
+                                Icons.view_column_outlined,
+                                color: Colors.red,
+                              ),
+                            )),
+                        InkWell(
+                            onTap: () {
+                              setState(() {
+                                newFocusColumn = widget.noteTable.columnCount;
+                                newFocusRow = widget.noteTable.rowCount - 1;
+                              });
+                              addColumnOfFocusNodes();
+                              widget.notePageBloc.add(AddTableColumn(widget.noteTable.id!));
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Icon(
+                                Icons.view_column_sharp,
+                                color: Colors.green,
+                              ),
+                            )),
+                        InkWell(
+                            onTap: () {
+                              setState(() {
+                                newFocusColumn = widget.noteTable.columnCount;
+                                newFocusRow = widget.noteTable.rowCount - 1;
+                              });
+                              widget.notePageBloc.add(RemoveTableRow(widget.noteTable.id!));
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Icon(
+                                Icons.table_rows_outlined,
+                                color: Colors.red,
+                              ),
+                            )),
+                        InkWell(
+                            onTap: () {
+                              addRowOfFocusNodes();
+                              widget.notePageBloc.add(AddTableRow(widget.noteTable.id!));
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Icon(
+                                Icons.table_rows_sharp,
+                                color: Colors.green,
+                              ),
+                            )),
+                      ],
+                    ),
                   ),
                 )
               : Container()

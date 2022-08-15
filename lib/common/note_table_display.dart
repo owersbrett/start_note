@@ -289,7 +289,7 @@ class EditableState extends State<Editable> {
             stripeColor1: widget.stripeColor1,
             stripeColor2: widget.stripeColor2,
             onChanged: widget.onChanged,
-            focusNode: widget.focusNodeMap[index + 1]![rowIndex + 1]!,
+            focusNode: widget.focusNodeMap[index + 1]?[rowIndex + 1] ?? FocusNode(),
             onCellEditingComplete: widget.onCellEditingComplete,
             onCellTap: (int row, int column) {
               widget.onCellTap(row, column);

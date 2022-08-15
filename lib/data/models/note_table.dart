@@ -7,8 +7,6 @@ class NoteTable {
   static const List<String> columnDeclarations = [
     "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL",
     "noteId INTEGER",
-    "rowCount INTEGER",
-    "columnCount INTEGER",
     "title TEXT",
     "createDateMillisecondsSinceEpoch INTEGER",
     "updateDateMillisecondsSinceEpoch INTEGER",

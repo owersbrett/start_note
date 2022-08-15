@@ -108,6 +108,7 @@ class _StopwatchBarState extends State<StopwatchBar> {
           _stopwatchString,
           style: const TextStyle(
             fontSize: 22,
+            color: Colors.white,
             fontFeatures: [
               FontFeature.tabularFigures(),
             ],

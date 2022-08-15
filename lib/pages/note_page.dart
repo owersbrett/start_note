@@ -59,91 +59,107 @@ class _NotePageState extends State<NotePage> with SingleTickerProviderStateMixin
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
+        FocusScope.of(context).unfocus();
         BlocProvider.of<NotesBloc>(context).add(FetchNotes());
         return true;
       },
-      child: BlocBuilder<NotePageBloc, NotePageState>(
-        bloc: notePageBloc,
-        builder: (context, state) {
-          return Scaffold(
-            appBar: StopwatchAppBar(key: ValueKey(state.note.id)),
-            body: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TabBar(
-                  controller: _controller,
-                  tabs: [
-                    Tab(text: "Notes"),
-                    Tab(text: "Tables"),
-                  ],
-                ),
-                Flexible(
-                  fit: FlexFit.loose,
-                  child: TabBarView(
+      child: GestureDetector(
+        onHorizontalDragUpdate: (details) {
+          if (details.delta.dx < 100) {
+            Navigator.of(context).pop();
+          }
+        },
+        child: BlocBuilder<NotePageBloc, NotePageState>(
+          bloc: notePageBloc,
+          builder: (context, state) {
+            return Scaffold(
+              appBar: StopwatchAppBar(key: ValueKey(state.note.id)),
+              body: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TabBar(
+                    labelColor: Colors.black,
+                    indicatorColor: Colors.black,
                     controller: _controller,
-                    children: [
-                      Column(
-                        children: [
-                          Flexible(
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 8.0, left: 16, right: 16),
-                              child: TextField(
-                                controller: noteController,
-                                focusNode: focusNode,
-                                decoration: null,
-                                onChanged: (value) {
-                                  onChanged(state.note.id);
-                                },
-                                maxLines: 99999,
-                              ),
-                            ),
-                          ),
-                          Row(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 8.0, left: 8),
-                                child: Center(
-                                  child: Text(
-                                    DateService.dateTimeToWeekDay(widget.note.createDate) +
-                                        ", " +
-                                        DateService.dateTimeToString(widget.note.createDate),
-                                    style: const TextStyle(fontSize: 14),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8.0, left: 16, right: 16),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
+                    tabs: [
+                      Tab(text: "Notes"),
+                      Tab(text: "Tables"),
+                    ],
+                  ),
+                  Flexible(
+                    fit: FlexFit.loose,
+                    child: TabBarView(
+                      controller: _controller,
+                      children: [
+                        Column(
                           children: [
                             Flexible(
-                              fit: FlexFit.loose,
-                              child: ListView.builder(
-                                itemCount: state.note.noteTables.length,
-                                itemBuilder: ((context, index) =>
-                                    TableDisplay(noteTable: state.note.noteTables[index], notePageBloc: notePageBloc)),
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 12.0, left: 16, right: 16),
+                                child: TextField(
+                                  textCapitalization: TextCapitalization.sentences,
+                                  controller: noteController,
+                                  focusNode: focusNode,
+                                  decoration: null,
+                                  style: TextStyle(color: Colors.black),
+                                  onChanged: (value) {
+                                    onChanged(state.note.id);
+                                  },
+                                  maxLines: 99999,
+                                ),
                               ),
                             ),
-                            MaterialButton(
-                              child: Text("Insert Table"),
-                              onPressed: () {
-                                notePageBloc.add(AddTable());
-                              },
+                            Row(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 8.0, left: 8),
+                                  child: Center(
+                                    child: Text(
+                                      DateService.dateTimeToWeekDay(widget.note.createDate) +
+                                          ", " +
+                                          DateService.dateTimeToString(widget.note.createDate),
+                                      style: TextStyle(fontSize: 14, color: Colors.black87),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      ),
-                    ],
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0, left: 16, right: 16),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Flexible(
+                                fit: FlexFit.loose,
+                                child: ListView.builder(
+                                  itemCount: state.note.noteTables.length,
+                                  itemBuilder: ((context, index) => TableDisplay(
+                                      noteTable: state.note.noteTables[index], notePageBloc: notePageBloc)),
+                                ),
+                              ),
+                              MaterialButton(
+                                color: Theme.of(context).backgroundColor,
+                                child: Text(
+                                  "Insert Table",
+                                  style: TextStyle(color: Colors.white, fontSize: 16),
+                                ),
+                                onPressed: () {
+                                  notePageBloc.add(AddTable());
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-          );
-        },
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }

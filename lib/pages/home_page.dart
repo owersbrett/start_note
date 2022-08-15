@@ -28,20 +28,34 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
-      child: ListTile(
-        title: Text(
-          note.content.isEmpty ? DateService.dateTimeToWeekDay(note.createDate) : note.content,
-          overflow: TextOverflow.ellipsis,
-          maxLines: 1,
-        ),
-        subtitle: Text(
-          DateService.dateTimeToString(note.createDate),
-          maxLines: 1,
-        ),
-        onTap: () {
-          // createRoute
-          Navigation.createRoute(NotePage(note: NoteEntity.fromNote(note)), context);
-        },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            title: Text(
+              note.content.isEmpty ? DateService.dateTimeToWeekDay(note.createDate) : note.content,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+            ),
+            subtitle: Text(
+              DateService.dateTimeToString(note.createDate),
+              maxLines: 1,
+              style: TextStyle(color: Colors.black.withOpacity(.8), fontWeight: FontWeight.w400),
+            ),
+            onTap: () {
+              // createRoute
+              Navigation.createRoute(NotePage(note: NoteEntity.fromNote(note)), context);
+            },
+          ),
+          Padding(
+            padding: const EdgeInsets.only( left: 8, right: 16),
+            child: Divider(
+              height: 1,
+              color: Colors.black87,
+            ),
+          )
+        ],
       ),
     );
   }
@@ -53,15 +67,19 @@ class HomePage extends StatelessWidget {
         title: const Text("Start Note"),
       ),
       body: BlocBuilder<NotesBloc, NotesState>(
-    
         builder: (context, state) {
           if (state is NotesLoaded) {
             return Column(
               children: [
                 Expanded(
-                  child: ListView.builder(
-                    itemCount: state.notes.length,
-                    itemBuilder: (ctx, i) => _buildNotes(ctx, state.notes[i]),
+                  child: Container(
+                    decoration: BoxDecoration(color: Colors.amber.withOpacity(.9)),
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: state.notes.length,
+                      itemBuilder: (ctx, i) => _buildNotes(ctx, state.notes[i]),
+                    ),
                   ),
                 ),
                 Container(
@@ -88,7 +106,7 @@ class HomePage extends StatelessWidget {
               ],
             );
           }
-          return const CircularProgressIndicator();
+          return Container();
         },
       ),
     );
