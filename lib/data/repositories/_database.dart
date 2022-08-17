@@ -1,0 +1,5 @@
+class DatabaseConfig {
+  static onCreate(){
+
+  }
+}

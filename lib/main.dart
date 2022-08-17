@@ -1,35 +1,24 @@
 import 'dart:async';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
-import 'package:logging/logging.dart';
 import 'package:sqflite/sqflite.dart';
-
-import 'package:notime/bloc/notes.dart';
-import 'package:notime/data/repositories/note_repository.dart';
-import 'package:notime/pages/home_page.dart';
-import 'package:notime/services/logging_service.dart';
-import 'package:notime/theme/application_theme.dart';
-
+import 'package:start_note/data/repositories/note_repository.dart';
+import 'package:start_note/data/repositories/note_table_repository.dart';
+import 'package:start_note/pages/home_page.dart';
+import 'package:start_note/services/logging_service.dart';
+import 'package:start_note/theme/application_theme.dart';
+import 'bloc/notes/notes.dart';
+import 'services/bloc_service.dart';
+import 'services/database_service.dart';
 import 'services/l10n_service.dart';
-import 'services/mock_service.dart';
 
 void main({bool useMocks = false}) async {
   WidgetsFlutterBinding.ensureInitialized();
   await LoggingService.initialize();
-  Directory hydratedBlocStore = Directory.systemTemp;
-  final storage = await HydratedStorage.build(storageDirectory: hydratedBlocStore);
-  var databasesPath = await getDatabasesPath();
-  String path = '$databasesPath/notime.db';
 
-// open the database
-  Database database = await openDatabase(path, version: 1, onCreate: (Database db, int version) async {
-    // When creating the db, create the table
-    String createNoteTableString = INoteRepository.createNoteTableString;
-    await db.execute(createNoteTableString);
-  });
+  HydratedStorage storage = await BlocService.initialize();
+  Database database = await DatabaseService.initialize();
 
   HydratedBlocOverrides.runZoned<Future<void>>(
     () async => runApp(MyApp(database, useMocks: useMocks)),
@@ -45,6 +34,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     INoteRepository noteRepository;
+    INoteTableRepository noteTableRepository;
 
     // if (useMocks) {
     //   // MockService mockService = MockService()..initialize();
@@ -52,9 +42,11 @@ class MyApp extends StatelessWidget {
     // } else {
     // }
     noteRepository = NoteRepository(db);
+    noteTableRepository = NoteTableRepository(db);
 
     return AppWrapper(
       noteRepository: noteRepository,
+      noteTableRepository: noteTableRepository,
     );
   }
 }
@@ -63,37 +55,40 @@ class AppWrapper extends StatelessWidget {
   const AppWrapper({
     Key? key,
     required this.noteRepository,
+    required this.noteTableRepository,
   }) : super(key: key);
   final INoteRepository noteRepository;
+  final INoteTableRepository noteTableRepository;
 
   @override
   Widget build(BuildContext context) {
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider(create: (ctx) => noteRepository),
+        RepositoryProvider(create: (ctx) => noteTableRepository),
       ],
-      child: Notime(
+      child: StartNote(
         noteRepository: noteRepository,
+        noteTableRepository: noteTableRepository,
       ),
     );
   }
 }
 
-class Notime extends StatefulWidget {
-  const Notime({
-    required this.noteRepository,
-  });
+class StartNote extends StatefulWidget {
+  const StartNote({required this.noteRepository, required this.noteTableRepository});
   final INoteRepository noteRepository;
+  final INoteTableRepository noteTableRepository;
   @override
-  _NotimeState createState() => _NotimeState();
+  StartNoteState createState() => StartNoteState();
 }
 
-class _NotimeState extends State<Notime> {
+class StartNoteState extends State<StartNote> {
   late NotesBloc notesBloc;
   @override
   void initState() {
     super.initState();
-    notesBloc = NotesBloc(widget.noteRepository)..add(FetchNotes());
+    notesBloc = NotesBloc(widget.noteRepository, widget.noteTableRepository)..add(FetchNotes());
   }
 
   @override
@@ -113,7 +108,7 @@ class _NotimeState extends State<Notime> {
         supportedLocales: L10nService.locales,
         locale: L10nService.defaultLocale,
         debugShowCheckedModeBanner: false,
-        title: 'Flutter Demo',
+        title: 'Start Note',
         home: const HomePage(),
         theme: ApplicationTheme.theme,
       ),

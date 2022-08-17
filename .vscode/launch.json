@@ -5,25 +5,25 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "simulator-notime",
+            "name": "simulator-start_note",
             "request": "launch",
             "type": "dart",
             "deviceId": "9452FEAB-313C-4036-B862-1DA5C29D1706"
         },
         {
-            "name": "phone-notime",
+            "name": "phone-start_note",
             "request": "launch",
             "type": "dart",
             "deviceId": "00008030-001C35E02232402E"
         },
         {
-            "name": "notime (profile mode)",
+            "name": "start_note (profile mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
         },
         {
-            "name": "notime (release mode)",
+            "name": "start_note (release mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"
