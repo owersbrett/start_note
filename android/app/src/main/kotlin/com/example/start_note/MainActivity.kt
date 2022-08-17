@@ -1,4 +1,4 @@
-package com.example.notime
+package com.example.start_note
 
 import io.flutter.embedding.android.FlutterActivity
 

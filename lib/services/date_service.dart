@@ -1,6 +1,10 @@
 import 'package:intl/intl.dart';
 
 class DateService {
+  static String dateTimeToWeekDay(DateTime dateTime) {
+    return days[dateTime.weekday]!;
+  }
+
   static String dateTimeToString(DateTime dateTime) {
     String month = DateService.getMonthStringFromDateTime(dateTime);
     String day = DateService.getDayStringFromDateTime(dateTime);
@@ -15,7 +19,15 @@ class DateService {
   static String getYearFromDateTime(DateTime dateTime) => dateTime.year.toString();
 
   static String getHourMinutesAMPMStringFromDateTime(DateTime dateTime) => DateFormat('hh:mm a').format(dateTime);
-
+  static Map<int, String> days = {
+    1: "Sunday",
+    2: "Monday",
+    3: "Tuesday",
+    4: "Wednesday",
+    5: "Thursday",
+    6: "Friday",
+    7: "Saturday",
+  };
   static Map<int, String> months = {
     1: "January",
     2: "February",

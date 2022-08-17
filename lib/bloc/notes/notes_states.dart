@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-import '../data/models/note.dart';
+import '../../data/models/note.dart';
 
 abstract class NotesState extends Equatable {
   List<Note> get notes;
@@ -56,6 +56,15 @@ class NotesLoaded extends NotesState {
   final List<Note> _notes;
   @override
   NotesLoaded copyWith(List<Note> updatedNotes) => NotesLoaded(updatedNotes);
+
+  @override
+  List<Note> get notes => _notes;
+}
+class AddingNote extends NotesState {
+  AddingNote(this._notes);
+  final List<Note> _notes;
+  @override
+  AddingNote copyWith(List<Note> updatedNotes) => AddingNote(updatedNotes);
 
   @override
   List<Note> get notes => _notes;

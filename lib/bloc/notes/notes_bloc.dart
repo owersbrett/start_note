@@ -1,14 +1,16 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
-import 'package:notime/data/repositories/note_repository.dart';
-import '../data/models/note.dart';
+import 'package:start_note/data/entities/note_table_entity.dart';
+import 'package:start_note/data/repositories/note_repository.dart';
+import 'package:start_note/data/repositories/note_table_repository.dart';
+import '../../data/models/note.dart';
 import 'notes.dart';
 
 class NotesBloc extends HydratedBloc<NotesEvent, NotesState> {
-  NotesBloc(this.noteRepository) : super(NotesInitial()) {
+  NotesBloc(this.noteRepository, this.noteTableRepository) : super(NotesInitial()) {
     on(_onEvent);
   }
   final INoteRepository<Note> noteRepository;
+  final INoteTableRepository noteTableRepository;
   void _onEvent(NotesEvent event, Emitter<NotesState> emit) async {
     if (event is FetchNotes) await _fetchNotes(event, emit);
     if (event is AddNote) await _addNote(event, emit);
@@ -18,13 +20,13 @@ class NotesBloc extends HydratedBloc<NotesEvent, NotesState> {
 
   Future<void> _updateNote(UpdateNote event, Emitter<NotesState> emit) async {
     try {
-      Note note = state.notes.firstWhere((element) => element.id == event.note.id);
+      Note note = state.notes.firstWhere((element) => element.id == event.noteId);
       List<Note> notes = List<Note>.from(state.notes)..remove(note);
-      notes.add(event.note);
-      await noteRepository.update(event.note);
+      note = note.copyWith(content: event.text);
+      notes.add(note);
+      await noteRepository.update(note);
       emit(NotesLoaded(notes..sort((a, b) => b.createDate.compareTo(a.createDate))));
     } catch (e) {
-      print(e);
       emit(NotesError(const []));
     }
   }
@@ -36,7 +38,6 @@ class NotesBloc extends HydratedBloc<NotesEvent, NotesState> {
       await noteRepository.delete(note);
       emit(NotesLoaded(notes));
     } catch (e) {
-      print(e);
       emit(NotesError(const []));
     }
   }
@@ -45,22 +46,35 @@ class NotesBloc extends HydratedBloc<NotesEvent, NotesState> {
     try {
       List<Note> notes = await noteRepository.getNotes();
 
-      emit(NotesLoaded(notes
-        ..sort(
-          (a, b) => b.createDate.compareTo(a.createDate),
-        )));
+      emit(NotesLoaded(notes..sort((a, b) => b.createDate.compareTo(a.createDate))));
+      await _deleteEmptyNotes(notes);
     } catch (e) {
-      print(e);
       emit(NotesError(const []));
+    }
+  }
+
+  Future<void> _deleteEmptyNotes(List<Note> notes) async {
+    Note? noteToDelete;
+    for (var note in notes) {
+      if (note.content.isEmpty) {
+        if (note.id != null) {
+          List<NoteTableEntity> noteTables = await noteTableRepository.getNoteTablesFromNoteId(note.id!);
+          if (noteTables.isEmpty) {
+            noteToDelete = note;
+          }
+        }
+      }
+    }
+    if (noteToDelete != null) {
+      add(DeleteNote(noteToDelete.id!));
     }
   }
 
   Future<void> _addNote(AddNote event, Emitter<NotesState> emit) async {
     try {
-      List<Note> currentNotes = state.notes..sort((a, b) => b.createDate.compareTo(a.createDate));
-      int nextNoteId = currentNotes.isNotEmpty ? currentNotes[0].id + 1 : 0;
-      noteRepository
-          .create(Note(content: event.content, id: nextNoteId, createDate: DateTime.now(), updateDate: DateTime.now()));
+      emit(AddingNote(state.notes));
+      Note note = await noteRepository.create(Note.create());
+      emit(state.copyWith(List<Note>.from(state.notes)..add(note)));
     } catch (e) {
       emit(state);
     }

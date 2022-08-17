@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:notime/pages/note_page.dart';
-import 'package:notime/services/date_service.dart';
-import '../bloc/notes.dart';
+import 'package:start_note/data/entities/note_entity.dart';
+import 'package:start_note/pages/note_page.dart';
+import 'package:start_note/services/date_service.dart';
+import '../bloc/notes/notes.dart';
 import '../data/models/note.dart';
 import '../navigation/navigation.dart';
-import '../util/display.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 class HomePage extends StatelessWidget {
@@ -19,7 +19,7 @@ class HomePage extends StatelessWidget {
         children: [
           SlidableAction(
             onPressed: (ctx) {
-              BlocProvider.of<NotesBloc>(context).add(DeleteNote(note.id));
+              BlocProvider.of<NotesBloc>(context).add(DeleteNote(note.id!));
             },
             backgroundColor: const Color(0xFFFE4A49),
             foregroundColor: Colors.white,
@@ -28,19 +28,34 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
-      child: ListTile(
-        title: Text(
-          Display.substring(note.content, 0, 42),
-          maxLines: 2,
-        ),
-        subtitle: Text(
-          DateService.dateTimeToString(note.createDate),
-          maxLines: 1,
-        ),
-        onTap: () {
-          // createRoute
-          Navigation.createRoute(NotePage(note: note), context);
-        },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            title: Text(
+              note.content.isEmpty ? DateService.dateTimeToWeekDay(note.createDate) : note.content,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+            ),
+            subtitle: Text(
+              DateService.dateTimeToString(note.createDate),
+              maxLines: 1,
+              style: TextStyle(color: Colors.black.withOpacity(.8), fontWeight: FontWeight.w400),
+            ),
+            onTap: () {
+              // createRoute
+              Navigation.createRoute(NotePage(note: NoteEntity.fromNote(note)), context);
+            },
+          ),
+          Padding(
+            padding: const EdgeInsets.only( left: 8, right: 16),
+            child: Divider(
+              height: 1,
+              color: Colors.black87,
+            ),
+          )
+        ],
       ),
     );
   }
@@ -49,7 +64,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Notime"),
+        title: const Text("Start Note"),
       ),
       body: BlocBuilder<NotesBloc, NotesState>(
         builder: (context, state) {
@@ -57,9 +72,14 @@ class HomePage extends StatelessWidget {
             return Column(
               children: [
                 Expanded(
-                  child: ListView.builder(
-                    itemCount: state.notes.length,
-                    itemBuilder: (ctx, i) => _buildNotes(ctx, state.notes[i]),
+                  child: Container(
+                    decoration: BoxDecoration(color: Colors.amber.withOpacity(.9)),
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: state.notes.length,
+                      itemBuilder: (ctx, i) => _buildNotes(ctx, state.notes[i]),
+                    ),
                   ),
                 ),
                 Container(
@@ -75,7 +95,8 @@ class HomePage extends StatelessWidget {
                         IconButton(
                           icon: Icon(Icons.create),
                           onPressed: () {
-                            Navigation.createRoute(const NotePage(), context);
+                            BlocProvider.of<NotesBloc>(context).add(AddNote());
+                            Navigation.createRoute(NotePage(note: NoteEntity.fromNote(Note.create())), context);
                           },
                         ),
                       ],
@@ -85,7 +106,7 @@ class HomePage extends StatelessWidget {
               ],
             );
           }
-          return const CircularProgressIndicator();
+          return Container();
         },
       ),
     );
