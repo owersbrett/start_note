@@ -24,18 +24,6 @@ class AppInitial extends AppState {
   AppInitial(super.mostRecentNotePageTabIndex);
 }
 
-class AppEmpty extends AppState {
-  AppEmpty(super.mostRecentNotePageTabIndex);
-}
-
-class AppLoading extends AppState {
-  AppLoading(super.mostRecentNotePageTabIndex);
-}
-
-class AppError extends AppState {
-  AppError(super.mostRecentNotePageTabIndex);
-}
-
 class AppLoaded extends AppState {
   AppLoaded(super.mostRecentNotePageTabIndex);
 }
