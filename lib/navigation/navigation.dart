@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class Navigation {
   static Future<Future<T?>> createRoute<T>(Widget destination, BuildContext context,
-      [AnimationEnum animationEnum = AnimationEnum.fadeIn, Object payload = true]) async {
+      [AnimationEnum animationEnum = AnimationEnum.fromRight, Object payload = true]) async {
     PageRouteBuilder<T> pageRoute;
     Widget _safeArea(Widget child) => Container(
           color: Color(0xFF0C2838),

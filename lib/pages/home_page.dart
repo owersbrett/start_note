@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:start_note/bloc/app/app_states.dart';
 import 'package:start_note/data/entities/note_entity.dart';
 import 'package:start_note/pages/note_page.dart';
 import 'package:start_note/services/date_service.dart';
@@ -49,7 +50,7 @@ class HomePage extends StatelessWidget {
             },
           ),
           Padding(
-            padding: const EdgeInsets.only( left: 8, right: 16),
+            padding: const EdgeInsets.only(left: 8, right: 16),
             child: Divider(
               height: 1,
               color: Colors.black87,
@@ -68,7 +69,7 @@ class HomePage extends StatelessWidget {
       ),
       body: BlocBuilder<NotesBloc, NotesState>(
         builder: (context, state) {
-          if (state is NotesLoaded) {
+          if (state is NotesLoaded || state is AddingNote) {
             return Column(
               children: [
                 Expanded(
@@ -105,8 +106,24 @@ class HomePage extends StatelessWidget {
                 )
               ],
             );
-          }
-          return Container();
+          } 
+
+          return InkWell(
+            child: Container(
+              color: Colors.amberAccent,
+              child: Center(
+                child: Text(
+                  "UH oh! Error loading notes. Tab anywhere to fix this.",
+                  style: TextStyle(color: Colors.black),
+                ),
+              ),
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+            ),
+            onTap: () {
+              BlocProvider.of<NotesBloc>(context).add(FetchNotes());
+            },
+          );
         },
       ),
     );
