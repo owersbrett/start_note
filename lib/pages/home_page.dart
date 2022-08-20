@@ -77,7 +77,6 @@ class HomePage extends StatelessWidget {
                     decoration: BoxDecoration(color: Colors.amber.withOpacity(.9)),
                     child: ListView.builder(
                       shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
                       itemCount: state.notes.length,
                       itemBuilder: (ctx, i) => _buildNotes(ctx, state.notes[i]),
                     ),
