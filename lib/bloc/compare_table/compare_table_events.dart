@@ -4,7 +4,10 @@ abstract class CompareTableEvent {
   const CompareTableEvent();
 }
 
-class FetchCompareTable extends CompareTableEvent {}
+class FetchCompareTable extends CompareTableEvent {
+  final NoteEntity noteEntity;
+  FetchCompareTable(this.noteEntity);
+}
 
 
 class EditTableHeader extends CompareTableEvent {
