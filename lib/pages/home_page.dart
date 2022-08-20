@@ -93,6 +93,7 @@ class HomePage extends StatelessWidget {
             onTap: () {
               // createRoute
               Navigation.createRoute(NotePage(note: NoteEntity.fromNote(note)), context);
+              
             },
           ),
           Padding(

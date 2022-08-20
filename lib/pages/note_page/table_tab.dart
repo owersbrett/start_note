@@ -25,7 +25,6 @@ class _TableTabState extends State<TableTab> {
   void initState() {
     super.initState();
     showPastTable = false;
-    BlocProvider.of<CompareTableBloc>(context).add(EditTableHeader(widget.note));
   }
 
   void selectTable(NoteTableEntity noteTableEntity) {

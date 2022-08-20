@@ -7,8 +7,8 @@ class CompareTableState extends Equatable {
   const CompareTableState(this.similarTables);
 
   NoteTableEntity previousNote(NoteTableEntity noteTableEntity) {
-    if (similarTables.containsKey(noteTableEntity.title)) {
-      return similarTables[noteTableEntity.title]!;
+    if (similarTables.containsKey(noteTableEntity.title.toLowerCase())) {
+      return similarTables[noteTableEntity.title.toLowerCase()]!;
     } else {
       return noteTableEntity;
     }

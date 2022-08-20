@@ -286,7 +286,7 @@ class _TableDisplayState extends State<TableDisplay> {
                 },
               ),
             ),
-            widget.isLast && widget.showPastTable
+            widget.isLast && !cellsHaveFocus
                 ? SizedBox(
                     height: 100,
                   )
