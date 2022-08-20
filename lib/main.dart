@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:start_note/bloc/app/app.dart';
 import 'package:start_note/data/repositories/note_repository.dart';
 import 'package:start_note/data/repositories/note_table_repository.dart';
 import 'package:start_note/pages/home_page.dart';
@@ -85,14 +86,17 @@ class StartNote extends StatefulWidget {
 
 class StartNoteState extends State<StartNote> {
   late NotesBloc notesBloc;
+  late AppBloc appBloc;
   @override
   void initState() {
     super.initState();
+    appBloc = AppBloc();
     notesBloc = NotesBloc(widget.noteRepository, widget.noteTableRepository)..add(FetchNotes());
   }
 
   @override
   void dispose() {
+    appBloc.close();
     notesBloc.close();
     super.dispose();
   }
@@ -102,6 +106,7 @@ class StartNoteState extends State<StartNote> {
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => notesBloc),
+        BlocProvider(create: (_) => appBloc),
       ],
       child: MaterialApp(
         localizationsDelegates: L10nService.delegates,
