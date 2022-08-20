@@ -7,6 +7,8 @@ import 'package:start_note/data/repositories/note_table_repository.dart';
 import 'package:start_note/pages/note_page/table_display.dart';
 import 'package:start_note/services/date_service.dart';
 
+import '../bloc/app/app_bloc.dart';
+import '../bloc/app/app_events.dart';
 import '../bloc/note_page/note_page.dart';
 import '../bloc/notes/notes.dart';
 import '../data/repositories/note_repository.dart';
@@ -34,13 +36,15 @@ class _NotePageState extends State<NotePage> with SingleTickerProviderStateMixin
     )..add(FetchNotePage());
     noteController = TextEditingController(text: widget.note.content);
     focusNode = FocusNode();
-    _controller = TabController(length: 2, vsync: this);
+    _controller = TabController(
+        length: 2, vsync: this, initialIndex: BlocProvider.of<AppBloc>(context).state.mostRecentNotePageTabIndex);
 
     _controller.addListener(_tabListener);
   }
 
   void _tabListener() {
     FocusScope.of(context).unfocus();
+    BlocProvider.of<AppBloc>(context).add(TabBarTapped(_controller.index));
   }
 
   @override
@@ -53,6 +57,44 @@ class _NotePageState extends State<NotePage> with SingleTickerProviderStateMixin
 
   void onChanged(int? id) {
     BlocProvider.of<NotesBloc>(context).add(UpdateNote(noteController.text, id!));
+  }
+
+  Widget _notes(int? noteId) {
+    return Column(
+      children: [
+        Flexible(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 12.0, left: 16, right: 16),
+            child: TextField(
+              textCapitalization: TextCapitalization.sentences,
+              controller: noteController,
+              focusNode: focusNode,
+              decoration: null,
+              style: TextStyle(color: Colors.black),
+              onChanged: (value) {
+                onChanged(noteId);
+              },
+              maxLines: 99999,
+            ),
+          ),
+        ),
+        Row(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8.0, left: 8),
+              child: Center(
+                child: Text(
+                  DateService.dateTimeToWeekDay(widget.note.createDate) +
+                      ", " +
+                      DateService.dateTimeToString(widget.note.createDate),
+                  style: TextStyle(fontSize: 14, color: Colors.black87),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
   }
 
   @override
@@ -73,11 +115,17 @@ class _NotePageState extends State<NotePage> with SingleTickerProviderStateMixin
           bloc: notePageBloc,
           builder: (context, state) {
             return Scaffold(
-              appBar: StopwatchAppBar(key: ValueKey(state.note.id), notePageBloc: notePageBloc,),
+              appBar: StopwatchAppBar(
+                key: ValueKey(state.note.id),
+                notePageBloc: notePageBloc,
+              ),
               body: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TabBar(
+                    onTap: (value) {
+                      BlocProvider.of<AppBloc>(context).add(TabBarTapped(value));
+                    },
                     labelColor: Colors.black,
                     indicatorColor: Colors.black,
                     controller: _controller,
@@ -91,41 +139,7 @@ class _NotePageState extends State<NotePage> with SingleTickerProviderStateMixin
                     child: TabBarView(
                       controller: _controller,
                       children: [
-                        Column(
-                          children: [
-                            Flexible(
-                              child: Padding(
-                                padding: const EdgeInsets.only(top: 12.0, left: 16, right: 16),
-                                child: TextField(
-                                  textCapitalization: TextCapitalization.sentences,
-                                  controller: noteController,
-                                  focusNode: focusNode,
-                                  decoration: null,
-                                  style: TextStyle(color: Colors.black),
-                                  onChanged: (value) {
-                                    onChanged(state.note.id);
-                                  },
-                                  maxLines: 99999,
-                                ),
-                              ),
-                            ),
-                            Row(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(bottom: 8.0, left: 8),
-                                  child: Center(
-                                    child: Text(
-                                      DateService.dateTimeToWeekDay(widget.note.createDate) +
-                                          ", " +
-                                          DateService.dateTimeToString(widget.note.createDate),
-                                      style: TextStyle(fontSize: 14, color: Colors.black87),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                        _notes(state.note.id),
                         Padding(
                           padding: const EdgeInsets.only(top: 8.0, left: 16, right: 16),
                           child: Column(
