@@ -45,7 +45,7 @@ class _TableDisplayState extends State<TableDisplay> {
     titleController = TextEditingController(text: widget.noteTable.title);
   }
 
-  Color get tableBorderColor =>  Theme.of(context).backgroundColor;
+  Color get tableBorderColor => Theme.of(context).backgroundColor;
 
   @override
   void dispose() {
@@ -288,12 +288,12 @@ class _TableDisplayState extends State<TableDisplay> {
                 ? Padding(
                     padding: EdgeInsets.only(top: 16.0, bottom: widget.isLast ? 100 : 0),
                     child: Container(
-                      color: Colors.white,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          InkWell(
-                              onTap: () {
+                          FloatingActionButton(
+                              backgroundColor: Colors.red,
+                              onPressed: () {
                                 setState(() {
                                   newFocusColumn = widget.noteTable.columnCount - 1;
                                   newFocusRow = widget.noteTable.rowCount;
@@ -305,11 +305,12 @@ class _TableDisplayState extends State<TableDisplay> {
                                 padding: const EdgeInsets.all(8.0),
                                 child: Icon(
                                   Icons.view_column_outlined,
-                                  color: Colors.red,
+                                  color: Colors.white,
                                 ),
                               )),
-                          InkWell(
-                              onTap: () {
+                          FloatingActionButton(
+                              backgroundColor: Colors.green,
+                              onPressed: () {
                                 setState(() {
                                   newFocusColumn = widget.noteTable.columnCount + 1;
                                   newFocusRow = 1;
@@ -321,11 +322,12 @@ class _TableDisplayState extends State<TableDisplay> {
                                 padding: const EdgeInsets.all(8.0),
                                 child: Icon(
                                   Icons.view_column_sharp,
-                                  color: Colors.green,
+                                  color: Colors.white,
                                 ),
                               )),
-                          InkWell(
-                              onTap: () {
+                          FloatingActionButton(
+                              backgroundColor: Colors.red,
+                              onPressed: () {
                                 setState(() {
                                   newFocusColumn = widget.noteTable.columnCount;
                                   newFocusRow = widget.noteTable.rowCount - 1;
@@ -336,11 +338,12 @@ class _TableDisplayState extends State<TableDisplay> {
                                 padding: const EdgeInsets.all(8.0),
                                 child: Icon(
                                   Icons.table_rows_outlined,
-                                  color: Colors.red,
+                                  color: Colors.white,
                                 ),
                               )),
-                          InkWell(
-                              onTap: () {
+                          FloatingActionButton(
+                              backgroundColor: Colors.green,
+                              onPressed: () {
                                 addRowOfFocusNodes();
                                 widget.notePageBloc.add(AddTableRow(widget.noteTable.id!));
                               },
@@ -348,7 +351,7 @@ class _TableDisplayState extends State<TableDisplay> {
                                 padding: const EdgeInsets.all(8.0),
                                 child: Icon(
                                   Icons.table_rows_sharp,
-                                  color: Colors.green,
+                                  color: Colors.white,
                                 ),
                               )),
                         ],
