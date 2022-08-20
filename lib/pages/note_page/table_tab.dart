@@ -4,6 +4,7 @@ import 'package:start_note/bloc/compare_table/compare_table.dart';
 import 'package:start_note/data/entities/note_entity.dart';
 import 'package:start_note/data/entities/note_table_entity.dart';
 import 'package:start_note/pages/note_page/table_display.dart';
+import 'package:start_note/theme/application_theme.dart';
 
 import '../../bloc/note_page/note_page_bloc.dart';
 import '../../bloc/note_page/note_page_events.dart';
@@ -68,7 +69,7 @@ class _TableTabState extends State<TableTab> {
                 child: Padding(
                   padding: const EdgeInsets.only(right: 8.0),
                   child: FloatingActionButton(
-                    backgroundColor: Color(0xff8DB38B),
+                    backgroundColor: ApplicationTheme.viewGreen,
                     heroTag: "toggleEye",
                     child: showPastTable ? Icon(Icons.remove_red_eye, color: Colors.white) : Icon(Icons.remove_red_eye_outlined, color: Colors.white),
                     onPressed: () {
@@ -82,7 +83,7 @@ class _TableTabState extends State<TableTab> {
             },
           ),
           FloatingActionButton(
-            backgroundColor: Color(0xff04724D),
+            backgroundColor: ApplicationTheme.createGreen,
             heroTag: "add",
             child: Icon(Icons.add, color: Colors.white),
             onPressed: () {

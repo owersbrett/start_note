@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:start_note/common/note_table_display.dart';
 import 'package:start_note/data/entities/note_table_entity.dart';
+import 'package:start_note/theme/application_theme.dart';
 
 import '../../bloc/compare_table/compare_table.dart';
 
@@ -298,7 +299,7 @@ class _TableDisplayState extends State<TableDisplay> {
                         children: [
                           FloatingActionButton(
                               heroTag: "RemoveTableColumn",
-                              backgroundColor: Color(0xffF45B69),
+                              backgroundColor: ApplicationTheme.red,
                               onPressed: () {
                                 setState(() {
                                   newFocusColumn = widget.noteTable.columnCount - 1;
@@ -316,7 +317,7 @@ class _TableDisplayState extends State<TableDisplay> {
                               )),
                           FloatingActionButton(
                               heroTag: "AddTableColumn",
-                              backgroundColor: Color(0xff04724D),
+                              backgroundColor: ApplicationTheme.green,
                               onPressed: () {
                                 setState(() {
                                   newFocusColumn = widget.noteTable.columnCount + 1;
@@ -334,7 +335,7 @@ class _TableDisplayState extends State<TableDisplay> {
                               )),
                           FloatingActionButton(
                               heroTag: "RemoveTableRow",
-                              backgroundColor: Color(0xffF45B69),
+                              backgroundColor: ApplicationTheme.red,
                               onPressed: () {
                                 setState(() {
                                   newFocusColumn = widget.noteTable.columnCount;
@@ -351,7 +352,7 @@ class _TableDisplayState extends State<TableDisplay> {
                               )),
                           FloatingActionButton(
                               heroTag: "AddTableRow",
-                              backgroundColor: Color(0xff04724D),
+                              backgroundColor: ApplicationTheme.createGreen,
                               onPressed: () {
                                 addRowOfFocusNodes();
                                 widget.notePageBloc.add(AddTableRow(widget.noteTable.id!));

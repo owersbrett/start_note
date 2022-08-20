@@ -30,6 +30,14 @@ class ApplicationTheme {
 
   ApplicationTheme._();
 
+  static const Color grey = Colors.grey;
+  static const Color red = Color(0xffF45B69); // fiery rose
+  static const Color yellow = Color(0xffFFBF00); // amber
+  static const Color createGreen = Color(0xff04724D); // dark spring green
+  static const Color green = createGreen;
+  static const Color viewGreen = Color(0xff8DB38B); // dark sea green
+  static const Color altGreen = Color(0xff56876D); // viridian
+
   static double fontSizeTitle = 28.0;
   static double fontSizeBody = 16.0;
   static double fontSizeCaption = 12.0;
