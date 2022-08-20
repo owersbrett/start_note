@@ -50,26 +50,7 @@ class ApplicationTheme {
     // floatingActionButtonTheme: FloatingActionButtonThemeData(backgroundColor: Color(0xFF151026))
   );
 
-  static Map<String, dynamic> defaultThemeData = {
-    'backgroundDark': '4279440924',
-    'backgroundCardDark': '4279836455',
-    'backgroundTabBarDark': '4280297522',
-    'backgroundAppBarDark': '4280297522',
-    'shadowDark': '4278190080',
-    'primaryColorDark': '4284516327',
-    'accentColorDark': '4294945600',
-    'titleTextDark': '4294967295',
-    'captionTextDark': '4286810775',
-    'mutedCaptionTextDark': '4283257694',
-    'bodyTextDark': '4294967295',
-    'dividerDark': '4286810775',
-    'buttonTextDark': '4294967295',
-    'iconDark': '4294638330',
-    'appBarIconDark': '4294638330',
-    'tabBarIconDark': '4286810775',
-    'tabBarSelectedDark': '4284516327',
-    'lossDark': '4294198070',
-  };
+  static Map<String, dynamic> defaultThemeData = {'backgroundDark': '4279440924'};
 }
 
 class Styles {
