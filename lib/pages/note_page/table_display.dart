@@ -216,8 +216,9 @@ class _TableDisplayState extends State<TableDisplay> {
                 },
                 onEditingComplete: () {
                   BlocProvider.of<CompareTableBloc>(context).add(EditTableHeader(widget.noteEntity));
-
-                  focusNodes[1]?[1]?.requestFocus();
+                  setState(() {
+                    focusNodes[1]?[1]?.requestFocus();
+                  });
                 },
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.black),
               ),
