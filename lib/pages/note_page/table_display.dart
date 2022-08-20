@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:start_note/common/note_table_display.dart';
 import 'package:start_note/data/entities/note_table_entity.dart';
+import 'package:start_note/theme/application_theme.dart';
 
 import '../../bloc/compare_table/compare_table.dart';
 
@@ -44,6 +45,8 @@ class _TableDisplayState extends State<TableDisplay> {
 
     titleController = TextEditingController(text: widget.noteTable.title);
   }
+
+  Color get tableBorderColor => Theme.of(context).backgroundColor;
 
   @override
   void dispose() {
@@ -221,20 +224,20 @@ class _TableDisplayState extends State<TableDisplay> {
             ),
             Flexible(
               fit: FlexFit.loose,
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: Theme.of(context).backgroundColor, width: 2),
-                ),
-                child: BlocBuilder<CompareTableBloc, CompareTableState>(
-                  builder: (context, state) {
-                    if (widget.showPastTable && state is CompareTableLoaded) {
-                      NoteTableEntity noteTable = state.previousNote(widget.noteTable);
-                      return Editable(
+              child: BlocBuilder<CompareTableBloc, CompareTableState>(
+                builder: (context, state) {
+                  if (widget.showPastTable && state is CompareTableLoaded) {
+                    NoteTableEntity noteTable = state.previousNote(widget.noteTable);
+                    return Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey, width: 1),
+                      ),
+                      child: Editable(
                         key: ValueKey("Past"),
                         tdStyle: TextStyle(color: Colors.black),
-                        borderWidth: 2,
-                        zebraStripe: true,
-                        borderColor: Theme.of(context).backgroundColor,
+                        borderWidth: 1,
+                        // zebraStripe: true,
+                        // borderColor: tableBorderColor,
                         tdAlignment: TextAlign.center,
                         columnRatio: 1 / (noteTable.columnCount),
                         columnCount: noteTable.columnCount,
@@ -245,13 +248,18 @@ class _TableDisplayState extends State<TableDisplay> {
                         noteTable: noteTable,
                         focusNodeMap: focusNodes,
                         onChanged: (value, row, column) {},
-                      );
-                    }
-                    return Editable(
+                      ),
+                    );
+                  }
+                  return Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: tableBorderColor, width: 1),
+                    ),
+                    child: Editable(
                       key: ValueKey("Current"),
                       tdStyle: TextStyle(color: Colors.black),
-                      borderWidth: 2,
-                      borderColor: Theme.of(context).backgroundColor,
+                      borderWidth: 1,
+                      borderColor: tableBorderColor,
                       tdAlignment: TextAlign.center,
                       columnRatio: 1 / (widget.noteTable.columnCount),
                       columnCount: widget.noteTable.columnCount,
@@ -272,9 +280,9 @@ class _TableDisplayState extends State<TableDisplay> {
 
                         widget.notePageBloc.add(SaveNoteDataCell(row, column, widget.noteTable.id!, value));
                       },
-                    );
-                  },
-                ),
+                    ),
+                  );
+                },
               ),
             ),
             widget.isLast && widget.showPastTable
@@ -282,16 +290,17 @@ class _TableDisplayState extends State<TableDisplay> {
                     height: 100,
                   )
                 : Container(),
-            cellsHaveFocus
+            cellsHaveFocus && !widget.showPastTable
                 ? Padding(
                     padding: EdgeInsets.only(top: 16.0, bottom: widget.isLast ? 100 : 0),
                     child: Container(
-                      color: Colors.white,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          InkWell(
-                              onTap: () {
+                          FloatingActionButton(
+                              heroTag: "RemoveTableColumn",
+                              backgroundColor: ApplicationTheme.red,
+                              onPressed: () {
                                 setState(() {
                                   newFocusColumn = widget.noteTable.columnCount - 1;
                                   newFocusRow = widget.noteTable.rowCount;
@@ -303,11 +312,13 @@ class _TableDisplayState extends State<TableDisplay> {
                                 padding: const EdgeInsets.all(8.0),
                                 child: Icon(
                                   Icons.view_column_outlined,
-                                  color: Colors.red,
+                                  color: Colors.white,
                                 ),
                               )),
-                          InkWell(
-                              onTap: () {
+                          FloatingActionButton(
+                              heroTag: "AddTableColumn",
+                              backgroundColor: ApplicationTheme.green,
+                              onPressed: () {
                                 setState(() {
                                   newFocusColumn = widget.noteTable.columnCount + 1;
                                   newFocusRow = 1;
@@ -319,11 +330,13 @@ class _TableDisplayState extends State<TableDisplay> {
                                 padding: const EdgeInsets.all(8.0),
                                 child: Icon(
                                   Icons.view_column_sharp,
-                                  color: Colors.green,
+                                  color: Colors.white,
                                 ),
                               )),
-                          InkWell(
-                              onTap: () {
+                          FloatingActionButton(
+                              heroTag: "RemoveTableRow",
+                              backgroundColor: ApplicationTheme.red,
+                              onPressed: () {
                                 setState(() {
                                   newFocusColumn = widget.noteTable.columnCount;
                                   newFocusRow = widget.noteTable.rowCount - 1;
@@ -334,11 +347,13 @@ class _TableDisplayState extends State<TableDisplay> {
                                 padding: const EdgeInsets.all(8.0),
                                 child: Icon(
                                   Icons.table_rows_outlined,
-                                  color: Colors.red,
+                                  color: Colors.white,
                                 ),
                               )),
-                          InkWell(
-                              onTap: () {
+                          FloatingActionButton(
+                              heroTag: "AddTableRow",
+                              backgroundColor: ApplicationTheme.createGreen,
+                              onPressed: () {
                                 addRowOfFocusNodes();
                                 widget.notePageBloc.add(AddTableRow(widget.noteTable.id!));
                               },
@@ -346,7 +361,7 @@ class _TableDisplayState extends State<TableDisplay> {
                                 padding: const EdgeInsets.all(8.0),
                                 child: Icon(
                                   Icons.table_rows_sharp,
-                                  color: Colors.green,
+                                  color: Colors.white,
                                 ),
                               )),
                         ],

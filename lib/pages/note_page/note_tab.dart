@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 import '../../data/models/note.dart';
 import '../../services/date_service.dart';
 
@@ -37,11 +36,21 @@ class NoteTab extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(bottom: 8.0, left: 8),
               child: Center(
-                child: Text(
-                  DateService.dateTimeToWeekDay(note.createDate) +
-                      ", " +
-                      DateService.dateTimeToString(note.createDate),
-                  style: TextStyle(fontSize: 14, color: Colors.black87),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Created on: ",
+                      style: TextStyle(fontSize: 14, color: Colors.black87),
+                    ),
+                    Text(
+                      DateService.dateTimeToWeekDay(note.createDate) +
+                          ", " +
+                          DateService.dateTimeToString(note.createDate),
+                      style: TextStyle(fontSize: 14, color: Colors.black87),
+                    ),
+                  ],
                 ),
               ),
             ),

@@ -48,11 +48,8 @@ class NoteTableRepository<T extends NoteTable> implements INoteTableRepository<N
 
   @override
   Future<NoteTableEntity> create(NoteTable t) async {
-    // int noteTableId = await db.insert(tableName, t.toMap());
-    // return t.copyWith(id: noteTableId);
     int noteTableId;
     NoteTableEntity entity;
-    // await db.insert(tableName, t.toMap());
     return await db.transaction((txn) async {
       noteTableId = await txn.insert(NoteTable.tableName, t.toMap());
       NoteTableCell cellOneOne = await insertNoteTableCell(txn, t.noteId, noteTableId, 1, 1);

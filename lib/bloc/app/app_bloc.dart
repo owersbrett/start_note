@@ -6,11 +6,9 @@ class AppBloc extends HydratedBloc<AppEvent, AppState> {
     on(_onEvent);
   }
   void _onEvent(AppEvent event, Emitter<AppState> emit) async {
-    if (event is FetchApp) await _fetchApp(event, emit);
     if (event is TabBarTapped) await _tabBarTapped(event, emit);
   }
 
-  Future<void> _fetchApp(FetchApp event, Emitter<AppState> emit) async {}
   Future<void> _tabBarTapped(TabBarTapped event, Emitter<AppState> emit) async {
     emit(AppLoaded(event.newIndex));
   }

@@ -4,6 +4,7 @@ import 'package:start_note/bloc/compare_table/compare_table.dart';
 import 'package:start_note/data/entities/note_entity.dart';
 import 'package:start_note/data/entities/note_table_entity.dart';
 import 'package:start_note/pages/note_page/table_display.dart';
+import 'package:start_note/theme/application_theme.dart';
 
 import '../../bloc/note_page/note_page_bloc.dart';
 import '../../bloc/note_page/note_page_events.dart';
@@ -31,7 +32,6 @@ class _TableTabState extends State<TableTab> {
     setState(() {
       selectedTable = noteTableEntity;
     });
-    BlocProvider.of<CompareTableBloc>(context).add(SelectTable(noteTableEntity));
   }
 
   @override
@@ -66,21 +66,26 @@ class _TableTabState extends State<TableTab> {
             builder: (context, state) {
               return Visibility(
                 visible: state.similarTables.isNotEmpty,
-                child: FloatingActionButton(
-                  heroTag: "toggleEye",
-                  child: showPastTable ? Icon(Icons.remove_red_eye) : Icon(Icons.remove_red_eye_outlined),
-                  onPressed: () {
-                    setState(() {
-                      showPastTable = !showPastTable;
-                    });
-                  },
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: FloatingActionButton(
+                    backgroundColor: ApplicationTheme.viewGreen,
+                    heroTag: "toggleEye",
+                    child: showPastTable ? Icon(Icons.remove_red_eye, color: Colors.white) : Icon(Icons.remove_red_eye_outlined, color: Colors.white),
+                    onPressed: () {
+                      setState(() {
+                        showPastTable = !showPastTable;
+                      });
+                    },
+                  ),
                 ),
               );
             },
           ),
           FloatingActionButton(
+            backgroundColor: ApplicationTheme.createGreen,
             heroTag: "add",
-            child: Icon(Icons.add),
+            child: Icon(Icons.add, color: Colors.white),
             onPressed: () {
               widget.notePageBloc.add(AddTable());
             },

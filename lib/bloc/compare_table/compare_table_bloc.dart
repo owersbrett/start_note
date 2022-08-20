@@ -10,7 +10,6 @@ class CompareTableBloc extends Bloc<CompareTableEvent, CompareTableState> {
     on(_onEvent);
   }
   void _onEvent(CompareTableEvent event, Emitter<CompareTableState> emit) async {
-    if (event is SelectTable) await _selectTable(event, emit);
     if (event is EditTableHeader) await _editTableHeader(event, emit);
   }
 
@@ -32,7 +31,4 @@ class CompareTableBloc extends Bloc<CompareTableEvent, CompareTableState> {
     }
   }
 
-  Future<void> _selectTable(SelectTable event, Emitter<CompareTableState> emit) async {
-
-  }
 }

@@ -30,6 +30,14 @@ class ApplicationTheme {
 
   ApplicationTheme._();
 
+  static const Color grey = Colors.grey;
+  static const Color red = Color(0xffF45B69); // fiery rose
+  static const Color yellow = Color(0xffFFBF00); // amber
+  static const Color createGreen = Color(0xff04724D); // dark spring green
+  static const Color green = createGreen;
+  static const Color viewGreen = Color(0xff8DB38B); // dark sea green
+  static const Color altGreen = Color(0xff56876D); // viridian
+
   static double fontSizeTitle = 28.0;
   static double fontSizeBody = 16.0;
   static double fontSizeCaption = 12.0;
@@ -44,30 +52,13 @@ class ApplicationTheme {
   static const mySystemTheme = SystemUiOverlayStyle.dark;
   static Color appBarColor = ApplicationTheme.appBarColor;
   static ThemeData theme = ThemeData(
+    appBarTheme: AppBarTheme(),
     scaffoldBackgroundColor: Colors.amber,
     brightness: Brightness.dark,
+    // floatingActionButtonTheme: FloatingActionButtonThemeData(backgroundColor: Color(0xFF151026))
   );
 
-  static Map<String, dynamic> defaultThemeData = {
-    'backgroundDark': '4279440924',
-    'backgroundCardDark': '4279836455',
-    'backgroundTabBarDark': '4280297522',
-    'backgroundAppBarDark': '4280297522',
-    'shadowDark': '4278190080',
-    'primaryColorDark': '4284516327',
-    'accentColorDark': '4294945600',
-    'titleTextDark': '4294967295',
-    'captionTextDark': '4286810775',
-    'mutedCaptionTextDark': '4283257694',
-    'bodyTextDark': '4294967295',
-    'dividerDark': '4286810775',
-    'buttonTextDark': '4294967295',
-    'iconDark': '4294638330',
-    'appBarIconDark': '4294638330',
-    'tabBarIconDark': '4286810775',
-    'tabBarSelectedDark': '4284516327',
-    'lossDark': '4294198070',
-  };
+  static Map<String, dynamic> defaultThemeData = {'backgroundDark': '4279440924'};
 }
 
 class Styles {

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:start_note/data/entities/note_entity.dart';
 import 'package:start_note/pages/note_page.dart';
 import 'package:start_note/services/date_service.dart';
+import 'package:start_note/theme/application_theme.dart';
 import '../bloc/notes/notes.dart';
 import '../data/models/note.dart';
 import '../navigation/navigation.dart';
@@ -19,12 +20,58 @@ class HomePage extends StatelessWidget {
         children: [
           SlidableAction(
             onPressed: (ctx) {
-              BlocProvider.of<NotesBloc>(context).add(DeleteNote(note.id!));
+              showDialog(
+                  context: context,
+                  builder: (ctx) {
+                    return Dialog(
+                      child: Container(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  "Delete note?",
+                                  style: Theme.of(context).textTheme.headline5,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                      BlocProvider.of<NotesBloc>(context).add(DeleteNote(note.id!));
+                                    },
+                                    child: Text(
+                                      "Delete",
+                                      style: TextStyle(color: ApplicationTheme.red, fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text(
+                                      "Cancel",
+                                      style: TextStyle(color: ApplicationTheme.grey, fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ],
+                              )
+                            ],
+                          )),
+                    );
+                  });
             },
-            backgroundColor: const Color(0xFFFE4A49),
+            backgroundColor:ApplicationTheme.red,
             foregroundColor: Colors.white,
             icon: Icons.delete,
             label: 'Delete',
+            autoClose: true,
           ),
         ],
       ),
@@ -49,7 +96,7 @@ class HomePage extends StatelessWidget {
             },
           ),
           Padding(
-            padding: const EdgeInsets.only( left: 8, right: 16),
+            padding: const EdgeInsets.only(left: 8, right: 16),
             child: Divider(
               height: 1,
               color: Colors.black87,
@@ -68,7 +115,7 @@ class HomePage extends StatelessWidget {
       ),
       body: BlocBuilder<NotesBloc, NotesState>(
         builder: (context, state) {
-          if (state is NotesLoaded) {
+          if (state is NotesLoaded || state is AddingNote) {
             return Column(
               children: [
                 Expanded(
@@ -76,7 +123,6 @@ class HomePage extends StatelessWidget {
                     decoration: BoxDecoration(color: Colors.amber.withOpacity(.9)),
                     child: ListView.builder(
                       shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
                       itemCount: state.notes.length,
                       itemBuilder: (ctx, i) => _buildNotes(ctx, state.notes[i]),
                     ),
@@ -106,7 +152,23 @@ class HomePage extends StatelessWidget {
               ],
             );
           }
-          return Container();
+
+          return InkWell(
+            child: Container(
+              color: Colors.amberAccent,
+              child: Center(
+                child: Text(
+                  "UH oh! Error loading notes. Tab anywhere to fix this.",
+                  style: TextStyle(color: Colors.black),
+                ),
+              ),
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+            ),
+            onTap: () {
+              BlocProvider.of<NotesBloc>(context).add(FetchNotes());
+            },
+          );
         },
       ),
     );

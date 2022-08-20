@@ -90,6 +90,7 @@ class _NotePageState extends State<NotePage> with SingleTickerProviderStateMixin
                     },
                     labelColor: Colors.black,
                     indicatorColor: Colors.black,
+                    labelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                     controller: _controller,
                     tabs: [
                       Tab(text: "Notes"),
