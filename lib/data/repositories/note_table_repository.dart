@@ -15,6 +15,7 @@ abstract class INoteTableRepository<T extends NoteTable> extends Repository<Note
   Future<NoteTableEntity?> removeRow(NoteTableEntity noteTable);
   Future<NoteTableEntity> addColumn(NoteTableEntity noteTable);
   Future<NoteTableEntity?> removeColumn(NoteTableEntity noteTable);
+  Future<List<NoteTableEntity>> getTablesLike(NoteTableEntity noteTableEntity);
   Future<void> deleteLastRow(NoteTableEntity noteTable);
 }
 
@@ -182,6 +183,24 @@ class NoteTableRepository<T extends NoteTable> implements INoteTableRepository<N
   @override
   Future<void> deleteLastRow(NoteTableEntity noteTable) async {
     await removeRow(noteTable);
+  }
+
+  @override
+  Future<List<NoteTableEntity>> getTablesLike(NoteTableEntity noteTableEntity) async {
+    return await db.transaction((txn) async {
+      List list = await txn.rawQuery('SELECT * FROM $tableName WHERE LOWER(title) LIKE LOWER(?)',
+          [noteTableEntity.title]);
+      List<NoteTable> tables = list.map((e) => NoteTable.fromMap(Map<String, dynamic>.from(e))).toList();
+      List<NoteTableEntity> entities = [];
+      for (var table in tables) {
+        List<NoteTableCell> cells = await getCellsFromNoteAndTableId(txn, table.noteId, table.id!);
+        if (cells.length > 0){
+
+        entities.add(NoteTableEntity.fromNoteTableAndCells(table, cells));
+        }
+      }
+      return entities..sort(((a, b) => b.createDate.compareTo(a.createDate)));
+    });
   }
 }
   // 'CREATE TABLE $tableName (id INTEGER PRIMARY KEY, noteId INTEGER FOREIGN KEY, rowCount INTEGER, columnCount INTEGER, title TEXT, createDateMillisSinceEpoch INTEGER, updateDateMillisSinceEpoch INTEGER)';

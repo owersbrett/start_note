@@ -2,9 +2,6 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:start_note/bloc/note_page/note_page_bloc.dart';
-
 import '../bloc/note_page/note_page.dart';
 
 class StopwatchAppBar extends StatelessWidget implements PreferredSize {

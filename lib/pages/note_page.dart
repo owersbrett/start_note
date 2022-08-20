@@ -3,11 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:start_note/common/stopwatch_app_bar.dart';
 import 'package:start_note/data/entities/note_entity.dart';
 import 'package:start_note/data/repositories/note_table_repository.dart';
-
-import 'package:start_note/pages/note_page/table_display.dart';
 import 'package:start_note/pages/note_page/table_tab.dart';
-import 'package:start_note/services/date_service.dart';
-
 import '../bloc/app/app_bloc.dart';
 import '../bloc/app/app_events.dart';
 import '../bloc/note_page/note_page.dart';
@@ -79,6 +75,7 @@ class _NotePageState extends State<NotePage> with SingleTickerProviderStateMixin
           bloc: notePageBloc,
           builder: (context, state) {
             return Scaffold(
+              resizeToAvoidBottomInset: false,
               appBar: StopwatchAppBar(
                 key: ValueKey(state.note.id),
                 notePageBloc: notePageBloc,
@@ -88,6 +85,7 @@ class _NotePageState extends State<NotePage> with SingleTickerProviderStateMixin
                 children: [
                   TabBar(
                     onTap: (value) {
+                      FocusScope.of(context).unfocus();
                       BlocProvider.of<AppBloc>(context).add(TabBarTapped(value));
                     },
                     labelColor: Colors.black,

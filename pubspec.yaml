@@ -21,10 +21,12 @@ dependencies:
   flutter_bloc:
   hydrated_bloc: 
   sqflite: 
+  draggable_widget: 
   equatable: 
   logging_appenders: 
   flutter_slidable: 
   logging: 
+  holding_gesture: 
   shared_preferences:
   uuid:
 

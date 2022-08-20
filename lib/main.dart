@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:start_note/bloc/app/app.dart';
+import 'package:start_note/bloc/compare_table/compare_table_bloc.dart';
 import 'package:start_note/data/repositories/note_repository.dart';
 import 'package:start_note/data/repositories/note_table_repository.dart';
 import 'package:start_note/pages/home_page.dart';
@@ -87,10 +88,12 @@ class StartNote extends StatefulWidget {
 class StartNoteState extends State<StartNote> {
   late NotesBloc notesBloc;
   late AppBloc appBloc;
+  late CompareTableBloc compareTableBloc;
   @override
   void initState() {
     super.initState();
     appBloc = AppBloc();
+    compareTableBloc = CompareTableBloc(widget.noteTableRepository);
     notesBloc = NotesBloc(widget.noteRepository, widget.noteTableRepository)..add(FetchNotes());
   }
 
@@ -98,6 +101,7 @@ class StartNoteState extends State<StartNote> {
   void dispose() {
     appBloc.close();
     notesBloc.close();
+    compareTableBloc.close();
     super.dispose();
   }
 
@@ -107,6 +111,7 @@ class StartNoteState extends State<StartNote> {
       providers: [
         BlocProvider(create: (_) => notesBloc),
         BlocProvider(create: (_) => appBloc),
+        BlocProvider(create: (_) => compareTableBloc),
       ],
       child: MaterialApp(
         localizationsDelegates: L10nService.delegates,
