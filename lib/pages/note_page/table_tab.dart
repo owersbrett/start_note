@@ -31,7 +31,6 @@ class _TableTabState extends State<TableTab> {
     setState(() {
       selectedTable = noteTableEntity;
     });
-    BlocProvider.of<CompareTableBloc>(context).add(SelectTable(noteTableEntity));
   }
 
   @override

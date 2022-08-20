@@ -22,18 +22,6 @@ class CompareTableInitial extends CompareTableState {
   CompareTableInitial(super.selectedTable);
 }
 
-class CompareTableEmpty extends CompareTableState {
-  CompareTableEmpty(super.selectedTable);
-}
-
-class CompareTableLoading extends CompareTableState {
-  CompareTableLoading(super.selectedTable);
-}
-
-class CompareTableError extends CompareTableState {
-  CompareTableError(super.selectedTable);
-}
-
 class CompareTableLoaded extends CompareTableState {
   CompareTableLoaded(super.selectedTable);
 }
