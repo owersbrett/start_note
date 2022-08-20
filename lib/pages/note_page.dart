@@ -6,6 +6,8 @@ import 'package:start_note/data/repositories/note_table_repository.dart';
 import 'package:start_note/pages/note_page/table_tab.dart';
 import '../bloc/app/app_bloc.dart';
 import '../bloc/app/app_events.dart';
+import '../bloc/compare_table/compare_table_bloc.dart';
+import '../bloc/compare_table/compare_table_events.dart';
 import '../bloc/note_page/note_page.dart';
 import '../bloc/notes/notes.dart';
 import '../data/repositories/note_repository.dart';
@@ -71,7 +73,10 @@ class _NotePageState extends State<NotePage> with SingleTickerProviderStateMixin
             Navigator.of(context).pop();
           }
         },
-        child: BlocBuilder<NotePageBloc, NotePageState>(
+        child: BlocConsumer<NotePageBloc, NotePageState>(
+          listener: (context, state) {
+            if (state is NotePageLoaded) BlocProvider.of<CompareTableBloc>(context).add(FetchCompareTable(state.note));
+          },
           bloc: notePageBloc,
           builder: (context, state) {
             return Scaffold(

@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.start_note">
+    package="com.bjo.startnote">
    <application
         android:label="Start Note"
         android:name="${applicationName}"

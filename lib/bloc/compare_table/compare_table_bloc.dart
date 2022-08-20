@@ -10,7 +10,32 @@ class CompareTableBloc extends Bloc<CompareTableEvent, CompareTableState> {
     on(_onEvent);
   }
   void _onEvent(CompareTableEvent event, Emitter<CompareTableState> emit) async {
+    if (event is FetchCompareTable) await _fetchCompareTables(event, emit);
     if (event is EditTableHeader) await _editTableHeader(event, emit);
+  }
+
+  Future<void> _fetchCompareTables(FetchCompareTable event, Emitter<CompareTableState> emit) async {
+    try {
+      NoteEntity noteEntity = event.noteEntity;
+      Map<String, NoteTableEntity> similarTables = Map<String, NoteTableEntity>();
+      for (var noteTable in noteEntity.noteTables) {
+        List<NoteTableEntity> similarTablesList = await noteTableRepository.getTablesLike(noteTable);
+        if (similarTablesList.length > 1) {
+          var currentTable = similarTablesList.firstWhere((element) => element.id == noteTable.id);
+          var indexOfCurrentTable = similarTablesList.indexOf(currentTable);
+          bool currentTableIsLastTable = indexOfCurrentTable + 1 == similarTablesList.length;
+          if (!currentTableIsLastTable) {
+            similarTables[currentTable.title.toLowerCase()] = similarTablesList[indexOfCurrentTable + 1];
+          } else {
+            similarTables[currentTable.title.toLowerCase()] = similarTablesList[indexOfCurrentTable];
+          }
+        }
+      }
+      emit(CompareTableLoaded(similarTables));
+    } catch (e) {
+      print('error selecting table');
+      print(e);
+    }
   }
 
   Future<void> _editTableHeader(EditTableHeader event, Emitter<CompareTableState> emit) async {
@@ -21,8 +46,8 @@ class CompareTableBloc extends Bloc<CompareTableEvent, CompareTableState> {
         List<NoteTableEntity> similarTablesList = await noteTableRepository.getTablesLike(noteTable);
         if (similarTablesList.length > 1) {
           var table = similarTablesList[1];
-          similarTables[table.title] = table;
-        } 
+          similarTables[table.title.toLowerCase()] = table;
+        }
       }
       emit(CompareTableLoaded(similarTables));
     } catch (e) {
@@ -30,5 +55,4 @@ class CompareTableBloc extends Bloc<CompareTableEvent, CompareTableState> {
       print(e);
     }
   }
-
 }
