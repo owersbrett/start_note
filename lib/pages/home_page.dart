@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:start_note/bloc/app/app_states.dart';
 import 'package:start_note/data/entities/note_entity.dart';
 import 'package:start_note/pages/note_page.dart';
 import 'package:start_note/services/date_service.dart';
