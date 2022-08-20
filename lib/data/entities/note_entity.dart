@@ -1,6 +1,4 @@
 import 'package:start_note/data/entities/note_table_entity.dart';
-import 'package:start_note/data/models/note_table.dart';
-
 import '../models/note.dart';
 
 class NoteEntity extends Note {

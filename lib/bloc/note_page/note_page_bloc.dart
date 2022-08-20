@@ -4,7 +4,6 @@ import 'package:start_note/data/entities/note_table_entity.dart';
 import 'package:start_note/data/models/note_table.dart';
 import 'package:start_note/data/repositories/note_repository.dart';
 import 'package:start_note/data/repositories/note_table_repository.dart';
-import '../../data/models/note.dart';
 import '../../data/models/note_table_cell.dart';
 import 'note_page.dart';
 
@@ -31,25 +30,14 @@ class NotePageBloc extends Bloc<NotePageEvent, NotePageState> {
     try {
       if (state is NotePageLoaded) {
         NotePageLoaded loadedState = state as NotePageLoaded;
-        bool shouldFetch = false;
-        for (var element in loadedState.note.noteTables) {
-          bool allAreEmpty = true;
-          element.rowColumnTableMap[element.rowCount]!.forEach((key, value) {
-            if (!value.isEmpty) {
-              allAreEmpty = false;
-            }
-          });
-          if (allAreEmpty) {
-            shouldFetch = true;
-            await noteTableRepository.deleteLastRow(element);
-          }
-        }
+        bool shouldFetch = await _shouldFetchNotePage(loadedState);
         if (shouldFetch) add(FetchNotePage(noteId: loadedState.note.id));
       }
     } catch (e) {
       emit(NotePageError(initialNote, initialNote));
     }
   }
+
 
   Future<void> _addTableColumn(AddTableColumn event, Emitter<NotePageState> emit) async {
     try {
@@ -236,5 +224,25 @@ class NotePageBloc extends Bloc<NotePageEvent, NotePageState> {
     } catch (e) {
       emit(NotePageError(initialNote, state.note));
     }
+  }
+
+  Future<bool> _shouldFetchNotePage(NotePageLoaded notePageLoaded) async {
+    bool shouldFetch = false;
+    for (var element in notePageLoaded.note.noteTables) {
+      bool allAreEmpty = true;
+      bool tableHasMultipleRows = element.rowCount > 1;
+      if (tableHasMultipleRows) {
+        element.rowColumnTableMap[element.rowCount]!.forEach((key, value) {
+          if (!value.isEmpty) {
+            allAreEmpty = false;
+          }
+        });
+        if (allAreEmpty) {
+          shouldFetch = true;
+          await noteTableRepository.deleteLastRow(element);
+        }
+      }
+    }
+    return shouldFetch;
   }
 }

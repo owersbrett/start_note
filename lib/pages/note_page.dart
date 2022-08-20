@@ -3,13 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:start_note/common/stopwatch_app_bar.dart';
 import 'package:start_note/data/entities/note_entity.dart';
 import 'package:start_note/data/repositories/note_table_repository.dart';
-
-import 'package:start_note/pages/note_page/table_display.dart';
-import 'package:start_note/services/date_service.dart';
-
+import 'package:start_note/pages/note_page/table_tab.dart';
+import '../bloc/app/app_bloc.dart';
+import '../bloc/app/app_events.dart';
 import '../bloc/note_page/note_page.dart';
 import '../bloc/notes/notes.dart';
 import '../data/repositories/note_repository.dart';
+import 'note_page/note_tab.dart';
 
 class NotePage extends StatefulWidget {
   const NotePage({Key? key, required this.note}) : super(key: key);
@@ -34,13 +34,15 @@ class _NotePageState extends State<NotePage> with SingleTickerProviderStateMixin
     )..add(FetchNotePage());
     noteController = TextEditingController(text: widget.note.content);
     focusNode = FocusNode();
-    _controller = TabController(length: 2, vsync: this);
+    _controller = TabController(
+        length: 2, vsync: this, initialIndex: BlocProvider.of<AppBloc>(context).state.mostRecentNotePageTabIndex);
 
     _controller.addListener(_tabListener);
   }
 
   void _tabListener() {
     FocusScope.of(context).unfocus();
+    BlocProvider.of<AppBloc>(context).add(TabBarTapped(_controller.index));
   }
 
   @override
@@ -73,13 +75,22 @@ class _NotePageState extends State<NotePage> with SingleTickerProviderStateMixin
           bloc: notePageBloc,
           builder: (context, state) {
             return Scaffold(
-              appBar: StopwatchAppBar(key: ValueKey(state.note.id), notePageBloc: notePageBloc,),
+              resizeToAvoidBottomInset: false,
+              appBar: StopwatchAppBar(
+                key: ValueKey(state.note.id),
+                notePageBloc: notePageBloc,
+              ),
               body: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TabBar(
+                    onTap: (value) {
+                      FocusScope.of(context).unfocus();
+                      BlocProvider.of<AppBloc>(context).add(TabBarTapped(value));
+                    },
                     labelColor: Colors.black,
                     indicatorColor: Colors.black,
+                    labelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                     controller: _controller,
                     tabs: [
                       Tab(text: "Notes"),
@@ -91,67 +102,13 @@ class _NotePageState extends State<NotePage> with SingleTickerProviderStateMixin
                     child: TabBarView(
                       controller: _controller,
                       children: [
-                        Column(
-                          children: [
-                            Flexible(
-                              child: Padding(
-                                padding: const EdgeInsets.only(top: 12.0, left: 16, right: 16),
-                                child: TextField(
-                                  textCapitalization: TextCapitalization.sentences,
-                                  controller: noteController,
-                                  focusNode: focusNode,
-                                  decoration: null,
-                                  style: TextStyle(color: Colors.black),
-                                  onChanged: (value) {
-                                    onChanged(state.note.id);
-                                  },
-                                  maxLines: 99999,
-                                ),
-                              ),
-                            ),
-                            Row(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(bottom: 8.0, left: 8),
-                                  child: Center(
-                                    child: Text(
-                                      DateService.dateTimeToWeekDay(widget.note.createDate) +
-                                          ", " +
-                                          DateService.dateTimeToString(widget.note.createDate),
-                                      style: TextStyle(fontSize: 14, color: Colors.black87),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
+                        NoteTab(
+                          focusNode: focusNode,
+                          note: state.note,
+                          noteController: noteController,
+                          onChanged: onChanged,
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0, left: 16, right: 16),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Flexible(
-                                fit: FlexFit.loose,
-                                child: ListView.builder(
-                                  itemCount: state.note.noteTables.length,
-                                  itemBuilder: ((context, index) => TableDisplay(
-                                      noteTable: state.note.noteTables[index], notePageBloc: notePageBloc)),
-                                ),
-                              ),
-                              MaterialButton(
-                                color: Theme.of(context).backgroundColor,
-                                child: Text(
-                                  "Insert Table",
-                                  style: TextStyle(color: Colors.white, fontSize: 16),
-                                ),
-                                onPressed: () {
-                                  notePageBloc.add(AddTable());
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
+                        TableTab(note: state.note, notePageBloc: notePageBloc)
                       ],
                     ),
                   ),

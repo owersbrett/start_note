@@ -1,5 +1,3 @@
-import '../../data/models/note.dart';
-
 abstract class NotesEvent {
   const NotesEvent();
 }

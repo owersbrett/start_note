@@ -1,4 +1,3 @@
-import 'package:logging/logging.dart';
 import 'package:start_note/data/entities/note_entity.dart';
 import 'package:start_note/data/repositories/_repository.dart';
 import 'package:start_note/data/repositories/note_table_repository.dart';
