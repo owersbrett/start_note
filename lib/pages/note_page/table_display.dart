@@ -223,20 +223,20 @@ class _TableDisplayState extends State<TableDisplay> {
             ),
             Flexible(
               fit: FlexFit.loose,
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: tableBorderColor, width: 2),
-                ),
-                child: BlocBuilder<CompareTableBloc, CompareTableState>(
-                  builder: (context, state) {
-                    if (widget.showPastTable && state is CompareTableLoaded) {
-                      NoteTableEntity noteTable = state.previousNote(widget.noteTable);
-                      return Editable(
+              child: BlocBuilder<CompareTableBloc, CompareTableState>(
+                builder: (context, state) {
+                  if (widget.showPastTable && state is CompareTableLoaded) {
+                    NoteTableEntity noteTable = state.previousNote(widget.noteTable);
+                    return Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey, width: 1),
+                      ),
+                      child: Editable(
                         key: ValueKey("Past"),
                         tdStyle: TextStyle(color: Colors.black),
-                        borderWidth: 2,
-                        zebraStripe: true,
-                        borderColor: tableBorderColor,
+                        borderWidth: 1,
+                        // zebraStripe: true,
+                        // borderColor: tableBorderColor,
                         tdAlignment: TextAlign.center,
                         columnRatio: 1 / (noteTable.columnCount),
                         columnCount: noteTable.columnCount,
@@ -247,12 +247,17 @@ class _TableDisplayState extends State<TableDisplay> {
                         noteTable: noteTable,
                         focusNodeMap: focusNodes,
                         onChanged: (value, row, column) {},
-                      );
-                    }
-                    return Editable(
+                      ),
+                    );
+                  }
+                  return Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: tableBorderColor, width: 1),
+                    ),
+                    child: Editable(
                       key: ValueKey("Current"),
                       tdStyle: TextStyle(color: Colors.black),
-                      borderWidth: 2,
+                      borderWidth: 1,
                       borderColor: tableBorderColor,
                       tdAlignment: TextAlign.center,
                       columnRatio: 1 / (widget.noteTable.columnCount),
@@ -274,9 +279,9 @@ class _TableDisplayState extends State<TableDisplay> {
 
                         widget.notePageBloc.add(SaveNoteDataCell(row, column, widget.noteTable.id!, value));
                       },
-                    );
-                  },
-                ),
+                    ),
+                  );
+                },
               ),
             ),
             widget.isLast && widget.showPastTable
@@ -292,7 +297,7 @@ class _TableDisplayState extends State<TableDisplay> {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           FloatingActionButton(
-                              backgroundColor: Colors.red,
+                              backgroundColor: Color(0xffF45B69),
                               onPressed: () {
                                 setState(() {
                                   newFocusColumn = widget.noteTable.columnCount - 1;
@@ -309,7 +314,7 @@ class _TableDisplayState extends State<TableDisplay> {
                                 ),
                               )),
                           FloatingActionButton(
-                              backgroundColor: Colors.green,
+                              backgroundColor: Color(0xff04724D),
                               onPressed: () {
                                 setState(() {
                                   newFocusColumn = widget.noteTable.columnCount + 1;
@@ -326,7 +331,7 @@ class _TableDisplayState extends State<TableDisplay> {
                                 ),
                               )),
                           FloatingActionButton(
-                              backgroundColor: Colors.red,
+                              backgroundColor: Color(0xffF45B69),
                               onPressed: () {
                                 setState(() {
                                   newFocusColumn = widget.noteTable.columnCount;
@@ -342,7 +347,7 @@ class _TableDisplayState extends State<TableDisplay> {
                                 ),
                               )),
                           FloatingActionButton(
-                              backgroundColor: Colors.green,
+                              backgroundColor: Color(0xff04724D),
                               onPressed: () {
                                 addRowOfFocusNodes();
                                 widget.notePageBloc.add(AddTableRow(widget.noteTable.id!));
