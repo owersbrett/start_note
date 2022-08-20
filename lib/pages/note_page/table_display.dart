@@ -297,6 +297,7 @@ class _TableDisplayState extends State<TableDisplay> {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           FloatingActionButton(
+                              heroTag: "RemoveTableColumn",
                               backgroundColor: Color(0xffF45B69),
                               onPressed: () {
                                 setState(() {
@@ -314,6 +315,7 @@ class _TableDisplayState extends State<TableDisplay> {
                                 ),
                               )),
                           FloatingActionButton(
+                              heroTag: "AddTableColumn",
                               backgroundColor: Color(0xff04724D),
                               onPressed: () {
                                 setState(() {
@@ -331,6 +333,7 @@ class _TableDisplayState extends State<TableDisplay> {
                                 ),
                               )),
                           FloatingActionButton(
+                              heroTag: "RemoveTableRow",
                               backgroundColor: Color(0xffF45B69),
                               onPressed: () {
                                 setState(() {
@@ -347,6 +350,7 @@ class _TableDisplayState extends State<TableDisplay> {
                                 ),
                               )),
                           FloatingActionButton(
+                              heroTag: "AddTableRow",
                               backgroundColor: Color(0xff04724D),
                               onPressed: () {
                                 addRowOfFocusNodes();

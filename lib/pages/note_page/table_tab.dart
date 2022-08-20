@@ -69,7 +69,7 @@ class _TableTabState extends State<TableTab> {
                 child: Padding(
                   padding: const EdgeInsets.only(right: 8.0),
                   child: FloatingActionButton(
-                    backgroundColor: Theme.of(context).backgroundColor,
+                    backgroundColor: Color(0xff8DB38B),
                     heroTag: "toggleEye",
                     child: showPastTable ? Icon(Icons.remove_red_eye, color: Colors.white) : Icon(Icons.remove_red_eye_outlined, color: Colors.white),
                     onPressed: () {
@@ -83,7 +83,7 @@ class _TableTabState extends State<TableTab> {
             },
           ),
           FloatingActionButton(
-            backgroundColor: Theme.of(context).backgroundColor,
+            backgroundColor: Color(0xff04724D),
             heroTag: "add",
             child: Icon(Icons.add, color: Colors.white),
             onPressed: () {
