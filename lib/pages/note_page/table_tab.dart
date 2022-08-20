@@ -66,21 +66,26 @@ class _TableTabState extends State<TableTab> {
             builder: (context, state) {
               return Visibility(
                 visible: state.similarTables.isNotEmpty,
-                child: FloatingActionButton(
-                  heroTag: "toggleEye",
-                  child: showPastTable ? Icon(Icons.remove_red_eye) : Icon(Icons.remove_red_eye_outlined),
-                  onPressed: () {
-                    setState(() {
-                      showPastTable = !showPastTable;
-                    });
-                  },
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: FloatingActionButton(
+                    backgroundColor: Theme.of(context).backgroundColor,
+                    heroTag: "toggleEye",
+                    child: showPastTable ? Icon(Icons.remove_red_eye, color: Colors.white) : Icon(Icons.remove_red_eye_outlined, color: Colors.white),
+                    onPressed: () {
+                      setState(() {
+                        showPastTable = !showPastTable;
+                      });
+                    },
+                  ),
                 ),
               );
             },
           ),
           FloatingActionButton(
+            backgroundColor: Theme.of(context).backgroundColor,
             heroTag: "add",
-            child: Icon(Icons.add),
+            child: Icon(Icons.add, color: Colors.white),
             onPressed: () {
               widget.notePageBloc.add(AddTable());
             },

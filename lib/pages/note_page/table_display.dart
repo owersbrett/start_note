@@ -45,6 +45,8 @@ class _TableDisplayState extends State<TableDisplay> {
     titleController = TextEditingController(text: widget.noteTable.title);
   }
 
+  Color get tableBorderColor =>  Theme.of(context).backgroundColor;
+
   @override
   void dispose() {
     titleController.dispose();
@@ -223,7 +225,7 @@ class _TableDisplayState extends State<TableDisplay> {
               fit: FlexFit.loose,
               child: Container(
                 decoration: BoxDecoration(
-                  border: Border.all(color: Theme.of(context).backgroundColor, width: 2),
+                  border: Border.all(color: tableBorderColor, width: 2),
                 ),
                 child: BlocBuilder<CompareTableBloc, CompareTableState>(
                   builder: (context, state) {
@@ -234,7 +236,7 @@ class _TableDisplayState extends State<TableDisplay> {
                         tdStyle: TextStyle(color: Colors.black),
                         borderWidth: 2,
                         zebraStripe: true,
-                        borderColor: Theme.of(context).backgroundColor,
+                        borderColor: tableBorderColor,
                         tdAlignment: TextAlign.center,
                         columnRatio: 1 / (noteTable.columnCount),
                         columnCount: noteTable.columnCount,
@@ -251,7 +253,7 @@ class _TableDisplayState extends State<TableDisplay> {
                       key: ValueKey("Current"),
                       tdStyle: TextStyle(color: Colors.black),
                       borderWidth: 2,
-                      borderColor: Theme.of(context).backgroundColor,
+                      borderColor: tableBorderColor,
                       tdAlignment: TextAlign.center,
                       columnRatio: 1 / (widget.noteTable.columnCount),
                       columnCount: widget.noteTable.columnCount,
@@ -282,7 +284,7 @@ class _TableDisplayState extends State<TableDisplay> {
                     height: 100,
                   )
                 : Container(),
-            cellsHaveFocus
+            cellsHaveFocus && !widget.showPastTable
                 ? Padding(
                     padding: EdgeInsets.only(top: 16.0, bottom: widget.isLast ? 100 : 0),
                     child: Container(

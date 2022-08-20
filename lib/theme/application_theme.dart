@@ -44,8 +44,10 @@ class ApplicationTheme {
   static const mySystemTheme = SystemUiOverlayStyle.dark;
   static Color appBarColor = ApplicationTheme.appBarColor;
   static ThemeData theme = ThemeData(
+    appBarTheme: AppBarTheme(),
     scaffoldBackgroundColor: Colors.amber,
     brightness: Brightness.dark,
+    // floatingActionButtonTheme: FloatingActionButtonThemeData(backgroundColor: Color(0xFF151026))
   );
 
   static Map<String, dynamic> defaultThemeData = {

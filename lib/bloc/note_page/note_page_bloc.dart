@@ -33,14 +33,16 @@ class NotePageBloc extends Bloc<NotePageEvent, NotePageState> {
         bool shouldFetch = false;
         for (var element in loadedState.note.noteTables) {
           bool allAreEmpty = true;
-          element.rowColumnTableMap[element.rowCount]!.forEach((key, value) {
-            if (!value.isEmpty) {
-              allAreEmpty = false;
+          if (element.rowCount > 1) {
+            element.rowColumnTableMap[element.rowCount]!.forEach((key, value) {
+              if (!value.isEmpty) {
+                allAreEmpty = false;
+              }
+            });
+            if (allAreEmpty) {
+              shouldFetch = true;
+              await noteTableRepository.deleteLastRow(element);
             }
-          });
-          if (allAreEmpty) {
-            shouldFetch = true;
-            await noteTableRepository.deleteLastRow(element);
           }
         }
         if (shouldFetch) add(FetchNotePage(noteId: loadedState.note.id));
