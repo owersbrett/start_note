@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:start_note/data/entities/note_table_entity.dart';
 import 'package:start_note/data/models/note_table_cell.dart';
 import 'body.dart';
-import 'helpers.dart';
 
 class Editable extends StatefulWidget {
   Editable(

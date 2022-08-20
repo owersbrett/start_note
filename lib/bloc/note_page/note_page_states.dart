@@ -2,8 +2,6 @@ import 'package:equatable/equatable.dart';
 import 'package:start_note/data/entities/note_entity.dart';
 import 'package:start_note/data/entities/note_table_entity.dart';
 
-import '../../data/models/note_table.dart';
-
 abstract class NotePageState extends Equatable {
   const NotePageState();
   NoteEntity get initialNote;

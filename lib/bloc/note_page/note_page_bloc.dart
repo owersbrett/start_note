@@ -4,7 +4,6 @@ import 'package:start_note/data/entities/note_table_entity.dart';
 import 'package:start_note/data/models/note_table.dart';
 import 'package:start_note/data/repositories/note_repository.dart';
 import 'package:start_note/data/repositories/note_table_repository.dart';
-import '../../data/models/note.dart';
 import '../../data/models/note_table_cell.dart';
 import 'note_page.dart';
 
