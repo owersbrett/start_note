@@ -4,6 +4,7 @@ import 'package:start_note/data/entities/note_entity.dart';
 import 'package:start_note/pages/note_page.dart';
 import 'package:start_note/services/date_service.dart';
 import 'package:start_note/theme/application_theme.dart';
+import 'package:start_note/util/tooltips.dart';
 import '../bloc/notes/notes.dart';
 import '../data/models/note.dart';
 import '../navigation/navigation.dart';
@@ -67,7 +68,7 @@ class HomePage extends StatelessWidget {
                     );
                   });
             },
-            backgroundColor:ApplicationTheme.red,
+            backgroundColor: ApplicationTheme.red,
             foregroundColor: Colors.white,
             icon: Icons.delete,
             label: 'Delete',
@@ -93,7 +94,6 @@ class HomePage extends StatelessWidget {
             onTap: () {
               // createRoute
               Navigation.createRoute(NotePage(note: NoteEntity.fromNote(note)), context);
-              
             },
           ),
           Padding(
@@ -110,67 +110,73 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Start Note"),
-      ),
-      body: BlocBuilder<NotesBloc, NotesState>(
-        builder: (context, state) {
-          if (state is NotesLoaded || state is AddingNote) {
-            return Column(
-              children: [
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(color: Colors.amber.withOpacity(.9)),
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: state.notes.length,
-                      itemBuilder: (ctx, i) => _buildNotes(ctx, state.notes[i]),
-                    ),
-                  ),
-                ),
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height / 10,
-                  color: Theme.of(context).bottomAppBarColor,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text("Notes: ${state.notes.length}"),
-                        IconButton(
-                          icon: Icon(Icons.create),
-                          onPressed: () {
-                            BlocProvider.of<NotesBloc>(context).add(AddNote());
-                            Navigation.createRoute(NotePage(note: NoteEntity.fromNote(Note.create())), context);
-                          },
+    return Container(
+      color: Theme.of(context).bottomAppBarColor,
+      child: SafeArea(
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text("Start Note"),
+          ),
+          body: BlocBuilder<NotesBloc, NotesState>(
+            builder: (context, state) {
+              if (state is NotesLoaded || state is AddingNote) {
+                return Column(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(color: Colors.amber.withOpacity(.9)),
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: state.notes.length,
+                          itemBuilder: (ctx, i) => _buildNotes(ctx, state.notes[i]),
                         ),
-                      ],
+                      ),
+                    ),
+                    Container(
+                      width: MediaQuery.of(context).size.width,
+                      // height: MediaQuery.of(context).size.height / 12,
+                      color: Theme.of(context).bottomAppBarColor,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("Notes: ${state.notes.length}"),
+                            IconButton(
+                              tooltip: Tooltips.addNote,
+                              icon: Icon(Icons.create),
+                              onPressed: () {
+                                BlocProvider.of<NotesBloc>(context).add(AddNote());
+                                Navigation.createRoute(NotePage(note: NoteEntity.fromNote(Note.create())), context);
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  ],
+                );
+              }
+      
+              return InkWell(
+                child: Container(
+                  color: Colors.amberAccent,
+                  child: Center(
+                    child: Text(
+                      "UH oh! Error loading notes. Tab anywhere to fix this.",
+                      style: TextStyle(color: Colors.black),
                     ),
                   ),
-                )
-              ],
-            );
-          }
-
-          return InkWell(
-            child: Container(
-              color: Colors.amberAccent,
-              child: Center(
-                child: Text(
-                  "UH oh! Error loading notes. Tab anywhere to fix this.",
-                  style: TextStyle(color: Colors.black),
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height,
                 ),
-              ),
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-            ),
-            onTap: () {
-              BlocProvider.of<NotesBloc>(context).add(FetchNotes());
+                onTap: () {
+                  BlocProvider.of<NotesBloc>(context).add(FetchNotes());
+                },
+              );
             },
-          );
-        },
+          ),
+        ),
       ),
     );
   }

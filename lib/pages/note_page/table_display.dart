@@ -9,6 +9,7 @@ import '../../bloc/compare_table/compare_table.dart';
 import '../../bloc/note_page/note_page.dart';
 import '../../data/entities/note_entity.dart';
 import '../../data/models/note_table_cell.dart';
+import '../../util/tooltips.dart';
 
 class TableDisplay extends StatefulWidget {
   const TableDisplay(
@@ -299,6 +300,7 @@ class _TableDisplayState extends State<TableDisplay> {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           FloatingActionButton(
+                              tooltip: Tooltips.removeTableColumn,
                               heroTag: "RemoveTableColumn",
                               backgroundColor: ApplicationTheme.red,
                               onPressed: () {
@@ -317,6 +319,7 @@ class _TableDisplayState extends State<TableDisplay> {
                                 ),
                               )),
                           FloatingActionButton(
+                              tooltip: Tooltips.addTableColumn,
                               heroTag: "AddTableColumn",
                               backgroundColor: ApplicationTheme.green,
                               onPressed: () {
@@ -336,6 +339,7 @@ class _TableDisplayState extends State<TableDisplay> {
                               )),
                           FloatingActionButton(
                               heroTag: "RemoveTableRow",
+                              tooltip: Tooltips.removeTableRow,
                               backgroundColor: ApplicationTheme.red,
                               onPressed: () {
                                 setState(() {
@@ -352,6 +356,7 @@ class _TableDisplayState extends State<TableDisplay> {
                                 ),
                               )),
                           FloatingActionButton(
+                              tooltip: Tooltips.addTableRow,
                               heroTag: "AddTableRow",
                               backgroundColor: ApplicationTheme.createGreen,
                               onPressed: () {

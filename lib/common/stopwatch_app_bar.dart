@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:start_note/util/tooltips.dart';
 import '../bloc/note_page/note_page.dart';
 
 class StopwatchAppBar extends StatelessWidget implements PreferredSize {
@@ -104,29 +105,34 @@ class _StopwatchBarState extends State<StopwatchBar> {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      title: TextButton(
-        onPressed: () => _toggleStopwatch(),
-        onLongPress: () => _resetStopwatch(),
-        child: Text(
-          _stopwatchString,
-          style: const TextStyle(
-            fontSize: 22,
-            color: Colors.white,
-            fontFeatures: [
-              FontFeature.tabularFigures(),
-            ],
+      title: Tooltip(
+        message: Tooltips.stopwatch,
+        child: TextButton(
+          onPressed: () => _toggleStopwatch(),
+          onLongPress: () => _resetStopwatch(),
+          child: Text(
+            _stopwatchString,
+            style: const TextStyle(
+              fontSize: 22,
+              color: Colors.white,
+              fontFeatures: [
+                FontFeature.tabularFigures(),
+              ],
+            ),
           ),
         ),
       ),
       actions: [
         FocusScope.of(context).hasFocus
-            ? TextButton(
-                child: const Text("Done", style: TextStyle(color: Colors.white)),
-                onPressed: () {
-                  widget.notePageBloc.add(DoneTapped());
-                  FocusScope.of(context).unfocus();
-                  // widget.onDone();
-                },
+            ? Tooltip(
+                message: Tooltips.done,
+                child: TextButton(
+                  child: const Text("Done", style: TextStyle(color: Colors.white)),
+                  onPressed: () {
+                    widget.notePageBloc.add(DoneTapped());
+                    FocusScope.of(context).unfocus();
+                  },
+                ),
               )
             : Container(),
       ],

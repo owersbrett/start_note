@@ -50,7 +50,7 @@ class ApplicationTheme {
   }
 
   static const mySystemTheme = SystemUiOverlayStyle.dark;
-  static Color appBarColor = ApplicationTheme.appBarColor;
+  static Color appBarColor = const Color(0xFF212121);
   static ThemeData theme = ThemeData(
     appBarTheme: AppBarTheme(),
     scaffoldBackgroundColor: Colors.amber,

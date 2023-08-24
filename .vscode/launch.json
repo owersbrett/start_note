@@ -1,14 +1,11 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
             "name": "simulator-start_note",
             "request": "launch",
             "type": "dart",
-            "deviceId": "9452FEAB-313C-4036-B862-1DA5C29D1706"
+            // "deviceId": "9452FEAB-313C-4036-B862-1DA5C29D1706"
         },
         {
             "name": "phone-start_note",
@@ -24,6 +21,11 @@
         },
         {
             "name": "start_note (release mode)",
+            "request": "launch",
+            "type": "dart",
+        },
+        {
+            "name": "emulator screenshots",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"

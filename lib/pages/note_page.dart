@@ -4,6 +4,7 @@ import 'package:start_note/common/stopwatch_app_bar.dart';
 import 'package:start_note/data/entities/note_entity.dart';
 import 'package:start_note/data/repositories/note_table_repository.dart';
 import 'package:start_note/pages/note_page/table_tab.dart';
+import 'package:start_note/util/tooltips.dart';
 import '../bloc/app/app_bloc.dart';
 import '../bloc/app/app_events.dart';
 import '../bloc/compare_table/compare_table_bloc.dart';
@@ -11,6 +12,7 @@ import '../bloc/compare_table/compare_table_events.dart';
 import '../bloc/note_page/note_page.dart';
 import '../bloc/notes/notes.dart';
 import '../data/repositories/note_repository.dart';
+import '../theme/application_theme.dart';
 import 'note_page/note_tab.dart';
 
 class NotePage extends StatefulWidget {
@@ -79,45 +81,60 @@ class _NotePageState extends State<NotePage> with SingleTickerProviderStateMixin
           },
           bloc: notePageBloc,
           builder: (context, state) {
-            return Scaffold(
-              resizeToAvoidBottomInset: false,
-              appBar: StopwatchAppBar(
-                key: ValueKey(state.note.id),
-                notePageBloc: notePageBloc,
-              ),
-              body: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TabBar(
-                    onTap: (value) {
-                      FocusScope.of(context).unfocus();
-                      BlocProvider.of<AppBloc>(context).add(TabBarTapped(value));
-                    },
-                    labelColor: Colors.black,
-                    indicatorColor: Colors.black,
-                    labelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                    controller: _controller,
-                    tabs: [
-                      Tab(text: "Notes"),
-                      Tab(text: "Tables"),
+            return Container(
+              color: Theme.of(context).bottomAppBarColor,
+              child: SafeArea(
+                child: Scaffold(
+                  resizeToAvoidBottomInset: false,
+                  appBar: StopwatchAppBar(
+                    key: ValueKey(state.note.id),
+                    notePageBloc: notePageBloc,
+                  ),
+                  body: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TabBar(
+                        onTap: (value) {
+                          FocusScope.of(context).unfocus();
+                          BlocProvider.of<AppBloc>(context).add(TabBarTapped(value));
+                        },
+                        labelColor: Colors.black,
+                        indicatorColor: Colors.black,
+                        labelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                        controller: _controller,
+                        tabs: [
+                          Tooltip(
+                            message: Tooltips.notes,
+                            child: Tab(
+                              text: "Notes",
+                            ),
+                          ),
+                          Tooltip(
+                            message: Tooltips.tables,
+                            child: Tab(
+                              text: "Tables",
+                            ),
+                          ),
+                        ],
+                      ),
+                      Flexible(
+                        fit: FlexFit.loose,
+                        child: TabBarView(
+                          controller: _controller,
+                          children: [
+                            NoteTab(
+                              focusNode: focusNode,
+                              note: state.note,
+                              noteController: noteController,
+                              onChanged: onChanged,
+                            ),
+                            TableTab(note: state.note, notePageBloc: notePageBloc)
+                          ],
+                        ),
+                      ),
                     ],
                   ),
-                  Flexible(
-                    fit: FlexFit.loose,
-                    child: TabBarView(
-                      controller: _controller,
-                      children: [
-                        NoteTab(
-                          focusNode: focusNode,
-                          note: state.note,
-                          noteController: noteController,
-                          onChanged: onChanged,
-                        ),
-                        TableTab(note: state.note, notePageBloc: notePageBloc)
-                      ],
-                    ),
-                  ),
-                ],
+                ),
               ),
             );
           },
