@@ -1,96 +1,76 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:start_note/bloc/compare_table/compare_table.dart';
-import 'package:start_note/data/entities/note_entity.dart';
-import 'package:start_note/data/entities/note_table_entity.dart';
-import 'package:start_note/pages/note_page/table_display.dart';
-import 'package:start_note/theme/application_theme.dart';
-
-import '../../bloc/note_page/note_page_bloc.dart';
-import '../../bloc/note_page/note_page_events.dart';
+import 'package:start_note/data/models/note_audio.dart';
+import '../../data/models/note.dart';
+import '../../services/date_service.dart';
+import '../../widget/common/audio_text_widget.dart';
 
 class AudioTab extends StatefulWidget {
-  const AudioTab({Key? key, required this.note, required this.notePageBloc}) : super(key: key);
-  final NoteEntity note;
-  final NotePageBloc notePageBloc;
+  const AudioTab(
+      {Key? key,
+      required this.note,
+      required this.focusNode,
+      required this.noteController,
+      required this.onChanged})
+      : super(key: key);
+  final Note note;
+  final FocusNode focusNode;
+  final TextEditingController noteController;
+  final Function(int) onChanged;
 
   @override
   State<AudioTab> createState() => _AudioTabState();
 }
 
 class _AudioTabState extends State<AudioTab> {
-  late NoteTableEntity selectedTable;
-  late bool showPastTable;
-  @override
-  void initState() {
-    super.initState();
-    showPastTable = false;
-  }
-
-  void selectTable(NoteTableEntity noteTableEntity) {
-    setState(() {
-      selectedTable = noteTableEntity;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.only(top: 8.0, left: 16, right: 16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+    return Column(
+      children: [
+        AudioTextWidget(
+          noteAudio: NoteAudio(
+              noteId: 1,
+              filePath: "/",
+              content: "Note Audio",
+              index: 1,
+              createDate: DateTime.now(),
+              updateDate: DateTime.now()),
+        ),
+        AudioTextWidget(
+          noteAudio: NoteAudio(
+            noteId: 2,
+            filePath: "/",
+            content: "Note Audio 2",
+            index: 2,
+            createDate: DateTime.now(),
+            updateDate: DateTime.now(),
+          ),
+        ),
+        Row(
           children: [
-            Flexible(
-              fit: FlexFit.loose,
-              child: ListView.builder(
-                itemCount: widget.note.noteTables.length,
-                itemBuilder: (context, index) => TableDisplay(
-                  noteTable: widget.note.noteTables[index],
-                  notePageBloc: widget.notePageBloc,
-                  isLast: widget.note.noteTables.length - 1 == index,
-                  showPastTable: showPastTable,
-                  noteEntity: widget.note,
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8.0, left: 8),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Created on: ",
+                      style: TextStyle(fontSize: 14, color: Colors.black87),
+                    ),
+                    Text(
+                      DateService.dateTimeToWeekDay(widget.note.createDate) +
+                          ", " +
+                          DateService.dateTimeToString(widget.note.createDate),
+                      style: TextStyle(fontSize: 14, color: Colors.black87),
+                    ),
+                  ],
                 ),
               ),
             ),
           ],
         ),
-      ),
-      floatingActionButton: Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          BlocBuilder<CompareTableBloc, CompareTableState>(
-            builder: (context, state) {
-              return Visibility(
-                visible: state.similarTables.isNotEmpty,
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: FloatingActionButton(
-                    backgroundColor: ApplicationTheme.viewGreen,
-                    heroTag: "toggleEye",
-                    child: showPastTable ? Icon(Icons.remove_red_eye, color: Colors.white) : Icon(Icons.remove_red_eye_outlined, color: Colors.white),
-                    onPressed: () {
-                      setState(() {
-                        showPastTable = !showPastTable;
-                      });
-                    },
-                  ),
-                ),
-              );
-            },
-          ),
-          FloatingActionButton(
-            backgroundColor: ApplicationTheme.createGreen,
-            heroTag: "add",
-            child: Icon(Icons.add, color: Colors.white),
-            onPressed: () {
-              widget.notePageBloc.add(AddTable());
-            },
-          ),
-        ],
-      ),
+      ],
     );
   }
 }

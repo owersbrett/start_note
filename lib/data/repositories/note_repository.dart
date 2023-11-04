@@ -34,15 +34,6 @@ class NoteRepository<T extends Note> implements INoteRepository<Note> {
   Future<Note> create(Note t) async {
     int noteId = await db.insert(tableName, t.toMap());
     return t.copyWith(id: noteId);
-    // return await db.transaction<Note>((txn) async {
-    //   String content = t.content.toString();
-    //   String createDateMillisSinceEpoch = t.createDate.millisecondsSinceEpoch.toString();
-    //   String updateDateMillisSinceEpoch = t.updateDate.millisecondsSinceEpoch.toString();
-    //   int id1 = await txn.rawInsert(
-    //       'INSERT or IGNORE INTO $tableName(content, createDateMillisecondsSinceEpoch, updateDateMillisecondsSinceEpoch) VALUES("$content", $createDateMillisSinceEpoch, $updateDateMillisSinceEpoch)');
-    //   Logger.root.info('inserted1: $id1');
-    //   return t.copyWith(id: id1);
-    // });
   }
 
   @override
@@ -85,5 +76,11 @@ class NoteRepository<T extends Note> implements INoteRepository<Note> {
       print(e);
       throw Exception();
     }
+  }
+  
+  @override
+  Future<List<Note>> getAll() async {
+    List<Map> list = await db.rawQuery('SELECT * FROM $tableName');
+    return list.map((e) => Note.fromMap(Map<String, dynamic>.from(e))).toList();
   }
 }

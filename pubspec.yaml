@@ -10,6 +10,7 @@ dependencies:
   audioplayers:
   bloc:
   path_provider:
+  just_audio:
   intl:
   file_picker:
   flutter_bloc:

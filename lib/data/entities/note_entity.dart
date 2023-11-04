@@ -1,8 +1,10 @@
 import 'package:start_note/data/entities/note_table_entity.dart';
+import 'package:start_note/data/models/note_audio.dart';
 import '../models/note.dart';
 
 class NoteEntity extends Note {
   late List<NoteTableEntity> noteTables;
+  late List<NoteAudio> noteAudios;
   NoteEntity({required super.id, required super.content, required super.createDate, required super.updateDate}) {
     this.noteTables = [];
   }
