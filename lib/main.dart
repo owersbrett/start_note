@@ -15,6 +15,7 @@ import 'package:start_note/pages/home_page.dart';
 import 'package:start_note/services/logging_service.dart';
 import 'package:start_note/theme/application_theme.dart';
 import 'bloc/notes/notes.dart';
+import 'data/repositories/note_audio_repository.dart';
 import 'services/database_service.dart';
 import 'services/l10n_service.dart';
 
@@ -44,6 +45,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     INoteRepository noteRepository;
     INoteTableRepository noteTableRepository;
+    INoteAudioRepository noteAudioRepository;
 
     // if (useMocks) {
     //   // MockService mockService = MockService()..initialize();
@@ -52,10 +54,12 @@ class MyApp extends StatelessWidget {
     // }
     noteRepository = NoteRepository(db);
     noteTableRepository = NoteTableRepository(db);
+    noteAudioRepository = NoteAudioRepository(db);
 
     return AppWrapper(
       noteRepository: noteRepository,
       noteTableRepository: noteTableRepository,
+      noteAudioRepository: noteAudioRepository
     );
   }
 }
@@ -65,9 +69,11 @@ class AppWrapper extends StatelessWidget {
     Key? key,
     required this.noteRepository,
     required this.noteTableRepository,
+    required this.noteAudioRepository,
   }) : super(key: key);
   final INoteRepository noteRepository;
   final INoteTableRepository noteTableRepository;
+  final INoteAudioRepository noteAudioRepository;
 
   @override
   Widget build(BuildContext context) {
@@ -75,10 +81,12 @@ class AppWrapper extends StatelessWidget {
       providers: [
         RepositoryProvider(create: (ctx) => noteRepository),
         RepositoryProvider(create: (ctx) => noteTableRepository),
+        RepositoryProvider(create: (ctx) => noteAudioRepository),
       ],
       child: StartNote(
         noteRepository: noteRepository,
         noteTableRepository: noteTableRepository,
+        noteAudioRepository: noteAudioRepository,
       ),
     );
   }
@@ -86,9 +94,10 @@ class AppWrapper extends StatelessWidget {
 
 class StartNote extends StatefulWidget {
   const StartNote(
-      {required this.noteRepository, required this.noteTableRepository});
+      {required this.noteRepository, required this.noteTableRepository, required this.noteAudioRepository});
   final INoteRepository noteRepository;
   final INoteTableRepository noteTableRepository;
+  final INoteAudioRepository noteAudioRepository;
   @override
   StartNoteState createState() => StartNoteState();
 }

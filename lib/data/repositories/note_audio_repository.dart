@@ -12,6 +12,7 @@ abstract class INoteAudioRepository<T extends NoteAudio>
 
 class NoteAudioRepository<T extends NoteAudio>
     implements INoteAudioRepository<NoteAudio> {
+      
   Database db;
   NoteAudioRepository(this.db);
   String get tableName => NoteAudio.tableName;

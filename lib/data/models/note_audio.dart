@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'note.dart';
+
 class NoteAudio {
   static const String tableName = "NoteAudio";
   static const List<String> columnDeclarations = [
@@ -32,20 +33,35 @@ class NoteAudio {
     required this.updateDate,
   });
 
+  factory NoteAudio.fromUpload(String filePath, int noteId, String content, [int index = 0]) {
+    return NoteAudio(
+      noteId: noteId,
+      filePath: filePath,
+      content: content,
+      index: index,
+      createDate: DateTime.now(),
+      updateDate: DateTime.now(),
+    );
+  }
 
-  NoteAudio copyWith({
-    int? id,
-    int? noteId,
-    String? filePath,
-    String? content,
-    int? index,
-    DateTime? createDate,
-    DateTime? updateDate
-  }) {
+  List<NoteAudio> bufferedCut() {
+    List<NoteAudio> noteAudios = [];
+
+    return noteAudios;
+  }
+
+  NoteAudio copyWith(
+      {int? id,
+      int? noteId,
+      String? filePath,
+      String? content,
+      int? index,
+      DateTime? createDate,
+      DateTime? updateDate}) {
     return NoteAudio(
       id: id ?? this.id,
       noteId: noteId ?? this.noteId,
-      filePath: filePath ?? this.filePath, 
+      filePath: filePath ?? this.filePath,
       content: content ?? this.content,
       index: index ?? this.index,
       createDate: createDate ?? this.createDate,

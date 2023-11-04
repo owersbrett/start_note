@@ -3,9 +3,12 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:start_note/data/models/note_audio.dart';
+
+import '../../bloc/note_page/note_page.dart';
 
 class AudioTextWidget extends StatefulWidget {
   final AudioPlayer? masterAudioPlayer;
@@ -41,6 +44,9 @@ class _AudioTextWidgetState extends State<AudioTextWidget>
       Directory appDocDir = await getApplicationDocumentsDirectory();
       String appDocPath = appDocDir.path;
       final copiedFilePath = "$appDocPath/${result.files.single.name}";
+      setState(() {
+        _noteAudio = NoteAudio.fromUpload()
+      });
       return await originalFile.copySync(copiedFilePath);
     }
   }
@@ -69,7 +75,6 @@ class _AudioTextWidgetState extends State<AudioTextWidget>
         pickAndCopyAudioFile().then((file) {
           if (file != null) {
             _audioPlayer.setAudioSource(AudioSource.file(file.path));
-            _audioPlayer.play();
           }
           // Set the source of the audio player to the picked file
           // and then play
@@ -150,9 +155,13 @@ class _AudioTextWidgetState extends State<AudioTextWidget>
                 },
               ),
               IconButton(
-                icon: Icon(Icons.more_vert),
+                icon: Icon(Icons.cut),
                 onPressed: () {
-                  
+                  final noteAudio = _noteAudio;
+                  if (noteAudio != null) {
+                    BlocProvider.of<NotePageBloc>(context)
+                        .add(CutNoteAudio(_noteAudio!, _audioPlayer.position));
+                  }
                 },
               ),
             ],

@@ -1,3 +1,5 @@
+import '../../data/models/note_audio.dart';
+
 abstract class NotePageEvent {
   const NotePageEvent();
 }
@@ -5,6 +7,12 @@ abstract class NotePageEvent {
 class FetchNotePage extends NotePageEvent {
   FetchNotePage({this.noteId});
   final int? noteId;
+}
+
+class CutNoteAudio extends NotePageEvent {
+  CutNoteAudio(this.noteAudio, this.position);
+  final NoteAudio noteAudio;
+  final Duration position;
 }
 
 class AddTable extends NotePageEvent {}

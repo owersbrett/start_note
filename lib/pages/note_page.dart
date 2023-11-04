@@ -10,6 +10,7 @@ import '../bloc/compare_table/compare_table_bloc.dart';
 import '../bloc/compare_table/compare_table_events.dart';
 import '../bloc/note_page/note_page.dart';
 import '../bloc/notes/notes.dart';
+import '../data/repositories/note_audio_repository.dart';
 import '../data/repositories/note_repository.dart';
 import 'note_page/audio_tab.dart';
 import 'note_page/note_tab.dart';
@@ -35,6 +36,7 @@ class _NotePageState extends State<NotePage>
       widget.note,
       RepositoryProvider.of<INoteRepository>(context),
       RepositoryProvider.of<INoteTableRepository>(context),
+      RepositoryProvider.of<INoteAudioRepository>(context),
     )..add(FetchNotePage());
     noteController = TextEditingController(text: widget.note.content);
     focusNode = FocusNode();
