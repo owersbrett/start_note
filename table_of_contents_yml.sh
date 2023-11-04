@@ -13,22 +13,24 @@ scan_dir() {
             subdirs+=("$file")
         elif [ -f "$file" ]; then
             # If it's a file, add to the table of contents with appropriate indentation
-            echo "${indent}- [$(basename "$file")]($file)" >> _tableofcontents.md
+            echo "${indent}- file: $(basename "$file")" >> _tableofcontents.yaml
+            echo "${indent}  path: $file" >> _tableofcontents.yaml
         fi
     done
 
     # Recursively scan subdirectories
     for subdir in "${subdirs[@]}"; do
         # Print the directory name with indentation
-        echo "${indent}- $(basename "$subdir")/" >> _tableofcontents.md
+        echo "${indent}- directory: $(basename "$subdir")" >> _tableofcontents.yaml
+        echo "${indent}  contents:" >> _tableofcontents.yaml
         # Scan the subdirectory with increased indentation
-        scan_dir "$subdir" "$indent  "
+        scan_dir "$subdir" "$indent    "
     done
 }
 
-# Start with the ./lib directory and no indentation
-echo "# Table of Contents" > _tableofcontents.md
-scan_dir "./lib" ""
+# Start with the $1 directory and no indentation
+echo "table_of_contents:" > _tableofcontents.yaml
+scan_dir "./$1" "  "
 
 # Output the result
-echo "Table of contents generated in _tableofcontents.md"
+echo "Table of contents generated in _tableofcontents.yaml"

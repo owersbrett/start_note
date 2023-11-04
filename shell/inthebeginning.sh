@@ -4,14 +4,14 @@
 # ./shell/inthebeginning.sh "I want to make a todo list from a table of contents."
 
 sh table_of_contents.sh lib
-CURRENT_TABLE_OF_CONTENTS=$(cat _tableofcontents.md | jq -sR @json)
+CURRENT_TABLE_OF_CONTENTS=$(cat _tableofcontents.md)
 # OpenAI API URL
 API_URL="https://api.openai.com/v1/chat/completions"
 
 # The prompt for GPT-4
 SYSTEM_CONTENT=$(cat shell/_system_content.md | jq -sR @json)
 EXAMPLE_PROMPT=$(cat shell/_example_prompt.md | jq -sR @json)
-EXAMPLE_RESPONSE=$(cat shell/_example_response.md | jq -sR @json)
+EXAMPLE_RESPONSE=$(cat shell/_example_response.md | awk '{printf "%s\\n", $0}' ORS='' | jq -sR @json)
 PROMPT=$CURRENT_TABLE_OF_CONTENTS
 # PROMPT=$1
 echo $SYSTEM_CONTENT
@@ -24,8 +24,8 @@ JSON_PAYLOAD=$(jq -n \
                   --arg example_prompt "$EXAMPLE_PROMPT" \
                   --arg example_response "$EXAMPLE_RESPONSE" \
                   --arg prompt "$PROMPT" \
-                  --arg temperature "0.7" \
-                  --arg max_tokens "1000" \
+                  --arg temperature "0.5" \
+                  --arg max_tokens "777" \
                 '{
                     "model": "gpt-3.5-turbo",
                     "messages": [
@@ -53,7 +53,11 @@ JSON_PAYLOAD=$(jq -n \
 echo ""
 echo ""
 echo "----------------------------------------------------------------------------------"
+echo ""
+echo ""
 echo $JSON_PAYLOAD
+echo ""
+echo ""
 echo "----------------------------------------------------------------------------------"
 echo ""
 echo ""
@@ -65,12 +69,18 @@ RESPONSE=$(curl -s -X POST "$API_URL" \
 
 ECHO $RESPONSE
 
+echo "$RESPONSE" > todos-response.json
+valid_json=$(echo $RESPONSE | jq '.choices[0].message.content')
+
 # Extract the text from the response
-TODO_LIST=$(echo $RESPONSE | jq -r '.choices[0].message.content')
+# TODO_LIST=$(echo $RESPONSE  | jq -r '.choices[0].message.content')
 
 # Save the response to a file
-echo "$TODO_LIST" > todos.md
+valid_json="${valid_json#\\\"}"
+valid_json="${valid_json%\\\"}"
+echo "$valid_json" > todos.md
+
 
 # Output the result
-echo "To-dos have been saved to todos.md"
+echo "To-dos have been saved to todos.json"
 

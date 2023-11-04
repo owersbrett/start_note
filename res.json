@@ -1,0 +1,21 @@
+{
+    "id": "chatcmpl-8HGxWvRXE1Nw5VR5xSwoY7s1zuq4e",
+    "object": "chat.completion",
+    "created": 1699127458,
+    "model": "gpt-3.5-turbo-0613",
+    "choices": [
+        {
+            "index": 0,
+            "message": {
+                "role": "assistant",
+                "content": "\"\\\"\\\\\\\"Great! Here is your generated TODO list in markdown format with checkboxes.\\\\\\\\n\\\\\\\\n# Table of Contents\\\\\\\\n- [ ] [main.dart](./lib/main.dart)\\\\\\\\n- [ ] bloc/\\\\\\\\n - [ ] [events.dart](./lib/bloc/events.dart)\\\\\\\\n - [ ] [states.dart](./lib/bloc/states.dart)\\\\\\\\n - app/\\\\\\\\n - [ ] [app.dart](./lib/bloc/app/app.dart)\\\\\\\\n - [ ] [app_bloc.dart](./lib/bloc/app/app_bloc.dart)\\\\\\\\n - [ ] [app_events.dart](./lib/bloc/app/app_events.dart)\\\\\\\\n - [ ] [app_states.dart](./lib/bloc/app/app_states.dart)\\\\\\\\n - audio_player/\\\\\\\\n - auth/\\\\\\\\n - compare_table/\\\\\\\\n - [ ] [compare_table.dart](./lib/bloc/compare_table/compare_table.dart)\\\\\\\\n - [ ] [compare_table_bloc.dart](./lib/bloc/compare_table/compare_table_bloc.dart)\\\\\\\\n - [ ] [compare_table_events.dart](./lib/bloc/compare_table/compare_table_events.dart)\\\\\\\\n - [ ] [compare_table_states.dart](./lib/bloc/compare_table/compare_table_states.dart)\\\\\\\\n - note_page/\\\\\\\\n - [ ] [note_page.dart](./lib/bloc/note_page/note_page.dart)\\\\\\\\n - [ ] [note_page_bloc.dart](./lib/bloc/note_page/note_page_bloc.dart)\\\\\\\\n - [ ] [note_page_events.dart](./lib/bloc/note_page/note_page_events.dart)\\\\\\\\n - [ ] [note_page_states.dart](./lib/bloc/note_page/note_page_states.dart)\\\\\\\\n - notes/\\\\\\\\n - [ ] [notes.dart](./lib/bloc/notes/notes.dart)\\\\\\\\n - [ ] [notes_bloc.dart](./lib/bloc/notes/notes_bloc.dart)\\\\\\\\n - [ ] [notes_events.dart](./lib/bloc/notes/notes_events.dart)\\\\\\\\n - [ ] [notes_states.dart](./lib/bloc/notes/notes_states.dart)\\\\\\\\n - user/\\\\\\\\n- common/\\\\\\\\n - [ ] [body.dart](./lib/common/body.dart)\\\\\\\\n - [ ] [helpers.dart](./lib/common/helpers.dart)\\\\\\\\n - [ ] [note_table_display.dart](./lib/common/note_table_display.dart)\\\\\\\\n - [ ] [search_bar.dart](./lib/common/search_bar.dart)\\\\\\\\n - [ ] [stopwatch_app_bar.dart](./lib/common/stopwatch_app_bar.dart)\\\\\\\\n- data/\\\\\\\\n - entities/\\\\\\\\n - [ ] [note_entity.dart](./lib/data/entities/note_entity.dart)\\\\\\\\n - [ ] [note_table_entity.dart](./lib/data/entities/note_table_entity.dart)\\\\\\\\n - models/\\\\\\\\n - [ ] [note.dart](./lib/data/models/note.dart)\\\\\\\\n - [ ] [note_audio.dart](./lib/data/models/note_audio.dart)\\\\\\\\n - [ ] [note_table.dart](./lib/data/models/note_table.dart)\\\\\\\\n - [ ] [note_table_cell.dart](./lib/data/models/note_table_cell.dart)\\\\\\\\n - repositories/\\\\\\\\n - [ ] [_database.dart](./lib/data/repositories/_database.dart)\\\\\\\\n - [ ] [_repository.dart](./lib/data/repositories/_repository.dart)\\\\\\\\n - [ ] [note_audio_repository.dart](./lib/data/repositories/note_audio_repository.dart)\\\\\\\\n - [ ] [note_repository.dart](./lib/data/repositories/note_repository.dart)\\\\\\\\n - [ ] [note_table_repository.dart](./lib/data/repositories/note_table_repository.dart)\\\\\\\\n - [ ] [repository.dart](./lib/data/repositories/repository.dart)\\\\\\\\n - mock/\\\\\\\\n- error/\\\\\\\\n- global/\\\\\\\\n- l10n/\\\\\\\\n- navigation/\\\\\\\\n - [ ] [navigation.dart](./lib/navigation/navigation.dart)\\\\\\\\n- pages/\\\\\\\\n - [ ] [home_page.dart](./lib/pages/home_page.dart)\\\\\\\\n - [ ] [note_page.dart](./lib/pages/note_page.dart)\\\\\\\\n - note_page/\\\\\\\\n - [ ] [audio_tab.dart](./lib/pages/note_page/audio_tab.dart)\\\\\\\\n - [ ] [cell_display.dart](./lib/pages/note_page/cell_display.dart)\\\\\\\\n - [ ] [note_tab.dart"
+            },
+            "finish_reason": "length"
+        }
+    ],
+    "usage": {
+        "prompt_tokens": 2530,
+        "completion_tokens": 1000,
+        "total_tokens": 3530
+    }
+}
