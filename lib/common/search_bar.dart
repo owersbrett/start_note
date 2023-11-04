@@ -21,7 +21,7 @@ class Searchbar extends StatelessWidget {
         child: TextField(
           textAlignVertical: TextAlignVertical.center,
           decoration: InputDecoration(
-            prefixIcon: Icon(Icons.search, color: Theme.of(context).backgroundColor,),
+            prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.background,),
             border: InputBorder.none,
           ),
           keyboardType: TextInputType.name,
@@ -30,7 +30,7 @@ class Searchbar extends StatelessWidget {
           },
           onSubmitted: (value) => onDone,
           onTap: () => onTap != null ? onTap!() : null,
-          style: TextStyle(color: Theme.of(context).backgroundColor),
+          style: TextStyle(color: Theme.of(context).colorScheme.background),
           controller: searchController,
         ),
       ),

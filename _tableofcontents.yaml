@@ -1,0 +1,169 @@
+table_of_contents:
+  - file: main.dart
+    path: ./lib/main.dart
+  - directory: bloc
+    contents:
+      - file: events.dart
+        path: ./lib/bloc/events.dart
+      - file: states.dart
+        path: ./lib/bloc/states.dart
+      - directory: app
+        contents:
+          - file: app.dart
+            path: ./lib/bloc/app/app.dart
+          - file: app_bloc.dart
+            path: ./lib/bloc/app/app_bloc.dart
+          - file: app_events.dart
+            path: ./lib/bloc/app/app_events.dart
+          - file: app_states.dart
+            path: ./lib/bloc/app/app_states.dart
+      - directory: audio_player
+        contents:
+      - directory: auth
+        contents:
+      - directory: compare_table
+        contents:
+          - file: compare_table.dart
+            path: ./lib/bloc/compare_table/compare_table.dart
+          - file: compare_table_bloc.dart
+            path: ./lib/bloc/compare_table/compare_table_bloc.dart
+          - file: compare_table_events.dart
+            path: ./lib/bloc/compare_table/compare_table_events.dart
+          - file: compare_table_states.dart
+            path: ./lib/bloc/compare_table/compare_table_states.dart
+      - directory: note_page
+        contents:
+          - file: note_page.dart
+            path: ./lib/bloc/note_page/note_page.dart
+          - file: note_page_bloc.dart
+            path: ./lib/bloc/note_page/note_page_bloc.dart
+          - file: note_page_events.dart
+            path: ./lib/bloc/note_page/note_page_events.dart
+          - file: note_page_states.dart
+            path: ./lib/bloc/note_page/note_page_states.dart
+      - directory: notes
+        contents:
+          - file: notes.dart
+            path: ./lib/bloc/notes/notes.dart
+          - file: notes_bloc.dart
+            path: ./lib/bloc/notes/notes_bloc.dart
+          - file: notes_events.dart
+            path: ./lib/bloc/notes/notes_events.dart
+          - file: notes_states.dart
+            path: ./lib/bloc/notes/notes_states.dart
+      - directory: user
+        contents:
+  - directory: common
+    contents:
+      - file: body.dart
+        path: ./lib/common/body.dart
+      - file: helpers.dart
+        path: ./lib/common/helpers.dart
+      - file: note_table_display.dart
+        path: ./lib/common/note_table_display.dart
+      - file: search_bar.dart
+        path: ./lib/common/search_bar.dart
+      - file: stopwatch_app_bar.dart
+        path: ./lib/common/stopwatch_app_bar.dart
+  - directory: data
+    contents:
+      - directory: entities
+        contents:
+          - file: note_entity.dart
+            path: ./lib/data/entities/note_entity.dart
+          - file: note_table_entity.dart
+            path: ./lib/data/entities/note_table_entity.dart
+      - directory: models
+        contents:
+          - file: note.dart
+            path: ./lib/data/models/note.dart
+          - file: note_audio.dart
+            path: ./lib/data/models/note_audio.dart
+          - file: note_table.dart
+            path: ./lib/data/models/note_table.dart
+          - file: note_table_cell.dart
+            path: ./lib/data/models/note_table_cell.dart
+      - directory: repositories
+        contents:
+          - file: _database.dart
+            path: ./lib/data/repositories/_database.dart
+          - file: _repository.dart
+            path: ./lib/data/repositories/_repository.dart
+          - file: note_audio_repository.dart
+            path: ./lib/data/repositories/note_audio_repository.dart
+          - file: note_repository.dart
+            path: ./lib/data/repositories/note_repository.dart
+          - file: note_table_repository.dart
+            path: ./lib/data/repositories/note_table_repository.dart
+          - file: repository.dart
+            path: ./lib/data/repositories/repository.dart
+          - directory: mock
+            contents:
+  - directory: error
+    contents:
+  - directory: global
+    contents:
+  - directory: l10n
+    contents:
+  - directory: navigation
+    contents:
+      - file: navigation.dart
+        path: ./lib/navigation/navigation.dart
+  - directory: pages
+    contents:
+      - file: home_page.dart
+        path: ./lib/pages/home_page.dart
+      - file: note_page.dart
+        path: ./lib/pages/note_page.dart
+      - directory: note_page
+        contents:
+          - file: audio_tab.dart
+            path: ./lib/pages/note_page/audio_tab.dart
+          - file: cell_display.dart
+            path: ./lib/pages/note_page/cell_display.dart
+          - file: note_tab.dart
+            path: ./lib/pages/note_page/note_tab.dart
+          - file: table_display.dart
+            path: ./lib/pages/note_page/table_display.dart
+          - file: table_tab.dart
+            path: ./lib/pages/note_page/table_tab.dart
+          - file: timer_display.dart
+            path: ./lib/pages/note_page/timer_display.dart
+  - directory: remote_config
+    contents:
+  - directory: service
+    contents:
+      - directory: mock
+        contents:
+  - directory: services
+    contents:
+      - file: bloc_service.dart
+        path: ./lib/services/bloc_service.dart
+      - file: database_service.dart
+        path: ./lib/services/database_service.dart
+      - file: date_service.dart
+        path: ./lib/services/date_service.dart
+      - file: l10n_service.dart
+        path: ./lib/services/l10n_service.dart
+      - file: logging_service.dart
+        path: ./lib/services/logging_service.dart
+  - directory: theme
+    contents:
+      - file: application_theme.dart
+        path: ./lib/theme/application_theme.dart
+      - file: config_keys.dart
+        path: ./lib/theme/config_keys.dart
+  - directory: util
+    contents:
+      - file: display.dart
+        path: ./lib/util/display.dart
+      - file: table_utility.dart
+        path: ./lib/util/table_utility.dart
+  - directory: widget
+    contents:
+      - directory: common
+        contents:
+          - file: audio_text_widget.dart
+            path: ./lib/widget/common/audio_text_widget.dart
+          - file: audio_widget.dart
+            path: ./lib/widget/common/audio_widget.dart

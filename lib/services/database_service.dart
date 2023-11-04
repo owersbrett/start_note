@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:sqflite/sqflite.dart';
+import 'package:start_note/data/models/note_audio.dart';
 
 import '../data/models/note.dart';
 import '../data/models/note_table.dart';
@@ -43,11 +44,13 @@ class DatabaseService {
     await createTables(db);
   }
 
-  static FutureOr<void> onUpgrade(Database db, int oldVersion, int newVersion) async {
+  static FutureOr<void> onUpgrade(
+      Database db, int oldVersion, int newVersion) async {
     // await createTables(db);
   }
 
-  static FutureOr<void> onDowngrade(Database db, int oldVersion, int newVersion) async {
+  static FutureOr<void> onDowngrade(
+      Database db, int oldVersion, int newVersion) async {
     // await dropTables(db);
     // await createTables(db);
   }
@@ -55,7 +58,8 @@ class DatabaseService {
   static FutureOr<void> dropTables(Database db) async {
     String dropNoteTableSql = getDropTableString(Note.tableName);
     String dropNoteTableTableSql = getDropTableString(NoteTable.tableName);
-    String dropNoteTableCellTableSql = getDropTableString(NoteTableCell.tableName);
+    String dropNoteTableCellTableSql =
+        getDropTableString(NoteTableCell.tableName);
 
     sqlTry(db, dropNoteTableCellTableSql);
     sqlTry(db, dropNoteTableTableSql);
@@ -63,14 +67,19 @@ class DatabaseService {
   }
 
   static FutureOr<void> createTables(Database db) async {
-    String createNoteTableSql = getCreateTableString(Note.columnDeclarations, Note.tableName);
-    String createNoteTableTableSql = getCreateTableString(NoteTable.columnDeclarations, NoteTable.tableName);
-    String createNoteTableCellTableSql =
-        getCreateTableString(NoteTableCell.columnDeclarations, NoteTableCell.tableName);
+    String createNoteTableSql =
+        getCreateTableString(Note.columnDeclarations, Note.tableName);
+    String createNoteTableTableSql =
+        getCreateTableString(NoteTable.columnDeclarations, NoteTable.tableName);
+    String createNoteTableCellTableSql = getCreateTableString(
+        NoteTableCell.columnDeclarations, NoteTableCell.tableName);
+    String createNoteAudioSql =
+        getCreateTableString(NoteAudio.columnDeclarations, NoteAudio.tableName);
 
     sqlTry(db, createNoteTableSql);
     sqlTry(db, createNoteTableTableSql);
     sqlTry(db, createNoteTableCellTableSql);
+    sqlTry(db, createNoteAudioSql);
   }
 
   static FutureOr<void> sqlTry(Database db, String sql) async {
@@ -81,9 +90,11 @@ class DatabaseService {
     }
   }
 
-  static String getDropTableString(String tableName) => "DROP TABLE $tableName;";
+  static String getDropTableString(String tableName) =>
+      "DROP TABLE $tableName;";
 
-  static String getCreateTableString(List<String> schemaList, String tableName) {
+  static String getCreateTableString(
+      List<String> schemaList, String tableName) {
     String schemaString = "";
     schemaList.forEach((element) {
       schemaString += element + ", ";

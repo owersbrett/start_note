@@ -199,5 +199,11 @@ class NoteTableRepository<T extends NoteTable> implements INoteTableRepository<N
       return entities..sort(((a, b) => b.createDate.compareTo(a.createDate)));
     });
   }
+  
+  @override
+  Future<List<NoteTable>> getAll() {
+    // TODO: implement getAll
+    throw UnimplementedError();
+  }
 }
   // 'CREATE TABLE $tableName (id INTEGER PRIMARY KEY, noteId INTEGER FOREIGN KEY, rowCount INTEGER, columnCount INTEGER, title TEXT, createDateMillisSinceEpoch INTEGER, updateDateMillisSinceEpoch INTEGER)';

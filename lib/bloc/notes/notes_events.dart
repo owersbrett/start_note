@@ -11,6 +11,10 @@ class DeleteNote extends NotesEvent {
   final int noteId;
 }
 
+class AddNoteAudio extends NotesEvent {
+  
+}
+
 class UpdateNote extends NotesEvent {
   UpdateNote(this.text, this.noteId);
   final String text;

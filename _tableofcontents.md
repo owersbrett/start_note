@@ -1,0 +1,85 @@
+# Table of Contents
+- [main.dart](./lib/main.dart)
+- bloc/
+  - [events.dart](./lib/bloc/events.dart)
+  - [states.dart](./lib/bloc/states.dart)
+  - app/
+    - [app.dart](./lib/bloc/app/app.dart)
+    - [app_bloc.dart](./lib/bloc/app/app_bloc.dart)
+    - [app_events.dart](./lib/bloc/app/app_events.dart)
+    - [app_states.dart](./lib/bloc/app/app_states.dart)
+  - audio_player/
+  - auth/
+  - compare_table/
+    - [compare_table.dart](./lib/bloc/compare_table/compare_table.dart)
+    - [compare_table_bloc.dart](./lib/bloc/compare_table/compare_table_bloc.dart)
+    - [compare_table_events.dart](./lib/bloc/compare_table/compare_table_events.dart)
+    - [compare_table_states.dart](./lib/bloc/compare_table/compare_table_states.dart)
+  - note_page/
+    - [note_page.dart](./lib/bloc/note_page/note_page.dart)
+    - [note_page_bloc.dart](./lib/bloc/note_page/note_page_bloc.dart)
+    - [note_page_events.dart](./lib/bloc/note_page/note_page_events.dart)
+    - [note_page_states.dart](./lib/bloc/note_page/note_page_states.dart)
+  - notes/
+    - [notes.dart](./lib/bloc/notes/notes.dart)
+    - [notes_bloc.dart](./lib/bloc/notes/notes_bloc.dart)
+    - [notes_events.dart](./lib/bloc/notes/notes_events.dart)
+    - [notes_states.dart](./lib/bloc/notes/notes_states.dart)
+  - user/
+- common/
+  - [body.dart](./lib/common/body.dart)
+  - [helpers.dart](./lib/common/helpers.dart)
+  - [note_table_display.dart](./lib/common/note_table_display.dart)
+  - [search_bar.dart](./lib/common/search_bar.dart)
+  - [stopwatch_app_bar.dart](./lib/common/stopwatch_app_bar.dart)
+- data/
+  - entities/
+    - [note_entity.dart](./lib/data/entities/note_entity.dart)
+    - [note_table_entity.dart](./lib/data/entities/note_table_entity.dart)
+  - models/
+    - [note.dart](./lib/data/models/note.dart)
+    - [note_audio.dart](./lib/data/models/note_audio.dart)
+    - [note_table.dart](./lib/data/models/note_table.dart)
+    - [note_table_cell.dart](./lib/data/models/note_table_cell.dart)
+  - repositories/
+    - [_database.dart](./lib/data/repositories/_database.dart)
+    - [_repository.dart](./lib/data/repositories/_repository.dart)
+    - [note_audio_repository.dart](./lib/data/repositories/note_audio_repository.dart)
+    - [note_repository.dart](./lib/data/repositories/note_repository.dart)
+    - [note_table_repository.dart](./lib/data/repositories/note_table_repository.dart)
+    - [repository.dart](./lib/data/repositories/repository.dart)
+    - mock/
+- error/
+- global/
+- l10n/
+- navigation/
+  - [navigation.dart](./lib/navigation/navigation.dart)
+- pages/
+  - [home_page.dart](./lib/pages/home_page.dart)
+  - [note_page.dart](./lib/pages/note_page.dart)
+  - note_page/
+    - [audio_tab.dart](./lib/pages/note_page/audio_tab.dart)
+    - [cell_display.dart](./lib/pages/note_page/cell_display.dart)
+    - [note_tab.dart](./lib/pages/note_page/note_tab.dart)
+    - [table_display.dart](./lib/pages/note_page/table_display.dart)
+    - [table_tab.dart](./lib/pages/note_page/table_tab.dart)
+    - [timer_display.dart](./lib/pages/note_page/timer_display.dart)
+- remote_config/
+- service/
+  - mock/
+- services/
+  - [bloc_service.dart](./lib/services/bloc_service.dart)
+  - [database_service.dart](./lib/services/database_service.dart)
+  - [date_service.dart](./lib/services/date_service.dart)
+  - [l10n_service.dart](./lib/services/l10n_service.dart)
+  - [logging_service.dart](./lib/services/logging_service.dart)
+- theme/
+  - [application_theme.dart](./lib/theme/application_theme.dart)
+  - [config_keys.dart](./lib/theme/config_keys.dart)
+- util/
+  - [display.dart](./lib/util/display.dart)
+  - [table_utility.dart](./lib/util/table_utility.dart)
+- widget/
+  - common/
+    - [audio_text_widget.dart](./lib/widget/common/audio_text_widget.dart)
+    - [audio_widget.dart](./lib/widget/common/audio_widget.dart)
