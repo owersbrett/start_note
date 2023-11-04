@@ -9,10 +9,9 @@ import 'package:start_note/data/models/note_audio.dart';
 
 class AudioTextWidget extends StatefulWidget {
   final AudioPlayer? masterAudioPlayer;
-  final NoteAudio noteAudio;
+  final NoteAudio? noteAudio;
 
-  const AudioTextWidget(
-      {Key? key, this.masterAudioPlayer, required this.noteAudio})
+  const AudioTextWidget({Key? key, this.masterAudioPlayer, this.noteAudio})
       : super(key: key);
 
   @override
@@ -27,7 +26,7 @@ class _AudioTextWidgetState extends State<AudioTextWidget>
   bool _isLooping = false;
   bool _isReplay = false;
   bool _isUserDragging = false;
-  late NoteAudio _noteAudio = widget.noteAudio;
+  late NoteAudio? _noteAudio = widget.noteAudio;
 
   late AnimationController _controller;
 
@@ -91,7 +90,36 @@ class _AudioTextWidgetState extends State<AudioTextWidget>
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(widget.noteAudio.content),
+          Text(widget.noteAudio?.content ?? "Upload Audio"),
+          Padding(
+            padding: const EdgeInsets.only(top: 12.0, left: 16, right: 16),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: Colors.grey[200],
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  strutStyle: StrutStyle(
+                    fontSize: 16.0,
+                    height: 1.5, // Line spacing is 1.5 times the font size
+                  ),
+                  textCapitalization: TextCapitalization.sentences,
+                  controller: _noteController,
+                  decoration: null,
+                  keyboardType: TextInputType.multiline,
+                  style: TextStyle(color: Colors.black, fontSize: 14),
+                  onChanged: (value) {
+                    print(value);
+                    // onChanged(note.id!);
+                  },
+                  minLines: 4,
+                  maxLines: 16,
+                ),
+              ),
+            ),
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -124,7 +152,7 @@ class _AudioTextWidgetState extends State<AudioTextWidget>
               IconButton(
                 icon: Icon(Icons.more_vert),
                 onPressed: () {
-                  // Logic for options button
+                  
                 },
               ),
             ],
@@ -158,24 +186,6 @@ class _AudioTextWidgetState extends State<AudioTextWidget>
                 },
               );
             },
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 12.0, left: 16, right: 16),
-            child: Container(
-              height: 50,
-              child: TextField(
-                textCapitalization: TextCapitalization.sentences,
-                controller: _noteController,
-                decoration: null,
-            
-                style: TextStyle(color: Colors.black),
-                onChanged: (value) {
-                  print(value);
-                  // onChanged(note.id!);
-                },
-                maxLines: 99999,
-              ),
-            ),
           ),
         ],
       ),

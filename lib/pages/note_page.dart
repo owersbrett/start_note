@@ -126,7 +126,7 @@ class _NotePageState extends State<NotePage>
                         ),
                         TableTab(note: state.note, notePageBloc: notePageBloc),
                         AudioTab(     focusNode: focusNode,
-                          note: state.note,
+                          noteEntity: state.note,
                           noteController: noteController,
                           onChanged: onChanged,)
                       ],

@@ -3,11 +3,16 @@ import 'package:start_note/data/models/note_audio.dart';
 import '../models/note.dart';
 
 class NoteEntity extends Note {
-  late List<NoteTableEntity> noteTables;
-  late List<NoteAudio> noteAudios;
-  NoteEntity({required super.id, required super.content, required super.createDate, required super.updateDate}) {
-    this.noteTables = [];
-  }
+  List<NoteTableEntity> noteTables;
+  List<NoteAudio> noteAudios;
+  NoteEntity({
+    required super.id,
+    required super.content,
+    required super.createDate,
+    required super.updateDate,
+    this.noteTables = const [],
+    this.noteAudios = const [],
+  });
 
   static NoteEntity create() {
     return NoteEntity.fromNote(Note.create());
@@ -26,11 +31,13 @@ class NoteEntity extends Note {
   NoteEntity copyEntityWith({
     Note? note,
     List<NoteTableEntity>? noteTables,
+    List<NoteAudio>? noteAudios,
   }) {
     NoteEntity entity = NoteEntity.fromNote(
       note?.copyWith() ?? this,
     );
     entity.noteTables = noteTables ?? this.noteTables;
+    entity.noteAudios = noteAudios ?? this.noteAudios;
     return entity;
   }
 }

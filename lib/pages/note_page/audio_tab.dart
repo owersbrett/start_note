@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:start_note/data/entities/note_entity.dart';
 import 'package:start_note/data/models/note_audio.dart';
-import '../../data/models/note.dart';
 import '../../services/date_service.dart';
 import '../../widget/common/audio_text_widget.dart';
 
 class AudioTab extends StatefulWidget {
   const AudioTab(
       {Key? key,
-      required this.note,
+      required this.noteEntity,
       required this.focusNode,
       required this.noteController,
       required this.onChanged})
       : super(key: key);
-  final Note note;
+  final NoteEntity noteEntity;
   final FocusNode focusNode;
   final TextEditingController noteController;
   final Function(int) onChanged;
@@ -22,29 +22,17 @@ class AudioTab extends StatefulWidget {
 }
 
 class _AudioTabState extends State<AudioTab> {
+  List<NoteAudio> get noteAudios => widget.noteEntity.noteAudios;
+  List<AudioTextWidget> get _audioTextWidgets =>
+      noteAudios.map((e) => AudioTextWidget(noteAudio: e)).toList();
+  List<AudioTextWidget> get audioTextWidgets =>
+      _audioTextWidgets.isEmpty ? [AudioTextWidget()] : _audioTextWidgets;
+
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return ListView(
       children: [
-        AudioTextWidget(
-          noteAudio: NoteAudio(
-              noteId: 1,
-              filePath: "/",
-              content: "Note Audio",
-              index: 1,
-              createDate: DateTime.now(),
-              updateDate: DateTime.now()),
-        ),
-        AudioTextWidget(
-          noteAudio: NoteAudio(
-            noteId: 2,
-            filePath: "/",
-            content: "Note Audio 2",
-            index: 2,
-            createDate: DateTime.now(),
-            updateDate: DateTime.now(),
-          ),
-        ),
+        ...audioTextWidgets,
         Row(
           children: [
             Padding(
@@ -59,9 +47,11 @@ class _AudioTabState extends State<AudioTab> {
                       style: TextStyle(fontSize: 14, color: Colors.black87),
                     ),
                     Text(
-                      DateService.dateTimeToWeekDay(widget.note.createDate) +
+                      DateService.dateTimeToWeekDay(
+                              widget.noteEntity.createDate) +
                           ", " +
-                          DateService.dateTimeToString(widget.note.createDate),
+                          DateService.dateTimeToString(
+                              widget.noteEntity.createDate),
                       style: TextStyle(fontSize: 14, color: Colors.black87),
                     ),
                   ],
