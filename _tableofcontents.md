@@ -4,8 +4,27 @@
   - [events.dart](./lib/bloc/events.dart)
   - [states.dart](./lib/bloc/states.dart)
   - app/
+    - [app.dart](./lib/bloc/app/app.dart)
+    - [app_bloc.dart](./lib/bloc/app/app_bloc.dart)
+    - [app_events.dart](./lib/bloc/app/app_events.dart)
+    - [app_states.dart](./lib/bloc/app/app_states.dart)
+  - audio_player/
+  - auth/
+  - compare_table/
+    - [compare_table.dart](./lib/bloc/compare_table/compare_table.dart)
+    - [compare_table_bloc.dart](./lib/bloc/compare_table/compare_table_bloc.dart)
+    - [compare_table_events.dart](./lib/bloc/compare_table/compare_table_events.dart)
+    - [compare_table_states.dart](./lib/bloc/compare_table/compare_table_states.dart)
   - note_page/
+    - [note_page.dart](./lib/bloc/note_page/note_page.dart)
+    - [note_page_bloc.dart](./lib/bloc/note_page/note_page_bloc.dart)
+    - [note_page_events.dart](./lib/bloc/note_page/note_page_events.dart)
+    - [note_page_states.dart](./lib/bloc/note_page/note_page_states.dart)
   - notes/
+    - [notes.dart](./lib/bloc/notes/notes.dart)
+    - [notes_bloc.dart](./lib/bloc/notes/notes_bloc.dart)
+    - [notes_events.dart](./lib/bloc/notes/notes_events.dart)
+    - [notes_states.dart](./lib/bloc/notes/notes_states.dart)
   - user/
 - common/
   - [body.dart](./lib/common/body.dart)
@@ -30,6 +49,9 @@
     - [note_table_repository.dart](./lib/data/repositories/note_table_repository.dart)
     - [repository.dart](./lib/data/repositories/repository.dart)
     - mock/
+- error/
+- global/
+- l10n/
 - navigation/
   - [navigation.dart](./lib/navigation/navigation.dart)
 - pages/
@@ -46,6 +68,18 @@
 - service/
   - mock/
 - services/
+  - [bloc_service.dart](./lib/services/bloc_service.dart)
+  - [database_service.dart](./lib/services/database_service.dart)
+  - [date_service.dart](./lib/services/date_service.dart)
+  - [l10n_service.dart](./lib/services/l10n_service.dart)
+  - [logging_service.dart](./lib/services/logging_service.dart)
 - theme/
+  - [application_theme.dart](./lib/theme/application_theme.dart)
+  - [config_keys.dart](./lib/theme/config_keys.dart)
 - util/
+  - [display.dart](./lib/util/display.dart)
+  - [table_utility.dart](./lib/util/table_utility.dart)
 - widget/
+  - common/
+    - [audio_text_widget.dart](./lib/widget/common/audio_text_widget.dart)
+    - [audio_widget.dart](./lib/widget/common/audio_widget.dart)

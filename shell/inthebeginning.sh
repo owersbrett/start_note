@@ -4,14 +4,14 @@
 # ./shell/inthebeginning.sh "I want to make a todo list from a table of contents."
 
 sh table_of_contents.sh lib
-CURRENT_TABLE_OF_CONTENTS=$(cat _tableofcontents.md)
+CURRENT_TABLE_OF_CONTENTS=$(cat _tableofcontents.md | jq -sR @json)
 # OpenAI API URL
 API_URL="https://api.openai.com/v1/chat/completions"
 
 # The prompt for GPT-4
-SYSTEM_CONTENT=$(cat shell/_system_content.md)
-EXAMPLE_PROMPT=$(cat shell/_example_prompt.md)
-EXAMPLE_RESPONSE=$(cat shell/_example_response.md)
+SYSTEM_CONTENT=$(cat shell/_system_content.md | jq -sR @json)
+EXAMPLE_PROMPT=$(cat shell/_example_prompt.md | jq -sR @json)
+EXAMPLE_RESPONSE=$(cat shell/_example_response.md | jq -sR @json)
 PROMPT=$CURRENT_TABLE_OF_CONTENTS
 # PROMPT=$1
 echo $SYSTEM_CONTENT
@@ -25,29 +25,38 @@ JSON_PAYLOAD=$(jq -n \
                   --arg example_response "$EXAMPLE_RESPONSE" \
                   --arg prompt "$PROMPT" \
                   --arg temperature "0.7" \
-                  --arg max_tokens "1500" \
-                  '{
+                  --arg max_tokens "1000" \
+                '{
                     "model": "gpt-3.5-turbo",
-                        "messages": [
-                        {
-                            "role": "system",
-                            "content": "$system_content"
-                        },
-                        {
-                            "role": "user",
-                            "content": "$example_prompt" 
-                        },
-                        {
-                            "role": "system",
-                            "content": "$example_response"
-                        },
-                        {
-                            "role": "user",
-                            "content": "$prompt"
-                        }
-                        ]
-                    }')
+                    "messages": [
+                    {
+                        "role": "system",
+                        "content": ($system_content | @json)
+                    },
+                    {
+                        "role": "user",
+                        "content": ($example_prompt | @json)
+                    },
+                    {
+                        "role": "assistant",
+                        "content": ($example_response | @json)
+                    },
+                    {
+                        "role": "user",
+                        "content": ($prompt | @json)
+                    }
+                    ],
+                    "temperature": ($temperature | tonumber),
+                    "max_tokens": ($max_tokens | tonumber),
+                }')
 
+echo ""
+echo ""
+echo "----------------------------------------------------------------------------------"
+echo $JSON_PAYLOAD
+echo "----------------------------------------------------------------------------------"
+echo ""
+echo ""
 # Send the request to OpenAI API
 RESPONSE=$(curl -s -X POST "$API_URL" \
     -H "Content-Type: application/json" \
@@ -57,11 +66,11 @@ RESPONSE=$(curl -s -X POST "$API_URL" \
 ECHO $RESPONSE
 
 # Extract the text from the response
-TODO_LIST=$(echo $RESPONSE | jq -r '.choices[0].text')
+TODO_LIST=$(echo $RESPONSE | jq -r '.choices[0].message.content')
 
 # Save the response to a file
-echo "$RESPONSE" > todos.yaml
+echo "$TODO_LIST" > todos.md
 
 # Output the result
-echo "To-dos have been saved to todos.yaml"
+echo "To-dos have been saved to todos.md"
 
