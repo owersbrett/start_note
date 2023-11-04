@@ -5,10 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "simulator-start_note",
+            "name": "start_note_debug",
             "request": "launch",
             "type": "dart",
-            "deviceId": "9452FEAB-313C-4036-B862-1DA5C29D1706"
+            "deviceId": "00008120-0018096A14D8C01E"
         },
         {
             "name": "phone-start_note",

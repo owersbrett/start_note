@@ -11,6 +11,7 @@ import '../bloc/compare_table/compare_table_events.dart';
 import '../bloc/note_page/note_page.dart';
 import '../bloc/notes/notes.dart';
 import '../data/repositories/note_repository.dart';
+import 'note_page/audio_tab.dart';
 import 'note_page/note_tab.dart';
 
 class NotePage extends StatefulWidget {
@@ -21,7 +22,8 @@ class NotePage extends StatefulWidget {
   State<NotePage> createState() => _NotePageState();
 }
 
-class _NotePageState extends State<NotePage> with SingleTickerProviderStateMixin {
+class _NotePageState extends State<NotePage>
+    with SingleTickerProviderStateMixin {
   late TextEditingController noteController;
   late NotePageBloc notePageBloc;
   late FocusNode focusNode;
@@ -37,7 +39,10 @@ class _NotePageState extends State<NotePage> with SingleTickerProviderStateMixin
     noteController = TextEditingController(text: widget.note.content);
     focusNode = FocusNode();
     _controller = TabController(
-        length: 2, vsync: this, initialIndex: BlocProvider.of<AppBloc>(context).state.mostRecentNotePageTabIndex);
+        length: 3,
+        vsync: this,
+        initialIndex:
+            BlocProvider.of<AppBloc>(context).state.mostRecentNotePageTabIndex);
 
     _controller.addListener(_tabListener);
   }
@@ -56,7 +61,8 @@ class _NotePageState extends State<NotePage> with SingleTickerProviderStateMixin
   }
 
   void onChanged(int? id) {
-    BlocProvider.of<NotesBloc>(context).add(UpdateNote(noteController.text, id!));
+    BlocProvider.of<NotesBloc>(context)
+        .add(UpdateNote(noteController.text, id!));
   }
 
   @override
@@ -75,7 +81,9 @@ class _NotePageState extends State<NotePage> with SingleTickerProviderStateMixin
         },
         child: BlocConsumer<NotePageBloc, NotePageState>(
           listener: (context, state) {
-            if (state is NotePageLoaded) BlocProvider.of<CompareTableBloc>(context).add(FetchCompareTable(state.note));
+            if (state is NotePageLoaded)
+              BlocProvider.of<CompareTableBloc>(context)
+                  .add(FetchCompareTable(state.note));
           },
           bloc: notePageBloc,
           builder: (context, state) {
@@ -91,15 +99,18 @@ class _NotePageState extends State<NotePage> with SingleTickerProviderStateMixin
                   TabBar(
                     onTap: (value) {
                       FocusScope.of(context).unfocus();
-                      BlocProvider.of<AppBloc>(context).add(TabBarTapped(value));
+                      BlocProvider.of<AppBloc>(context)
+                          .add(TabBarTapped(value));
                     },
                     labelColor: Colors.black,
                     indicatorColor: Colors.black,
-                    labelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                    labelStyle:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                     controller: _controller,
                     tabs: [
                       Tab(text: "Notes"),
                       Tab(text: "Tables"),
+                      Tab(text: "Audio"),
                     ],
                   ),
                   Flexible(
@@ -113,7 +124,8 @@ class _NotePageState extends State<NotePage> with SingleTickerProviderStateMixin
                           noteController: noteController,
                           onChanged: onChanged,
                         ),
-                        TableTab(note: state.note, notePageBloc: notePageBloc)
+                        TableTab(note: state.note, notePageBloc: notePageBloc),
+                        AudioTab(note: state.note, notePageBloc: notePageBloc)
                       ],
                     ),
                   ),

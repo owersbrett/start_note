@@ -46,7 +46,7 @@ class _TableDisplayState extends State<TableDisplay> {
     titleController = TextEditingController(text: widget.noteTable.title);
   }
 
-  Color get tableBorderColor => Theme.of(context).backgroundColor;
+  Color get tableBorderColor => Theme.of(context).colorScheme.background;
 
   @override
   void dispose() {

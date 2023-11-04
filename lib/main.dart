@@ -1,7 +1,11 @@
-import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:async';
+
 import 'package:sqflite/sqflite.dart';
 import 'package:start_note/bloc/app/app.dart';
 import 'package:start_note/bloc/compare_table/compare_table_bloc.dart';
@@ -11,20 +15,23 @@ import 'package:start_note/pages/home_page.dart';
 import 'package:start_note/services/logging_service.dart';
 import 'package:start_note/theme/application_theme.dart';
 import 'bloc/notes/notes.dart';
-import 'services/bloc_service.dart';
 import 'services/database_service.dart';
 import 'services/l10n_service.dart';
 
 void main({bool useMocks = false}) async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await LoggingService.initialize();
+  runZoned<Future<void>>(
+    () async {
+      await WidgetsFlutterBinding.ensureInitialized();
+      await LoggingService.initialize();
 
-  HydratedStorage storage = await BlocService.initialize();
-  Database database = await DatabaseService.initialize();
-
-  HydratedBlocOverrides.runZoned<Future<void>>(
-    () async => runApp(MyApp(database, useMocks: useMocks)),
-    storage: storage,
+      Database database = await DatabaseService.initialize();
+      HydratedBloc.storage = await HydratedStorage.build(
+        storageDirectory: kIsWeb
+            ? HydratedStorage.webStorageDirectory
+            : await getTemporaryDirectory(),
+      );
+      runApp(MyApp(database, useMocks: useMocks));
+    },
   );
 }
 
@@ -78,7 +85,8 @@ class AppWrapper extends StatelessWidget {
 }
 
 class StartNote extends StatefulWidget {
-  const StartNote({required this.noteRepository, required this.noteTableRepository});
+  const StartNote(
+      {required this.noteRepository, required this.noteTableRepository});
   final INoteRepository noteRepository;
   final INoteTableRepository noteTableRepository;
   @override
@@ -94,7 +102,8 @@ class StartNoteState extends State<StartNote> {
     super.initState();
     appBloc = AppBloc();
     compareTableBloc = CompareTableBloc(widget.noteTableRepository);
-    notesBloc = NotesBloc(widget.noteRepository, widget.noteTableRepository)..add(FetchNotes());
+    notesBloc = NotesBloc(widget.noteRepository, widget.noteTableRepository)
+      ..add(FetchNotes());
   }
 
   @override
