@@ -29,6 +29,13 @@ class DatabaseService {
     );
   }
 
+  static Future updateDatabase(Database db) async {
+//     String sql = """
+// ALTER TABLE NoteAudio ADD title TEXT;
+// """;
+//     await db.execute(sql);
+  }
+
   static Future<String> getPath() async {
     var databasesPath = await getDatabasesPath();
     return '$databasesPath/start_note.db';

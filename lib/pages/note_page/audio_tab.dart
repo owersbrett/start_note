@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:start_note/bloc/note_page/note_page_bloc.dart';
 import 'package:start_note/data/entities/note_entity.dart';
 import 'package:start_note/data/models/note_audio.dart';
+import 'package:start_note/util/uploader.dart';
 import '../../bloc/note_page/note_page.dart';
 import '../../services/date_service.dart';
 import '../../widget/common/audio_text_widget.dart';
@@ -38,10 +41,12 @@ class _AudioTabState extends State<AudioTab> {
           itemBuilder: (BuildContext context, int index) {
             if (state.note.noteAudios.length == 0) {
               return MaterialButton(
-                  onPressed: () {
-                    widget.notePageBloc.add(AddNoteAudio(
-                        NoteAudio.fromUpload("", state.note.id!, ""),
-                        AudioPlayer().position));
+                  onPressed: () async {
+                    File? file = await Uploader.pickAndCopyAudioFile();
+                    if (file != null)
+                      widget.notePageBloc.add(AddNoteAudio(
+                          NoteAudio.fromUpload(file.path, state.note.id!, ""),
+                          AudioPlayer().position));
                   },
                   child: Text("Add audio"));
             }

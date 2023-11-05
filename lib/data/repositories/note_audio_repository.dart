@@ -47,12 +47,13 @@ class NoteAudioRepository<T extends NoteAudio>
   @override
   Future<bool> update(NoteAudio t) async {
     int count = await db.rawUpdate(
-        'UPDATE $tableName SET content = ?, updateDateMillisecondsSinceEpoch = ?, filePath = ?, index = ? WHERE id = ?',
+        'UPDATE $tableName SET content = ?, updateDateMillisecondsSinceEpoch = ?, filePath = ?, ordinal = ?, title = ? WHERE id = ?',
         [
           t.content,
           t.updateDate.millisecondsSinceEpoch,
           t.filePath,
           t.ordinal,
+          t.title,
           t.id
         ]);
     print('updated: $count');

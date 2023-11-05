@@ -113,6 +113,7 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Start Note"),
+        
       ),
       body: BlocBuilder<NotesBloc, NotesState>(
         builder: (context, state) {

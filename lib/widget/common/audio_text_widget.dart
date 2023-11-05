@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:start_note/data/models/note_audio.dart';
+import 'package:start_note/util/uploader.dart';
 
 import '../../bloc/note_page/note_page.dart';
 import '../../data/models/note.dart';
@@ -39,22 +40,18 @@ class _AudioTextWidgetState extends State<AudioTextWidget>
 
   double _sliderValue = 0;
 
-  Future<File?> pickAndCopyAudioFile() async {
-    FilePickerResult? result =
-        await FilePicker.platform.pickFiles(type: FileType.audio);
-    ;
-    if (result != null) {
-      File originalFile = File(result.files.single.path!);
-      Directory appDocDir = await getApplicationDocumentsDirectory();
-      String appDocPath = appDocDir.path;
-      final copiedFilePath = "$appDocPath/${result.files.single.name}";
+  Future<File> pickAndCopyFile() async {
+    File? copiedFile = await Uploader.pickAndCopyAudioFile();
+    if (copiedFile != null) {
       setState(() {
-        _noteAudio = NoteAudio.fromUpload(copiedFilePath, widget.note.id!, "");
+        _noteAudio = NoteAudio.fromUpload(
+            copiedFile.path, widget.note.id!, _noteController.text);
       });
       widget.notePageBloc.add(AddNoteAudio(_noteAudio!, _audioPlayer.position));
-      return await originalFile.copySync(copiedFilePath);
+      return copiedFile;
+    } else {
+      throw new Exception("File is null");
     }
-    return null;
   }
 
   @override
@@ -78,31 +75,19 @@ class _AudioTextWidgetState extends State<AudioTextWidget>
       _audioPlayer.pause();
     } else {
       if (_audioPlayer.audioSource == null) {
-        if (widget.noteAudio != null) {
-          _audioPlayer
-              .setAudioSource(AudioSource.file(widget.noteAudio!.filePath));
-          _audioPlayer.play();
-        } else {
-          pickAndCopyAudioFile().then((file) {
-            if (file != null) {
-              _audioPlayer.setAudioSource(AudioSource.file(file.path));
-            }
-            // Set the source of the audio player to the picked file
-            // and then play
-          });
-        }
+        _audioPlayer
+            .setAudioSource(AudioSource.file(widget.noteAudio.filePath));
+        _audioPlayer.play();
       } else {
-        if (widget.noteAudio != null) {
-          File file = File(widget.noteAudio!.filePath);
-          if (await file.exists()) {
-            print("File exists!");
-          } else {
-            print("File does not exist...");
-          }
-          _audioPlayer
-              .setAudioSource(AudioSource.file(widget.noteAudio!.filePath));
-          _audioPlayer.play();
+        File file = File(widget.noteAudio.filePath);
+        if (await file.exists()) {
+          print("File exists!");
+        } else {
+          print("File does not exist...");
         }
+        _audioPlayer
+            .setAudioSource(AudioSource.file(widget.noteAudio.filePath));
+        _audioPlayer.play();
         _audioPlayer.play();
       }
     }
@@ -119,7 +104,7 @@ class _AudioTextWidgetState extends State<AudioTextWidget>
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            widget.noteAudio?.content ?? "Upload Audio",
+            widget.noteAudio.title,
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           Padding(
@@ -142,7 +127,7 @@ class _AudioTextWidgetState extends State<AudioTextWidget>
                   keyboardType: TextInputType.multiline,
                   style: TextStyle(color: Colors.black, fontSize: 14),
                   onChanged: (value) {
-                    NoteAudio updatedNoteAudio = widget.noteAudio;
+                    NoteAudio updatedNoteAudio = widget.noteAudio.copyWith(content: value);
                     widget.notePageBloc.add(UpdateNoteAudio(updatedNoteAudio));
                   },
                   minLines: 4,

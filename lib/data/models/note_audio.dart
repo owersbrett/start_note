@@ -8,6 +8,7 @@ class NoteAudio {
     "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL",
     "noteId INTEGER",
     "filePath TEXT",
+    "title TEXT",
     "content TEXT",
     "ordinal INTEGER",
     "createDateMillisecondsSinceEpoch INTEGER",
@@ -20,6 +21,7 @@ class NoteAudio {
   final String filePath;
   final String content;
   final int ordinal;
+  final String title;
   final DateTime createDate;
   final DateTime updateDate;
 
@@ -28,6 +30,7 @@ class NoteAudio {
     required this.noteId,
     required this.filePath,
     required this.content,
+    required this.title,
     required this.ordinal,
     required this.createDate,
     required this.updateDate,
@@ -38,9 +41,10 @@ class NoteAudio {
   }
 
   factory NoteAudio.fromUpload(String filePath, int noteId, String content,
-      [int index = 0]) {
+      [int index = 0, String title = '']) {
     return NoteAudio(
       noteId: noteId,
+      title: title,
       filePath: filePath,
       content: content,
       ordinal: index,
@@ -62,13 +66,15 @@ class NoteAudio {
       String? content,
       int? index,
       DateTime? createDate,
-      DateTime? updateDate}) {
+      DateTime? updateDate,
+      String? title}) {
     return NoteAudio(
       id: id ?? this.id,
       noteId: noteId ?? this.noteId,
       filePath: filePath ?? this.filePath,
       content: content ?? this.content,
       ordinal: index ?? this.ordinal,
+      title: title ?? this.title,
       createDate: createDate ?? this.createDate,
       updateDate: updateDate ?? this.updateDate,
     );
@@ -80,6 +86,7 @@ class NoteAudio {
       'noteId': noteId,
       'filePath': filePath,
       'content': content,
+      'title': title,
       'ordinal': ordinal,
       'createDateMillisecondsSinceEpoch': createDate.millisecondsSinceEpoch,
       'updateDateMillisecondsSinceEpoch': updateDate.millisecondsSinceEpoch,
@@ -91,6 +98,7 @@ class NoteAudio {
         id: map['id']?.toInt(),
         noteId: map['noteId']?.toInt() ?? 0,
         filePath: map['filePath'] ?? '',
+        title: map['title'] ?? '',
         content: map['content'] ?? '',
         ordinal: map['ordinal']?.toInt() ?? 0,
         createDate: DateTime.fromMillisecondsSinceEpoch(

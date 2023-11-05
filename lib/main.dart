@@ -26,6 +26,7 @@ void main({bool useMocks = false}) async {
       await LoggingService.initialize();
 
       Database database = await DatabaseService.initialize();
+      await DatabaseService.updateDatabase(database);
       HydratedBloc.storage = await HydratedStorage.build(
         storageDirectory: kIsWeb
             ? HydratedStorage.webStorageDirectory
@@ -57,10 +58,9 @@ class MyApp extends StatelessWidget {
     noteAudioRepository = NoteAudioRepository(db);
 
     return AppWrapper(
-      noteRepository: noteRepository,
-      noteTableRepository: noteTableRepository,
-      noteAudioRepository: noteAudioRepository
-    );
+        noteRepository: noteRepository,
+        noteTableRepository: noteTableRepository,
+        noteAudioRepository: noteAudioRepository);
   }
 }
 
@@ -94,7 +94,9 @@ class AppWrapper extends StatelessWidget {
 
 class StartNote extends StatefulWidget {
   const StartNote(
-      {required this.noteRepository, required this.noteTableRepository, required this.noteAudioRepository});
+      {required this.noteRepository,
+      required this.noteTableRepository,
+      required this.noteAudioRepository});
   final INoteRepository noteRepository;
   final INoteTableRepository noteTableRepository;
   final INoteAudioRepository noteAudioRepository;
