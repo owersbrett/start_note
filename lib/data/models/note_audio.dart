@@ -9,7 +9,7 @@ class NoteAudio {
     "noteId INTEGER",
     "filePath TEXT",
     "content TEXT",
-    "index INTEGER",
+    "ordinal INTEGER",
     "createDateMillisecondsSinceEpoch INTEGER",
     "updateDateMillisecondsSinceEpoch INTEGER",
     "FOREIGN KEY (noteId) REFERENCES ${Note.tableName}(id) ON DELETE CASCADE ON UPDATE NO ACTION"
@@ -19,7 +19,7 @@ class NoteAudio {
   final int noteId;
   final String filePath;
   final String content;
-  final int index;
+  final int ordinal;
   final DateTime createDate;
   final DateTime updateDate;
 
@@ -28,17 +28,22 @@ class NoteAudio {
     required this.noteId,
     required this.filePath,
     required this.content,
-    required this.index,
+    required this.ordinal,
     required this.createDate,
     required this.updateDate,
   });
 
-  factory NoteAudio.fromUpload(String filePath, int noteId, String content, [int index = 0]) {
+  static List<NoteAudio> fromQuery(List<Map<String, dynamic>> query) {
+    return query.map((e) => NoteAudio.fromMap(e)).toList();
+  }
+
+  factory NoteAudio.fromUpload(String filePath, int noteId, String content,
+      [int index = 0]) {
     return NoteAudio(
       noteId: noteId,
       filePath: filePath,
       content: content,
-      index: index,
+      ordinal: index,
       createDate: DateTime.now(),
       updateDate: DateTime.now(),
     );
@@ -63,7 +68,7 @@ class NoteAudio {
       noteId: noteId ?? this.noteId,
       filePath: filePath ?? this.filePath,
       content: content ?? this.content,
-      index: index ?? this.index,
+      ordinal: index ?? this.ordinal,
       createDate: createDate ?? this.createDate,
       updateDate: updateDate ?? this.updateDate,
     );
@@ -75,9 +80,9 @@ class NoteAudio {
       'noteId': noteId,
       'filePath': filePath,
       'content': content,
-      'index': index,
-      'createDate': createDate.millisecondsSinceEpoch,
-      'updateDate': updateDate.millisecondsSinceEpoch,
+      'ordinal': ordinal,
+      'createDateMillisecondsSinceEpoch': createDate.millisecondsSinceEpoch,
+      'updateDateMillisecondsSinceEpoch': updateDate.millisecondsSinceEpoch,
     };
   }
 
@@ -87,7 +92,7 @@ class NoteAudio {
         noteId: map['noteId']?.toInt() ?? 0,
         filePath: map['filePath'] ?? '',
         content: map['content'] ?? '',
-        index: map['index']?.toInt() ?? 0,
+        ordinal: map['ordinal']?.toInt() ?? 0,
         createDate: DateTime.fromMillisecondsSinceEpoch(
             map['createDate']?.toInt() ?? 0),
         updateDate: DateTime.fromMillisecondsSinceEpoch(

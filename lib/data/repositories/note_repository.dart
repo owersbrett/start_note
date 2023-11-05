@@ -1,5 +1,6 @@
 import 'package:start_note/data/entities/note_entity.dart';
 import 'package:start_note/data/repositories/_repository.dart';
+import 'package:start_note/data/repositories/note_audio_repository.dart';
 import 'package:start_note/data/repositories/note_table_repository.dart';
 import 'package:start_note/services/logging_service.dart';
 import 'package:sqflite/sqlite_api.dart';
@@ -8,7 +9,7 @@ import '../models/note.dart';
 
 abstract class INoteRepository<T extends Note> extends Repository<Note> {
   Future<List<Note>> getNotes();
-  Future<NoteEntity> getEntityById(int id, INoteTableRepository noteTableRepository);
+  Future<NoteEntity> getEntityById(int id, INoteTableRepository noteTableRepository, INoteAudioRepository noteAudioRepository);
   Future<NoteEntity> getNewNote();
 }
 
@@ -65,12 +66,13 @@ class NoteRepository<T extends Note> implements INoteRepository<Note> {
   }
 
   @override
-  Future<NoteEntity> getEntityById(int id, INoteTableRepository noteTableRepository) async {
+  Future<NoteEntity> getEntityById(int id, INoteTableRepository noteTableRepository, INoteAudioRepository noteAudioRepository) async {
     try {
       List<Map> list = await db.rawQuery('SELECT * FROM $tableName WHERE id = ?', [id]);
       Note note = list.map((e) => Note.fromMap(Map<String, dynamic>.from(e))).toList().first;
       NoteEntity entity = NoteEntity.fromNote(note);
       entity.noteTables = await noteTableRepository.getNoteTablesFromNoteId(note.id!);
+      entity.noteAudios = await noteAudioRepository.getNoteAudiosFromNoteId(note.id!);
       return entity;
     } catch (e) {
       print(e);

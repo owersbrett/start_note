@@ -5,11 +5,13 @@ import 'package:start_note/data/models/note_table.dart';
 import 'package:start_note/data/repositories/note_audio_repository.dart';
 import 'package:start_note/data/repositories/note_repository.dart';
 import 'package:start_note/data/repositories/note_table_repository.dart';
+import '../../data/models/note_audio.dart';
 import '../../data/models/note_table_cell.dart';
 import 'note_page.dart';
 
 class NotePageBloc extends Bloc<NotePageEvent, NotePageState> {
-  NotePageBloc(this.initialNote, this.noteRepository, this.noteTableRepository, this.noteAudioRepository)
+  NotePageBloc(this.initialNote, this.noteRepository, this.noteTableRepository,
+      this.noteAudioRepository)
       : super(NotePageInitial(initialNote)) {
     on(_onEvent);
   }
@@ -28,13 +30,72 @@ class NotePageBloc extends Bloc<NotePageEvent, NotePageState> {
     if (event is RemoveTableRow) await _removeTableRow(event, emit);
     if (event is DoneTapped) await _doneTapped(event, emit);
     if (event is CutNoteAudio) await _cutNoteAudio(event, emit);
+    if (event is AddNoteAudio) await _addNoteAudio(event, emit);
+    if (event is UpdateNoteAudio) await _updateNoteAudio(event, emit);
+    if (event is DeleteNoteAudio) await _deleteNoteAudio(event, emit);
+  }
+
+  Future<void> _deleteNoteAudio(
+      DeleteNoteAudio event, Emitter<NotePageState> emit) async {
+    try {
+      if (state is NotePageLoaded) {
+        await noteAudioRepository.delete(event.noteAudio);
+        List<NoteAudio> noteAudioList =
+            new List<NoteAudio>.from((state as NotePageLoaded).note.noteAudios);
+        noteAudioList
+            .removeWhere((element) => element.id == event.noteAudio.id);
+        NoteEntity note = state.note.copyEntityWith(noteAudios: noteAudioList);
+        NotePageLoaded loadedState = state as NotePageLoaded;
+        emit(loadedState.copyWith(noteEntity: note));
+      }
+    } catch (e) {
+      emit(NotePageError(initialNote, initialNote));
+    }
+  }
+
+  Future<void> _addNoteAudio(
+      AddNoteAudio event, Emitter<NotePageState> emit) async {
+    try {
+      if (state is NotePageLoaded) {
+        NoteAudio noteAudio = await noteAudioRepository.create(event.noteAudio);
+        List<NoteAudio> noteAudioList =
+            new List<NoteAudio>.from((state as NotePageLoaded).note.noteAudios);
+        noteAudioList.add(noteAudio);
+        NoteEntity note = state.note.copyEntityWith(noteAudios: noteAudioList);
+        NotePageLoaded loadedState = state as NotePageLoaded;
+        emit(loadedState.copyWith(noteEntity: note));
+      }
+    } catch (e) {
+      emit(NotePageError(initialNote, initialNote));
+    }
+  }
+
+  Future<void> _updateNoteAudio(
+      UpdateNoteAudio event, Emitter<NotePageState> emit) async {
+    try {
+      if (state is NotePageLoaded) {
+        bool success = await noteAudioRepository.update(event.noteAudio);
+        if (!success) {
+          throw new Exception("Error updating note audio");
+        }
+        List<NoteAudio> noteAudioList =
+            new List<NoteAudio>.from((state as NotePageLoaded).note.noteAudios);
+        noteAudioList[noteAudioList.indexWhere((element) => element.id == event.noteAudio.id)] = event.noteAudio;
+        NoteEntity note = state.note.copyEntityWith(noteAudios: noteAudioList);
+        NotePageLoaded loadedState = state as NotePageLoaded;
+        emit(loadedState.copyWith(noteEntity: note));
+      }
+    } catch (e) {
+      emit(NotePageError(initialNote, initialNote));
+    }
   }
 
   Future<void> _cutNoteAudio(
       CutNoteAudio event, Emitter<NotePageState> emit) async {
     try {
       if (state is NotePageLoaded) {
-        print(event);
+        print(event.noteAudio.toMap());
+        print(event.position);
       }
     } catch (e) {
       emit(NotePageError(initialNote, initialNote));
@@ -197,7 +258,8 @@ class NotePageBloc extends Bloc<NotePageEvent, NotePageState> {
       NoteEntity note = NoteEntity.create();
       if (initialNote.id != null || state.note.id != null) {
         int id = initialNote.id ?? state.note.id!;
-        note = await noteRepository.getEntityById(id, noteTableRepository);
+        note = await noteRepository.getEntityById(
+            id, noteTableRepository, noteAudioRepository);
       } else {
         note = await noteRepository.getNewNote();
       }
@@ -235,7 +297,8 @@ class NotePageBloc extends Bloc<NotePageEvent, NotePageState> {
       NoteEntity note = NoteEntity.create();
       if (initialNote.id != null || state.note.id != null) {
         int id = initialNote.id ?? state.note.id!;
-        note = await noteRepository.getEntityById(id, noteTableRepository);
+        note = await noteRepository.getEntityById(
+            id, noteTableRepository, noteAudioRepository);
       } else {
         note = await noteRepository.getNewNote();
       }
@@ -251,7 +314,9 @@ class NotePageBloc extends Bloc<NotePageEvent, NotePageState> {
       NoteEntity note = NoteEntity.create();
       if (initialNote.id != null || event.noteId != null) {
         note = await noteRepository.getEntityById(
-            initialNote.id ?? event.noteId!, noteTableRepository);
+            initialNote.id ?? event.noteId!,
+            noteTableRepository,
+            noteAudioRepository);
       } else {
         note = await noteRepository.getNewNote();
       }

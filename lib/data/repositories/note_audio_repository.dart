@@ -1,18 +1,15 @@
-import 'package:start_note/data/entities/note_entity.dart';
 import 'package:start_note/data/models/note_audio.dart';
 import 'package:start_note/data/repositories/_repository.dart';
-import 'package:start_note/data/repositories/note_table_repository.dart';
 import 'package:start_note/services/logging_service.dart';
 import 'package:sqflite/sqlite_api.dart';
 
-import '../models/note.dart';
-
 abstract class INoteAudioRepository<T extends NoteAudio>
-    extends Repository<NoteAudio> {}
+    extends Repository<NoteAudio> {
+  Future<List<NoteAudio>> getNoteAudiosFromNoteId(int noteId);
+}
 
 class NoteAudioRepository<T extends NoteAudio>
     implements INoteAudioRepository<NoteAudio> {
-      
   Database db;
   NoteAudioRepository(this.db);
   String get tableName => NoteAudio.tableName;
@@ -51,14 +48,28 @@ class NoteAudioRepository<T extends NoteAudio>
   Future<bool> update(NoteAudio t) async {
     int count = await db.rawUpdate(
         'UPDATE $tableName SET content = ?, updateDateMillisecondsSinceEpoch = ?, filePath = ?, index = ? WHERE id = ?',
-        [t.content, t.updateDate.millisecondsSinceEpoch,t.filePath, t.index, t.id]);
+        [
+          t.content,
+          t.updateDate.millisecondsSinceEpoch,
+          t.filePath,
+          t.ordinal,
+          t.id
+        ]);
     print('updated: $count');
     return true;
   }
 
   @override
   Future<List<NoteAudio>> getAll() async {
-    List<Map> list = await db.rawQuery('SELECT * FROM $tableName');
-    return list.map((e) => NoteAudio.fromMap(Map<String, dynamic>.from(e))).toList();
+    List<Map<String, dynamic>> list =
+        await db.rawQuery('SELECT * FROM $tableName');
+    return NoteAudio.fromQuery(list);
+  }
+
+  @override
+  Future<List<NoteAudio>> getNoteAudiosFromNoteId(int noteId) async {
+    List<Map<String, dynamic>> list = await db
+        .rawQuery('SELECT * FROM $tableName WHERE noteId = ?', [noteId]);
+    return NoteAudio.fromQuery(list);
   }
 }

@@ -1,3 +1,5 @@
+import 'package:just_audio/just_audio.dart';
+
 import '../../data/models/note_audio.dart';
 
 abstract class NotePageEvent {
@@ -10,9 +12,24 @@ class FetchNotePage extends NotePageEvent {
 }
 
 class CutNoteAudio extends NotePageEvent {
-  CutNoteAudio(this.noteAudio, this.position);
+  CutNoteAudio(this.noteAudio, this.position, this.audioPlayer);
   final NoteAudio noteAudio;
   final Duration position;
+  final AudioPlayer audioPlayer;
+}
+
+class DeleteNoteAudio extends NotePageEvent {
+  DeleteNoteAudio(this.noteAudio);
+  final NoteAudio noteAudio;
+}
+class AddNoteAudio extends NotePageEvent {
+  AddNoteAudio(this.noteAudio, this.position);
+  final NoteAudio noteAudio;
+  final Duration position;
+}
+class UpdateNoteAudio extends NotePageEvent {
+  UpdateNoteAudio(this.noteAudio);
+  final NoteAudio noteAudio;
 }
 
 class AddTable extends NotePageEvent {}

@@ -1,20 +1,27 @@
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:start_note/data/models/note_audio.dart';
 
 import '../../bloc/note_page/note_page.dart';
+import '../../data/models/note.dart';
 
 class AudioTextWidget extends StatefulWidget {
   final AudioPlayer? masterAudioPlayer;
-  final NoteAudio? noteAudio;
+  final NoteAudio noteAudio;
+  final NotePageBloc notePageBloc;
+  final Note note;
 
-  const AudioTextWidget({Key? key, this.masterAudioPlayer, this.noteAudio})
+  const AudioTextWidget(
+      {Key? key,
+      required this.notePageBloc,
+      required this.note,
+      this.masterAudioPlayer,
+      required this.noteAudio})
       : super(key: key);
 
   @override
@@ -27,11 +34,8 @@ class _AudioTextWidgetState extends State<AudioTextWidget>
   late AudioPlayer _audioPlayer;
   bool _isPlaying = false;
   bool _isLooping = false;
-  bool _isReplay = false;
   bool _isUserDragging = false;
   late NoteAudio? _noteAudio = widget.noteAudio;
-
-  late AnimationController _controller;
 
   double _sliderValue = 0;
 
@@ -45,17 +49,19 @@ class _AudioTextWidgetState extends State<AudioTextWidget>
       String appDocPath = appDocDir.path;
       final copiedFilePath = "$appDocPath/${result.files.single.name}";
       setState(() {
-        _noteAudio = NoteAudio.fromUpload()
+        _noteAudio = NoteAudio.fromUpload(copiedFilePath, widget.note.id!, "");
       });
+      widget.notePageBloc.add(AddNoteAudio(_noteAudio!, _audioPlayer.position));
       return await originalFile.copySync(copiedFilePath);
     }
+    return null;
   }
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this);
     _audioPlayer = widget.masterAudioPlayer ?? AudioPlayer();
+    _noteController.text = widget.noteAudio.content;
   }
 
   @override
@@ -67,19 +73,36 @@ class _AudioTextWidgetState extends State<AudioTextWidget>
     super.dispose();
   }
 
-  void _togglePlayPause() {
+  void _togglePlayPause() async {
     if (_audioPlayer.playing) {
       _audioPlayer.pause();
     } else {
       if (_audioPlayer.audioSource == null) {
-        pickAndCopyAudioFile().then((file) {
-          if (file != null) {
-            _audioPlayer.setAudioSource(AudioSource.file(file.path));
-          }
-          // Set the source of the audio player to the picked file
-          // and then play
-        });
+        if (widget.noteAudio != null) {
+          _audioPlayer
+              .setAudioSource(AudioSource.file(widget.noteAudio!.filePath));
+          _audioPlayer.play();
+        } else {
+          pickAndCopyAudioFile().then((file) {
+            if (file != null) {
+              _audioPlayer.setAudioSource(AudioSource.file(file.path));
+            }
+            // Set the source of the audio player to the picked file
+            // and then play
+          });
+        }
       } else {
+        if (widget.noteAudio != null) {
+          File file = File(widget.noteAudio!.filePath);
+          if (await file.exists()) {
+            print("File exists!");
+          } else {
+            print("File does not exist...");
+          }
+          _audioPlayer
+              .setAudioSource(AudioSource.file(widget.noteAudio!.filePath));
+          _audioPlayer.play();
+        }
         _audioPlayer.play();
       }
     }
@@ -95,7 +118,10 @@ class _AudioTextWidgetState extends State<AudioTextWidget>
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(widget.noteAudio?.content ?? "Upload Audio"),
+          Text(
+            widget.noteAudio?.content ?? "Upload Audio",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           Padding(
             padding: const EdgeInsets.only(top: 12.0, left: 16, right: 16),
             child: Container(
@@ -116,8 +142,8 @@ class _AudioTextWidgetState extends State<AudioTextWidget>
                   keyboardType: TextInputType.multiline,
                   style: TextStyle(color: Colors.black, fontSize: 14),
                   onChanged: (value) {
-                    print(value);
-                    // onChanged(note.id!);
+                    NoteAudio updatedNoteAudio = widget.noteAudio;
+                    widget.notePageBloc.add(UpdateNoteAudio(updatedNoteAudio));
                   },
                   minLines: 4,
                   maxLines: 16,
@@ -159,8 +185,17 @@ class _AudioTextWidgetState extends State<AudioTextWidget>
                 onPressed: () {
                   final noteAudio = _noteAudio;
                   if (noteAudio != null) {
-                    BlocProvider.of<NotePageBloc>(context)
-                        .add(CutNoteAudio(_noteAudio!, _audioPlayer.position));
+                    widget.notePageBloc.add(CutNoteAudio(
+                        _noteAudio!, _audioPlayer.position, _audioPlayer));
+                  }
+                },
+              ),
+              IconButton(
+                icon: Icon(Icons.delete),
+                onPressed: () {
+                  final noteAudio = _noteAudio;
+                  if (noteAudio != null) {
+                    widget.notePageBloc.add(DeleteNoteAudio(noteAudio));
                   }
                 },
               ),

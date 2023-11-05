@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:start_note/bloc/note_page/note_page_bloc.dart';
 import 'package:start_note/data/entities/note_entity.dart';
 import 'package:start_note/data/models/note_audio.dart';
+import '../../bloc/note_page/note_page.dart';
 import '../../services/date_service.dart';
 import '../../widget/common/audio_text_widget.dart';
 
 class AudioTab extends StatefulWidget {
   const AudioTab(
       {Key? key,
+      required this.notePageBloc,
       required this.noteEntity,
       required this.focusNode,
       required this.noteController,
@@ -14,6 +19,7 @@ class AudioTab extends StatefulWidget {
       : super(key: key);
   final NoteEntity noteEntity;
   final FocusNode focusNode;
+  final NotePageBloc notePageBloc;
   final TextEditingController noteController;
   final Function(int) onChanged;
 
@@ -22,45 +28,36 @@ class AudioTab extends StatefulWidget {
 }
 
 class _AudioTabState extends State<AudioTab> {
-  List<NoteAudio> get noteAudios => widget.noteEntity.noteAudios;
-  List<AudioTextWidget> get _audioTextWidgets =>
-      noteAudios.map((e) => AudioTextWidget(noteAudio: e)).toList();
-  List<AudioTextWidget> get audioTextWidgets =>
-      _audioTextWidgets.isEmpty ? [AudioTextWidget()] : _audioTextWidgets;
-
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: [
-        ...audioTextWidgets,
-        Row(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8.0, left: 8),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Created on: ",
-                      style: TextStyle(fontSize: 14, color: Colors.black87),
-                    ),
-                    Text(
-                      DateService.dateTimeToWeekDay(
-                              widget.noteEntity.createDate) +
-                          ", " +
-                          DateService.dateTimeToString(
-                              widget.noteEntity.createDate),
-                      style: TextStyle(fontSize: 14, color: Colors.black87),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
+    return BlocBuilder<NotePageBloc, NotePageState>(
+      bloc: widget.notePageBloc,
+      builder: (context, state) {
+        return ListView.builder(
+          itemCount: state.note.noteAudios.length + 1,
+          itemBuilder: (BuildContext context, int index) {
+            if (state.note.noteAudios.length == 0) {
+              return MaterialButton(
+                  onPressed: () {
+                    widget.notePageBloc.add(AddNoteAudio(
+                        NoteAudio.fromUpload("", state.note.id!, ""),
+                        AudioPlayer().position));
+                  },
+                  child: Text("Add audio"));
+            }
+            if (index == state.note.noteAudios.length) {
+              return Container();
+            }
+            NoteAudio e = state.note.noteAudios[index];
+
+            return AudioTextWidget(
+                noteAudio: e,
+                note: widget.noteEntity,
+                notePageBloc: widget.notePageBloc,
+                masterAudioPlayer: AudioPlayer());
+          },
+        );
+      },
     );
   }
 }

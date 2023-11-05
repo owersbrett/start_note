@@ -202,7 +202,6 @@ class NoteTableRepository<T extends NoteTable> implements INoteTableRepository<N
   
   @override
   Future<List<NoteTable>> getAll() {
-    // TODO: implement getAll
     throw UnimplementedError();
   }
 }

@@ -9,7 +9,7 @@ import '../data/models/note_table_cell.dart';
 
 class DatabaseService {
   static final DatabaseService _singleton = DatabaseService._internal();
-  static final version = 1;
+  static final version = 2;
 
   factory DatabaseService() {
     return _singleton;
@@ -46,7 +46,7 @@ class DatabaseService {
 
   static FutureOr<void> onUpgrade(
       Database db, int oldVersion, int newVersion) async {
-    // await createTables(db);
+    await createTables(db);
   }
 
   static FutureOr<void> onDowngrade(
@@ -60,9 +60,11 @@ class DatabaseService {
     String dropNoteTableTableSql = getDropTableString(NoteTable.tableName);
     String dropNoteTableCellTableSql =
         getDropTableString(NoteTableCell.tableName);
+    String dropNoteAudioSql = getDropTableString(NoteAudio.tableName);
 
     sqlTry(db, dropNoteTableCellTableSql);
     sqlTry(db, dropNoteTableTableSql);
+    sqlTry(db, dropNoteAudioSql);
     sqlTry(db, dropNoteTableSql);
   }
 

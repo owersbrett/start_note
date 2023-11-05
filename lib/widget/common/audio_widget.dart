@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
@@ -20,10 +19,7 @@ class _AudioWidgetState extends State<AudioWidget>
   late AudioPlayer _audioPlayer;
   bool _isPlaying = false;
   bool _isLooping = false;
-  bool _isReplay = false;
   bool _isUserDragging = false;
-
-  late AnimationController _controller;
   
   double _sliderValue = 0;
 
@@ -38,12 +34,12 @@ class _AudioWidgetState extends State<AudioWidget>
       final copiedFilePath = "$appDocPath/${result.files.single.name}";
       return await originalFile.copySync(copiedFilePath);
     }
+    return null;
   }
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this);
     _audioPlayer = widget.masterAudioPlayer ?? AudioPlayer();
   }
 
