@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:start_note/data/entities/note_entity.dart';
 import 'package:start_note/data/entities/note_table_entity.dart';
@@ -5,6 +7,7 @@ import 'package:start_note/data/models/note_table.dart';
 import 'package:start_note/data/repositories/note_audio_repository.dart';
 import 'package:start_note/data/repositories/note_repository.dart';
 import 'package:start_note/data/repositories/note_table_repository.dart';
+import 'package:start_note/util/uploader.dart';
 import '../../data/models/note_audio.dart';
 import '../../data/models/note_table_cell.dart';
 import 'note_page.dart';
@@ -80,7 +83,8 @@ class NotePageBloc extends Bloc<NotePageEvent, NotePageState> {
         }
         List<NoteAudio> noteAudioList =
             new List<NoteAudio>.from((state as NotePageLoaded).note.noteAudios);
-        noteAudioList[noteAudioList.indexWhere((element) => element.id == event.noteAudio.id)] = event.noteAudio;
+        noteAudioList[noteAudioList.indexWhere(
+            (element) => element.id == event.noteAudio.id)] = event.noteAudio;
         NoteEntity note = state.note.copyEntityWith(noteAudios: noteAudioList);
         NotePageLoaded loadedState = state as NotePageLoaded;
         emit(loadedState.copyWith(noteEntity: note));
@@ -94,11 +98,18 @@ class NotePageBloc extends Bloc<NotePageEvent, NotePageState> {
       CutNoteAudio event, Emitter<NotePageState> emit) async {
     try {
       if (state is NotePageLoaded) {
-        print(event.noteAudio.toMap());
-        print(event.position);
+        File file = File(event.noteAudio.filePath);
+        if (await file.exists()) {
+
+          print("File exists!");
+        } else {
+          print("File isn't real");
+        }
       }
     } catch (e) {
+      var loadedState = state;
       emit(NotePageError(initialNote, initialNote));
+      emit(loadedState);
     }
   }
 
