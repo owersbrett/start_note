@@ -1,10 +1,8 @@
 import 'dart:io';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import 'package:just_audio/just_audio.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:start_note/data/models/note_audio.dart';
 import 'package:start_note/util/uploader.dart';
 
@@ -45,7 +43,7 @@ class _AudioTextWidgetState extends State<AudioTextWidget>
     if (copiedFile != null) {
       setState(() {
         _noteAudio = NoteAudio.fromUpload(
-            copiedFile.path, widget.note.id!, _noteController.text);
+            copiedFile.path, widget.note.id!, _noteController.text, _audioPlayer.duration ?? Duration.zero);
       });
       widget.notePageBloc.add(AddNoteAudio(_noteAudio!, _audioPlayer.position));
       return copiedFile;
@@ -79,15 +77,6 @@ class _AudioTextWidgetState extends State<AudioTextWidget>
             .setAudioSource(AudioSource.file(widget.noteAudio.filePath));
         _audioPlayer.play();
       } else {
-        File file = File(widget.noteAudio.filePath);
-        if (await file.exists()) {
-          print("File exists!");
-        } else {
-          print("File does not exist...");
-        }
-        _audioPlayer
-            .setAudioSource(AudioSource.file(widget.noteAudio.filePath));
-        _audioPlayer.play();
         _audioPlayer.play();
       }
     }
@@ -99,6 +88,7 @@ class _AudioTextWidgetState extends State<AudioTextWidget>
   @override
   Widget build(BuildContext context) {
     return Container(
+      key: Key(widget.noteAudio.id.toString()),
       width: MediaQuery.of(context).size.width,
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -127,7 +117,8 @@ class _AudioTextWidgetState extends State<AudioTextWidget>
                   keyboardType: TextInputType.multiline,
                   style: TextStyle(color: Colors.black, fontSize: 14),
                   onChanged: (value) {
-                    NoteAudio updatedNoteAudio = widget.noteAudio.copyWith(content: value);
+                    NoteAudio updatedNoteAudio =
+                        widget.noteAudio.copyWith(content: value);
                     widget.notePageBloc.add(UpdateNoteAudio(updatedNoteAudio));
                   },
                   minLines: 4,
@@ -136,56 +127,7 @@ class _AudioTextWidgetState extends State<AudioTextWidget>
               ),
             ),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              IconButton(
-                icon: Icon(_isLooping ? Icons.loop : Icons.repeat),
-                onPressed: () {
-                  setState(() {
-                    _isLooping = !_isLooping;
-                    _audioPlayer
-                        .setLoopMode(_isLooping ? LoopMode.one : LoopMode.off);
-                  });
-                },
-              ),
-              IconButton(
-                icon: Icon(Icons.restart_alt),
-                onPressed: () {
-                  _audioPlayer.seek(Duration.zero);
-                },
-              ),
-              IconButton(
-                icon: Icon(_isPlaying ? Icons.pause : Icons.play_arrow),
-                onPressed: _togglePlayPause,
-              ),
-              IconButton(
-                icon: Icon(Icons.skip_next),
-                onPressed: () {
-                  // Logic to skip the song
-                },
-              ),
-              IconButton(
-                icon: Icon(Icons.cut),
-                onPressed: () {
-                  final noteAudio = _noteAudio;
-                  if (noteAudio != null) {
-                    widget.notePageBloc.add(CutNoteAudio(
-                        _noteAudio!, _audioPlayer.position, _audioPlayer));
-                  }
-                },
-              ),
-              IconButton(
-                icon: Icon(Icons.delete),
-                onPressed: () {
-                  final noteAudio = _noteAudio;
-                  if (noteAudio != null) {
-                    widget.notePageBloc.add(DeleteNoteAudio(noteAudio));
-                  }
-                },
-              ),
-            ],
-          ),
+          audioRow(),
           StreamBuilder<Duration>(
             stream: _audioPlayer.positionStream,
             builder: (context, snapshot) {
@@ -219,5 +161,58 @@ class _AudioTextWidgetState extends State<AudioTextWidget>
         ],
       ),
     );
+  }
+
+  Row audioRow() {
+    List<Widget> children = [
+      IconButton(
+        icon: Icon(_isLooping ? Icons.loop : Icons.repeat),
+        onPressed: () {
+          setState(() {
+            _isLooping = !_isLooping;
+            _audioPlayer.setLoopMode(_isLooping ? LoopMode.one : LoopMode.off);
+          });
+        },
+      ),
+      IconButton(
+        icon: Icon(Icons.restart_alt),
+        onPressed: () {
+          _audioPlayer.seek(Duration.zero);
+        },
+      ),
+      IconButton(
+        icon: Icon(_isPlaying ? Icons.pause : Icons.play_arrow),
+        onPressed: _togglePlayPause,
+      ),
+      IconButton(
+        icon: Icon(Icons.skip_next),
+        onPressed: () {
+          // Logic to skip the song
+        },
+      ),
+      IconButton(
+        icon: Icon(Icons.delete),
+        onPressed: () {
+          final noteAudio = _noteAudio;
+          if (noteAudio != null) {
+            widget.notePageBloc.add(DeleteNoteAudio(noteAudio));
+          }
+        },
+      ),
+    ];
+    if (_noteAudio?.title == "Master") {
+      children.add(IconButton(
+        icon: Icon(Icons.cut),
+        onPressed: () {
+          final noteAudio = _noteAudio;
+          if (noteAudio != null) {
+            widget.notePageBloc.add(
+                CutNoteAudio(_noteAudio!, _audioPlayer.position, _audioPlayer));
+          }
+        },
+      ));
+    }
+    return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: children);
   }
 }

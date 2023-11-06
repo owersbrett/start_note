@@ -31,7 +31,8 @@ class DatabaseService {
 
   static Future updateDatabase(Database db) async {
 //     String sql = """
-// ALTER TABLE NoteAudio ADD title TEXT;
+
+// ALTER TABLE NoteAudio ADD originalFilePath TEXT
 // """;
 //     await db.execute(sql);
   }

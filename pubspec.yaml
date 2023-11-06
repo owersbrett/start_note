@@ -8,12 +8,14 @@ environment:
   sdk: ">=2.17.3 <3.0.0"
 dependencies:
   audioplayers:
+  fftea: ^1.5.0
   bloc:
   path_provider:
   just_audio:
   intl:
   file_picker:
   flutter_bloc:
+  ffmpeg_kit_flutter: ^6.0.3
   hydrated_bloc: 
   sqflite: 
   draggable_widget: 

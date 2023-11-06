@@ -31,6 +31,13 @@ class AudioTab extends StatefulWidget {
 }
 
 class _AudioTabState extends State<AudioTab> {
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<NotePageBloc, NotePageState>(
@@ -43,10 +50,17 @@ class _AudioTabState extends State<AudioTab> {
               return MaterialButton(
                   onPressed: () async {
                     File? file = await Uploader.pickAndCopyAudioFile();
-                    if (file != null)
+                    if (file != null) {
+                      _audioPlayer.setFilePath(file.path);
                       widget.notePageBloc.add(AddNoteAudio(
-                          NoteAudio.fromUpload(file.path, state.note.id!, ""),
-                          AudioPlayer().position));
+                          NoteAudio.fromUpload(
+                            file.path,
+                            state.note.id!,
+                            "",
+                            _audioPlayer.duration ?? Duration.zero,
+                          ),
+                          _audioPlayer.position));
+                    }
                   },
                   child: Text("Add audio"));
             }
@@ -59,7 +73,7 @@ class _AudioTabState extends State<AudioTab> {
                 noteAudio: e,
                 note: widget.noteEntity,
                 notePageBloc: widget.notePageBloc,
-                masterAudioPlayer: AudioPlayer());
+                masterAudioPlayer: null);
           },
         );
       },

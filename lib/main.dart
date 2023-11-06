@@ -26,7 +26,9 @@ void main({bool useMocks = false}) async {
       await LoggingService.initialize();
 
       Database database = await DatabaseService.initialize();
+
       await DatabaseService.updateDatabase(database);
+      
       HydratedBloc.storage = await HydratedStorage.build(
         storageDirectory: kIsWeb
             ? HydratedStorage.webStorageDirectory
