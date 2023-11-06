@@ -18,15 +18,19 @@ class CutNoteAudio extends NotePageEvent {
   final AudioPlayer audioPlayer;
 }
 
+class UpdateMasterAudioContent extends NotePageEvent {}
+
 class DeleteNoteAudio extends NotePageEvent {
   DeleteNoteAudio(this.noteAudio);
   final NoteAudio noteAudio;
 }
+
 class AddNoteAudio extends NotePageEvent {
   AddNoteAudio(this.noteAudio, this.position);
   final NoteAudio noteAudio;
   final Duration position;
 }
+
 class UpdateNoteAudio extends NotePageEvent {
   UpdateNoteAudio(this.noteAudio);
   final NoteAudio noteAudio;

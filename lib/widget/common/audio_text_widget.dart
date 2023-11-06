@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:just_audio/just_audio.dart';
 import 'package:start_note/data/models/note_audio.dart';
@@ -42,8 +44,8 @@ class _AudioTextWidgetState extends State<AudioTextWidget>
     File? copiedFile = await Uploader.pickAndCopyAudioFile();
     if (copiedFile != null) {
       setState(() {
-        _noteAudio = NoteAudio.fromUpload(
-            copiedFile.path, widget.note.id!, _noteController.text, _audioPlayer.duration ?? Duration.zero);
+        _noteAudio = NoteAudio.fromUpload(copiedFile.path, widget.note.id!,
+            _noteController.text, _audioPlayer.duration ?? Duration.zero);
       });
       widget.notePageBloc.add(AddNoteAudio(_noteAudio!, _audioPlayer.position));
       return copiedFile;
@@ -87,78 +89,90 @@ class _AudioTextWidgetState extends State<AudioTextWidget>
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      key: Key(widget.noteAudio.id.toString()),
-      width: MediaQuery.of(context).size.width,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            widget.noteAudio.title,
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 12.0, left: 16, right: 16),
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                color: Colors.grey[200],
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextField(
-                  strutStyle: StrutStyle(
-                    fontSize: 16.0,
-                    height: 1.5, // Line spacing is 1.5 times the font size
+    return BlocListener<NotePageBloc, NotePageState>(
+      bloc: widget.notePageBloc,
+      listener: (context, state) {
+        if (_noteAudio?.title == "Master"){
+          setState(() {
+            _noteController.text = state.note.noteAudios.first.content;
+            
+          });
+        }
+      },
+      child: Container(
+        key: Key(widget.noteAudio.id.toString()),
+        width: MediaQuery.of(context).size.width,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              widget.noteAudio.title,
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 12.0, left: 16, right: 16),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: Colors.grey[200],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextField(
+                    strutStyle: StrutStyle(
+                      fontSize: 16.0,
+                      height: 1.5, // Line spacing is 1.5 times the font size
+                    ),
+                    textCapitalization: TextCapitalization.sentences,
+                    controller: _noteController,
+                    decoration: null,
+                    keyboardType: TextInputType.multiline,
+                    style: TextStyle(color: Colors.black, fontSize: 14),
+                    onChanged: (value) {
+                      NoteAudio updatedNoteAudio =
+                          widget.noteAudio.copyWith(content: value);
+                      widget.notePageBloc
+                          .add(UpdateNoteAudio(updatedNoteAudio));
+                    },
+                    minLines: 4,
+                    maxLines: 16,
                   ),
-                  textCapitalization: TextCapitalization.sentences,
-                  controller: _noteController,
-                  decoration: null,
-                  keyboardType: TextInputType.multiline,
-                  style: TextStyle(color: Colors.black, fontSize: 14),
-                  onChanged: (value) {
-                    NoteAudio updatedNoteAudio =
-                        widget.noteAudio.copyWith(content: value);
-                    widget.notePageBloc.add(UpdateNoteAudio(updatedNoteAudio));
-                  },
-                  minLines: 4,
-                  maxLines: 16,
                 ),
               ),
             ),
-          ),
-          audioRow(),
-          StreamBuilder<Duration>(
-            stream: _audioPlayer.positionStream,
-            builder: (context, snapshot) {
-              final position = snapshot.data ?? Duration.zero;
-              final duration = _audioPlayer.duration ?? Duration.zero;
-              return Slider(
-                min: 0,
-                max: duration.inMilliseconds.toDouble(),
-                value: _isUserDragging
-                    ? _sliderValue
-                    : position.inMilliseconds.toDouble(),
-                onChangeStart: (value) {
-                  setState(() {
-                    _isUserDragging = true;
-                  });
-                },
-                onChanged: (value) {
-                  setState(() {
-                    _sliderValue = value;
-                  });
-                },
-                onChangeEnd: (value) {
-                  _audioPlayer.seek(Duration(milliseconds: value.toInt()));
-                  setState(() {
-                    _isUserDragging = false;
-                  });
-                },
-              );
-            },
-          ),
-        ],
+            audioRow(),
+            StreamBuilder<Duration>(
+              stream: _audioPlayer.positionStream,
+              builder: (context, snapshot) {
+                final position = snapshot.data ?? Duration.zero;
+                final duration = _audioPlayer.duration ?? Duration.zero;
+                return Slider(
+                  min: 0,
+                  max: duration.inMilliseconds.toDouble(),
+                  value: _isUserDragging
+                      ? _sliderValue
+                      : position.inMilliseconds.toDouble(),
+                  onChangeStart: (value) {
+                    setState(() {
+                      _isUserDragging = true;
+                    });
+                  },
+                  onChanged: (value) {
+                    setState(() {
+                      _sliderValue = value;
+                    });
+                  },
+                  onChangeEnd: (value) {
+                    _audioPlayer.seek(Duration(milliseconds: value.toInt()));
+                    setState(() {
+                      _isUserDragging = false;
+                    });
+                  },
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -185,18 +199,18 @@ class _AudioTextWidgetState extends State<AudioTextWidget>
         onPressed: _togglePlayPause,
       ),
       IconButton(
-        icon: Icon(Icons.skip_next),
-        onPressed: () {
-          // Logic to skip the song
-        },
-      ),
-      IconButton(
         icon: Icon(Icons.delete),
         onPressed: () {
           final noteAudio = _noteAudio;
           if (noteAudio != null) {
             widget.notePageBloc.add(DeleteNoteAudio(noteAudio));
           }
+        },
+      ),
+      IconButton(
+        icon: Icon(Icons.copy),
+        onPressed: () {
+          Clipboard.setData(ClipboardData(text: _noteController.text));
         },
       ),
     ];
@@ -208,6 +222,15 @@ class _AudioTextWidgetState extends State<AudioTextWidget>
           if (noteAudio != null) {
             widget.notePageBloc.add(
                 CutNoteAudio(_noteAudio!, _audioPlayer.position, _audioPlayer));
+          }
+        },
+      ));
+      children.add(IconButton(
+        icon: Icon(Icons.update),
+        onPressed: () {
+          final noteAudio = _noteAudio;
+          if (noteAudio != null) {
+            widget.notePageBloc.add(UpdateMasterAudioContent());
           }
         },
       ));

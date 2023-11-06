@@ -39,8 +39,34 @@ class NotePageBloc extends Bloc<NotePageEvent, NotePageState> {
     if (event is AddNoteAudio) await _addNoteAudio(event, emit);
     if (event is UpdateNoteAudio) await _updateNoteAudio(event, emit);
     if (event is DeleteNoteAudio) await _deleteNoteAudio(event, emit);
+    if (event is UpdateMasterAudioContent) await _updateMasterAudioContent(event, emit);
   }
 
+  Future<void> _updateMasterAudioContent(
+      UpdateMasterAudioContent event, Emitter<NotePageState> emit) async {
+    try {
+      if (state is NotePageLoaded) {
+
+        List<NoteAudio> noteAudioList =
+            new List<NoteAudio>.from((state as NotePageLoaded).note.noteAudios);
+        StringBuffer sb = new StringBuffer();
+        for (var noteAudio in noteAudioList) {
+          if (noteAudio.title != "Master"){
+            sb.writeln(noteAudio.content);
+          }
+        }
+        NoteAudio masterNoteAudio = noteAudioList.first;
+        masterNoteAudio = masterNoteAudio.copyWith(content: sb.toString());
+        await noteAudioRepository.update(masterNoteAudio);
+        noteAudioList[0] = masterNoteAudio;
+        NoteEntity note = state.note.copyEntityWith(noteAudios: noteAudioList);
+        NotePageLoaded loadedState = state as NotePageLoaded;
+        emit(loadedState.copyWith(noteEntity: note));
+      }
+    } catch (e) {
+      emit(NotePageError(initialNote, initialNote));
+    }
+  }
   Future<void> _deleteNoteAudio(
       DeleteNoteAudio event, Emitter<NotePageState> emit) async {
     try {
@@ -63,12 +89,11 @@ class NotePageBloc extends Bloc<NotePageEvent, NotePageState> {
       AddNoteAudio event, Emitter<NotePageState> emit) async {
     try {
       if (state is NotePageLoaded) {
-        Directory dir =await  getApplicationDocumentsDirectory();
+        Directory dir = await getApplicationDocumentsDirectory();
         NoteAudio noteAudioMaster = event.noteAudio.copyWith(title: "Master");
 
         noteAudioMaster = await noteAudioRepository.create(noteAudioMaster);
 
-        
         List<NoteAudio> noteAudioList =
             new List<NoteAudio>.from((state as NotePageLoaded).note.noteAudios);
         noteAudioList.add(noteAudioMaster);
@@ -107,56 +132,60 @@ class NotePageBloc extends Bloc<NotePageEvent, NotePageState> {
     try {
       if (state is NotePageLoaded) {
         File originalFile = File(event.noteAudio.filePath);
-        if (await originalFile.exists()) {
-          int newOrdinal = state.note.noteAudios.length + 1;
 
+        if (await originalFile.exists()) {
           String currentPath = originalFile.path;
           List<String> pathAndExtension = currentPath.split(".");
           String path = pathAndExtension.first;
           String extension = pathAndExtension.last;
 
-          String copiedPath = path + "_copy." + extension;
-          File copiedFile = await originalFile.copy(copiedPath);
+          int secondsInFourBars = event.position.inSeconds;
+          int secondsInSong = event.audioPlayer.duration?.inSeconds ?? 0;
+          int totalClips = secondsInSong ~/ secondsInFourBars;
 
-          String outputOne = "${path}_${(newOrdinal).toString()}.$extension";
+          List<NoteAudio> noteAudiosToCreate = [];
 
-          Duration startCutDuration = Duration.zero;
-          if (state.note.noteAudios.length > 1) {
-            startCutDuration = state.note.noteAudios.last.originalCutEnd;
-            if (startCutDuration > Duration(seconds: 2))
-              startCutDuration = startCutDuration - Duration(seconds: 2);
-            print(startCutDuration);
+          Duration twoSeconds = Duration(seconds: 2);
+          for (int i = 1; totalClips >= i; i++) {
+            int newOrdinal = i;
+            String noteAudioPath = path +
+                "${(newOrdinal).toString()}_${event.noteAudio.id.toString()}.$extension";
+            File noteAudioFile = File(noteAudioPath);
+            Duration startCutDuration =
+                Duration(seconds: secondsInFourBars * (i - 1));
+            Duration endCutDuration = Duration(seconds: secondsInFourBars * i);
+            endCutDuration = endCutDuration + twoSeconds;
+            if (i > 1 && startCutDuration > Duration(seconds: 2)) {
+              startCutDuration = startCutDuration - twoSeconds;
+            }
+            if (i == totalClips) {
+              endCutDuration = Duration(seconds: secondsInSong);
+            }
+            String startCut = Formatter.formatDuration(startCutDuration);
+            String endCut = Formatter.formatDuration(endCutDuration);
+
+            await FFmpegKit.execute(
+                '-i "${originalFile.path}" -ss ${startCut} -to ${endCut} -c copy "${noteAudioPath}" -y');
+
+            NoteAudio newAudio = NoteAudio.fromCopy(
+                noteAudioPath,
+                event.noteAudio.noteId,
+                "",
+                startCutDuration,
+                event.position,
+                newOrdinal,
+                "Part " + (newOrdinal - 1).toString());
+            newAudio = await noteAudioRepository.create(newAudio);
+            await noteAudioRepository.update(
+                newAudio.copyWith(title: "Part " + newAudio.id.toString()));
+            noteAudiosToCreate.add(newAudio);
           }
-
-          Duration endCutDuration = event.position;
-          String startCut = Formatter.formatDuration(startCutDuration);
-          String endCut =
-              Formatter.formatDuration(endCutDuration, Duration(seconds: 1));
-
-          if (state.note.noteAudios.length > 1) {
-            startCut = Formatter.formatDuration(
-                startCutDuration, Duration(seconds: -1));
-          }
-
-          await FFmpegKit.execute(
-              '-i "${copiedFile.path}" -ss ${startCut} -to ${endCut} -c copy "${outputOne}" -y');
-          NoteAudio newAudio = NoteAudio.fromCopy(
-              outputOne,
-              event.noteAudio.noteId,
-              "",
-              startCutDuration,
-              event.position,
-              newOrdinal,
-              "Part " + (newOrdinal - 1).toString());
-
           try {
             if (state is NotePageLoaded) {
-              newAudio = await noteAudioRepository.create(newAudio);
-              await noteAudioRepository.update(
-                  newAudio.copyWith(title: "Part " + newAudio.id.toString()));
               List<NoteAudio> noteAudioList = new List<NoteAudio>.from(
                   (state as NotePageLoaded).note.noteAudios);
-              noteAudioList.add(newAudio);
+              noteAudioList.addAll(noteAudiosToCreate);
+
               NoteEntity note =
                   state.note.copyEntityWith(noteAudios: noteAudioList);
               NotePageLoaded loadedState = state as NotePageLoaded;
@@ -165,6 +194,7 @@ class NotePageBloc extends Bloc<NotePageEvent, NotePageState> {
           } catch (e) {
             emit(NotePageError(initialNote, initialNote));
           }
+
           print("File exists!");
         } else {
           print("File isn't real");
