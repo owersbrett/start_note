@@ -132,7 +132,7 @@ class HomePage extends StatelessWidget {
                 Container(
                   width: MediaQuery.of(context).size.width,
                   height: MediaQuery.of(context).size.height / 10,
-                  color: Theme.of(context).bottomAppBarColor,
+                  color: Theme.of(context).bottomAppBarTheme.color,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Row(
